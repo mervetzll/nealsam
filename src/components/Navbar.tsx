@@ -9,7 +9,7 @@ const navItems = [
   { href: "/deneyim", label: "Deneyim" },
   { href: "/paketler", label: "Paketler" },
   { href: "/yardim", label: "Yardım" },
-  { href: "/blog", label: "Hediye Rehberi" },
+  { href: "/blog", label: "Rehber" },
 ];
 
 export default function Navbar() {
@@ -17,15 +17,15 @@ export default function Navbar() {
 
   return (
     <header className="w-full border-b border-[#eadede] bg-[#fff7f3]">
-      <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-5">
+      <div className="mx-auto flex max-w-7xl items-center px-6 py-4">
         <Link
           href="/"
-          className="text-4xl font-extrabold tracking-tight text-[#b83280]"
+          className="mr-8 shrink-0 text-3xl font-extrabold tracking-tight text-[#b83280]"
         >
           NeAlsam
         </Link>
 
-        <nav className="flex flex-1 items-center gap-3">
+        <nav className="flex flex-1 items-center justify-end gap-3 overflow-x-auto">
           {navItems.map((item) => {
             const isActive =
               item.href === "/"
@@ -36,7 +36,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-full px-6 py-3 text-base font-bold transition ${
+                className={`flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-5 text-sm font-bold leading-none transition ${
                   isActive
                     ? "bg-[#b83280] text-white"
                     : "bg-white text-[#2b1b1b] hover:bg-[#fff0f7] hover:text-[#b83280]"
@@ -49,7 +49,7 @@ export default function Navbar() {
 
           <Link
             href="/giris"
-            className={`ml-auto rounded-full px-6 py-3 text-base font-bold transition ${
+            className={`ml-2 flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-5 text-sm font-bold leading-none transition ${
               pathname === "/giris"
                 ? "bg-[#b83280] text-white"
                 : "bg-[#fff0f7] text-[#b83280] hover:bg-[#b83280] hover:text-white"
