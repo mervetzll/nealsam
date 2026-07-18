@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const stats = [
   {
@@ -25,32 +25,17 @@ const stats = [
   },
 ];
 
-const gifts = [
-  {
-    title: "Kişiye Özel Kupa",
-    category: "Kahve",
-    budget: "250–500 TL",
-    status: "Aktif",
-  },
-  {
-    title: "Mini Parfüm Seti",
-    category: "Beauty",
-    budget: "500–1000 TL",
-    status: "Kontrol",
-  },
-  {
-    title: "Kablosuz Kulaklık",
-    category: "Teknoloji",
-    budget: "1000–2500 TL",
-    status: "Aktif",
-  },
-  {
-    title: "Okuma Lambası Seti",
-    category: "Kitap",
-    budget: "250–500 TL",
-    status: "Aktif",
-  },
-];
+type AdminGift = {
+  id: string;
+  title: string;
+  category: string;
+  sub_category: string;
+  price_min: number;
+  price_max: number;
+  risk_level: string;
+  is_active: boolean;
+  created_at: string;
+};
 
 const blogPosts = [
   {
@@ -129,6 +114,25 @@ const tabs = [
 ];
 
 export default function AdminClient() {
+  const [adminGifts, setAdminGifts] = useState<AdminGift[]>([]);
+  const [isGiftLoading, setIsGiftLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadGifts() {
+      try {
+        const response = await fetch("/api/admin-gifts");
+        const data = await response.json();
+
+        setAdminGifts(data.gifts || []);
+      } catch (error) {
+        console.error("Hediyeler yüklenemedi:", error);
+      } finally {
+        setIsGiftLoading(false);
+      }
+    }
+
+    loadGifts();
+  }, []);
   async function handleLogout() {
     await fetch("/api/admin-logout", {
       method: "POST",
@@ -141,12 +145,12 @@ export default function AdminClient() {
   const [giftSearch, setGiftSearch] = useState("");
 
   const filteredGifts = useMemo(() => {
-    return gifts.filter((gift) =>
-      `${gift.title} ${gift.category} ${gift.budget}`
+    return adminGifts.filter((gift) =>
+      `${gift.title} ${gift.category} ${gift.sub_category} ${gift.price_min} ${gift.price_max}`
         .toLocaleLowerCase("tr")
         .includes(giftSearch.toLocaleLowerCase("tr"))
     );
-  }, [giftSearch]);
+  }, [adminGifts, giftSearch]);
 
 
   return (
@@ -282,13 +286,18 @@ export default function AdminClient() {
               />
             </div>
 
-            <div className="mt-6 overflow-hidden rounded-3xl border border-[#f0d7df]">
-              <table className="w-full border-collapse text-left text-sm">
+            {isGiftLoading ? (
+              <div className="mt-6 rounded-3xl bg-[#fffaf7] p-6 text-sm font-bold text-[#b83280]">
+                Hediyeler yükleniyor...
+              </div>
+            ) : (
+              <div className="mt-6 overflow-hidden rounded-3xl border border-[#f0d7df]">
+                <table className="w-full border-collapse text-left text-sm">
                 <thead className="bg-[#fff0f7] text-[#b83280]">
                   <tr>
                     <th className="p-4">Hediye</th>
                     <th className="p-4">Kategori</th>
-                    <th className="p-4">Bütçe</th>
+                    <th className="p-4">Fiyat</th>
                     <th className="p-4">Durum</th>
                   </tr>
                 </thead>
@@ -296,25 +305,27 @@ export default function AdminClient() {
                   {filteredGifts.map((gift) => (
                     <tr key={gift.title} className="border-t border-[#f0d7df]">
                       <td className="p-4 font-bold">{gift.title}</td>
-                      <td className="p-4">{gift.category}</td>
-                      <td className="p-4">{gift.budget}</td>
+                      <td className="p-4">
+                        {gift.category} / {gift.sub_category}
+                      </td>
+                      <td className="p-4">
+                        {gift.price_min}–{gift.price_max} TL
+                      </td>
                       <td className="p-4">
                         <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
-                          {gift.status}
+                          {gift.is_active ? "Aktif" : "Pasif"}
                         </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+                </table>
+              </div>
+            )}
 
             <p className="mt-4 text-sm leading-6 text-[#6b4b4b]">
-              Bu tablo şimdilik örnek veri gösteriyor. Sonraki aşamada
-              <code className="mx-1 rounded bg-[#fff0f7] px-2 py-1">
-                src/data/gifts.ts
-              </code>
-              dosyasındaki gerçek hediyeleri buraya bağlayabiliriz.
+              Bu tablo artık Supabase veritabanındaki gerçek hediye verilerini gösteriyor.
+              Toplam görünen hediye sayısı: <strong>{filteredGifts.length}</strong>
             </p>
           </div>
         )}
