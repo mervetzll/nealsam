@@ -11,45 +11,51 @@ const budgetRanges: Record<string, { min: number; max: number }> = {
 
 const avoidRules: Record<string, string[]> = {
   "Beden/numara riski olmasın": [
-    "Giyim",
-    "Moda",
-    "Şal",
-    "Eşarp",
-    "Ayakkabı",
-    "Beden",
+    "Giyim aksesuarı",
+    "Şık şal veya eşarp",
+    "Tote bag",
   ],
   "Koku seçimi gerektirmesin": [
-    "Parfüm",
     "Koku",
-    "Mum",
-    "Oda kokusu",
+    "Koku/dekor",
+    "Parfüm ve vücut spreyi seti",
+    "Dekoratif mum ve oda kokusu seti",
   ],
   "Renk/ton seçimi gerektirmesin": [
-    "Makyaj",
-    "Ruj",
-    "Fondöten",
-    "Oje",
-    "Renk",
-    "Ton",
+    "Makyaj ürünü",
+    "Mini makyaj seti",
+    "Şık şal veya eşarp",
   ],
   "Kırılabilir olmasın": [
-    "Kupa",
-    "Fincan",
-    "Cam",
-    "Seramik",
-    "Dekorasyon",
-    "Çerçeve",
+    "Ev ürünü",
+    "Kahve fincan takımı",
+    "Kişiye özel kahve kupası",
+    "Çiçek ve not kartı",
+  ],
+  "Dijital hediye olmasın": [
+    "Dijital hediye",
+    "Steam / PlayStation / Xbox hediye kartı",
+    "Hediye kartı",
+  ],
+  "Elektronik olmasın": [
+    "Teknoloji",
+    "Elektronik",
+    "Bluetooth hoparlör",
+    "Kablosuz şarj standı",
+    "Powerbank",
   ],
   "Çok romantik olmasın": [
     "Romantik",
-    "Sevgililer Günü",
     "Yıl dönümü",
+    "Sevgililer Günü",
+    "Spotify kodlu tablo",
   ],
   "Kişiye özel olmasın": [
     "Kişiye özel",
-    "İsimli",
-    "Fotoğraflı",
-    "Spotify kodlu",
+    "Kişiye özel kahve kupası",
+    "Spotify kodlu tablo",
+    "Kişiye özel illüstrasyon",
+    "Pasaport kılıfı ve bagaj etiketi",
   ],
 };
 
@@ -144,7 +150,7 @@ function giftContainsValue(gift: Gift, value: string) {
 function isAvoidedGift(gift: Gift, avoidOptions: string[]) {
   if (avoidOptions.includes("Fark etmez")) return false;
 
-  if (avoidOptions.includes("Son dakika alınabilir olsun")) {
+  if (avoidOptions.includes("Son dakika uygun olsun")) {
     const isFastGift =
       gift.urgency.includes("Bugün lazım") ||
       gift.urgency.includes("1–2 gün içinde");
@@ -155,7 +161,7 @@ function isAvoidedGift(gift: Gift, avoidOptions: string[]) {
   }
 
   return avoidOptions.some((avoidOption) => {
-    if (avoidOption === "Son dakika alınabilir olsun") return false;
+    if (avoidOption === "Son dakika uygun olsun") return false;
 
     const blockedValues = avoidRules[avoidOption] || [];
 
@@ -273,7 +279,7 @@ export function getGiftResults(
       score += 3;
     }
 
-    if (avoidOptions.includes("Son dakika alınabilir olsun")) {
+    if (avoidOptions.includes("Son dakika uygun olsun")) {
       if (
         gift.urgency.includes("Bugün lazım") ||
         gift.urgency.includes("1–2 gün içinde")
