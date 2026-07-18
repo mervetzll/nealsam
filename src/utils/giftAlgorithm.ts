@@ -1,0 +1,461 @@
+import type { Gift, RiskLevel, ScoredGift } from "@/types/gift";
+import { gifts } from "@/data/gifts";
+
+const budgetRanges: Record<string, { min: number; max: number }> = {
+  "0–250 TL": { min: 0, max: 250 },
+  "250–500 TL": { min: 250, max: 500 },
+  "500–1000 TL": { min: 500, max: 1000 },
+  "1000–2500 TL": { min: 1000, max: 2500 },
+  "2500 TL+": { min: 2500, max: 999999 },
+};
+
+const avoidRules: Record<string, string[]> = {
+  "Beden/numara riski olmasın": [
+    "Giyim aksesuarı",
+    "Şık şal veya eşarp",
+    "Tote bag",
+  ],
+  "Koku seçimi gerektirmesin": [
+    "Koku",
+    "Koku/dekor",
+    "Parfüm ve vücut spreyi seti",
+    "Dekoratif mum ve oda kokusu seti",
+  ],
+  "Renk/ton seçimi gerektirmesin": [
+    "Makyaj ürünü",
+    "Mini makyaj seti",
+    "Şık şal veya eşarp",
+  ],
+  "Kırılabilir olmasın": [
+    "Ev ürünü",
+    "Kahve fincan takımı",
+    "Kişiye özel kahve kupası",
+    "Çiçek ve not kartı",
+  ],
+  "Dijital hediye olmasın": [
+    "Dijital hediye",
+    "Steam / PlayStation / Xbox hediye kartı",
+    "Hediye kartı",
+  ],
+  "Elektronik olmasın": [
+    "Teknoloji",
+    "Elektronik",
+    "Bluetooth hoparlör",
+    "Kablosuz şarj standı",
+    "Powerbank",
+  ],
+  "Çok romantik olmasın": [
+    "Romantik",
+    "Yıl dönümü",
+    "Sevgililer Günü",
+    "Spotify kodlu tablo",
+  ],
+  "Kişiye özel olmasın": [
+    "Kişiye özel",
+    "Kişiye özel kahve kupası",
+    "Spotify kodlu tablo",
+    "Kişiye özel illüstrasyon",
+    "Pasaport kılıfı ve bagaj etiketi",
+  ],
+};
+
+const interestCategoryMap: Record<string, string[]> = {
+  Makyaj: ["Beauty", "Moda"],
+  "Cilt bakımı": ["Beauty", "Ev dekorasyonu"],
+  Kahve: ["Kahve", "Kitap", "Deneyim", "Klasik"],
+  Kitap: ["Kitap", "Kırtasiye", "Kahve", "Klasik"],
+  Teknoloji: ["Teknoloji", "Oyun", "Seyahat"],
+  Oyun: ["Oyun", "Teknoloji", "Deneyim"],
+  Spor: ["Spor", "Teknoloji", "Seyahat"],
+  Moda: ["Moda", "Takı", "Beauty"],
+  Takı: ["Takı", "Moda", "Klasik"],
+  "Ev dekorasyonu": ["Ev dekorasyonu", "Kahve", "Beauty", "Klasik"],
+  Seyahat: ["Seyahat", "Teknoloji", "Deneyim", "Spor"],
+  Müzik: ["Müzik", "Teknoloji", "Deneyim", "Ev dekorasyonu"],
+};
+
+export function getPriceText(gift: Gift) {
+  if (gift.priceMax >= 999999) {
+    return `${gift.priceMin} TL+`;
+  }
+
+  return `${gift.priceMin}–${gift.priceMax} TL`;
+}
+
+export function getRiskLabel(risk: RiskLevel) {
+  if (risk === "low") return "Düşük riskli";
+  if (risk === "medium") return "Orta riskli";
+  return "Riskli seçim";
+}
+
+export function makeSearchUrl(
+  platform: "google" | "trendyol" | "amazon" | "hepsiburada",
+  query: string
+) {
+  const encodedQuery = encodeURIComponent(query);
+
+  return `/go?platform=${platform}&q=${encodedQuery}`;
+}
+
+
+function getBudgetMatchScore(gift: Gift, budget?: string) {
+  if (!budget) return 0;
+
+  const range = budgetRanges[budget];
+  if (!range) return 0;
+
+  const overlaps = gift.priceMin <= range.max && gift.priceMax >= range.min;
+  const fullyInside = gift.priceMin >= range.min && gift.priceMax <= range.max;
+
+  if (fullyInside) return 8;
+  if (overlaps) return 4;
+  return -8;
+}
+
+function getRiskScore(risk: RiskLevel) {
+  if (risk === "low") return 4;
+  if (risk === "medium") return 1;
+  return -3;
+}
+
+function getAllowedCategories(interests: string[]) {
+  const allowed = new Set<string>();
+
+  interests.forEach((interest) => {
+    const categories = interestCategoryMap[interest] || [];
+    categories.forEach((category) => allowed.add(category));
+  });
+
+  return Array.from(allowed);
+}
+
+function textIncludes(source: string, target: string) {
+  return source.toLocaleLowerCase("tr").includes(target.toLocaleLowerCase("tr"));
+}
+
+function giftContainsValue(gift: Gift, value: string) {
+  const searchableValues = [
+    gift.title,
+    gift.category,
+    gift.subCategory,
+    ...gift.interests,
+    ...gift.styles,
+    ...gift.occasions,
+    ...gift.urgency,
+  ];
+
+  return searchableValues.some((item) => textIncludes(item, value));
+}
+
+function isAvoidedGift(gift: Gift, avoidOptions: string[]) {
+  if (avoidOptions.includes("Fark etmez")) return false;
+
+  if (avoidOptions.includes("Son dakika uygun olsun")) {
+    const isFastGift =
+      gift.urgency.includes("Bugün lazım") ||
+      gift.urgency.includes("1–2 gün içinde");
+
+    if (!isFastGift) {
+      return true;
+    }
+  }
+
+  return avoidOptions.some((avoidOption) => {
+    if (avoidOption === "Son dakika uygun olsun") return false;
+
+    const blockedValues = avoidRules[avoidOption] || [];
+
+    return blockedValues.some((blockedValue) =>
+      giftContainsValue(gift, blockedValue)
+    );
+  });
+}
+
+export function getGiftResults(
+  answers: string[][],
+  blockedTitles: string[]
+): ScoredGift[] {
+  const recipient = answers[0]?.[0];
+  const budget = answers[1]?.[0];
+  const occasion = answers[2]?.[0];
+  const interests = answers[3] || [];
+  const style = answers[4]?.[0];
+  const urgency = answers[5]?.[0];
+  const avoidOptions = answers[6] || [];
+
+  const hasInterests = interests.length > 0;
+  const allowedCategories = getAllowedCategories(interests);
+
+  const strictFiltered = gifts.filter((gift) => {
+    if (blockedTitles.includes(gift.title)) return false;
+    if (isAvoidedGift(gift, avoidOptions)) return false;
+
+    const matchesRecipient = recipient
+      ? gift.recipients.includes(recipient) || recipient === "Diğer"
+      : true;
+
+    const matchesInterest = interests.some((interest) =>
+      gift.interests.includes(interest)
+    );
+
+    const matchesAllowedCategory =
+      allowedCategories.length === 0 ||
+      allowedCategories.includes(gift.category);
+
+    if (hasInterests) {
+      return matchesRecipient && matchesInterest && matchesAllowedCategory;
+    }
+
+    return matchesRecipient;
+  });
+
+  const categoryFallback = gifts.filter((gift) => {
+    if (blockedTitles.includes(gift.title)) return false;
+    if (isAvoidedGift(gift, avoidOptions)) return false;
+
+    const matchesRecipient = recipient
+      ? gift.recipients.includes(recipient) || recipient === "Diğer"
+      : true;
+
+    const matchesAllowedCategory =
+      allowedCategories.length === 0 ||
+      allowedCategories.includes(gift.category);
+
+    return matchesRecipient && matchesAllowedCategory;
+  });
+
+  const safeFallback = gifts.filter((gift) => {
+    if (blockedTitles.includes(gift.title)) return false;
+    if (isAvoidedGift(gift, avoidOptions)) return false;
+    return true;
+  });
+
+  const giftsToScore =
+    strictFiltered.length >= 5
+      ? strictFiltered
+      : categoryFallback.length >= 5
+      ? categoryFallback
+      : safeFallback.length > 0
+      ? safeFallback
+      : gifts.filter((gift) => !blockedTitles.includes(gift.title));
+
+  const scored: ScoredGift[] = giftsToScore.map((gift) => {
+    let score = 0;
+
+    interests.forEach((interest) => {
+      if (gift.interests.includes(interest)) {
+        score += 24;
+      }
+    });
+
+    if (allowedCategories.includes(gift.category)) {
+      score += 12;
+    }
+
+    if (recipient && gift.recipients.includes(recipient)) {
+      score += 8;
+    }
+
+    if (style && gift.styles.includes(style)) {
+      score += 7;
+    }
+
+    if (occasion && gift.occasions.includes(occasion)) {
+      score += 5;
+    }
+
+    if (urgency && gift.urgency.includes(urgency)) {
+      score += 5;
+    }
+
+    score += getBudgetMatchScore(gift, budget);
+    score += getRiskScore(gift.riskLevel);
+
+    if (urgency === "Bugün lazım" && gift.riskLevel === "low") {
+      score += 3;
+    }
+
+    if (urgency === "Zamanım var" && gift.styles.includes("Kişiye özel")) {
+      score += 3;
+    }
+
+    if (avoidOptions.includes("Son dakika uygun olsun")) {
+      if (
+        gift.urgency.includes("Bugün lazım") ||
+        gift.urgency.includes("1–2 gün içinde")
+      ) {
+        score += 10;
+      }
+    }
+
+    if (isAvoidedGift(gift, avoidOptions)) {
+      score -= 100;
+    }
+
+    const matchPercent = Math.max(55, Math.min(98, 50 + score));
+
+    return { ...gift, score, matchPercent };
+  });
+
+  return scored.sort((a, b) => b.score - a.score).slice(0, 10);
+}
+
+type SpecialStore =
+  | "sephora"
+  | "watsons"
+  | "gratis"
+  | "thepurest"
+  | "nars"
+  | "maybelline";
+
+type SpecialStoreLink = {
+  label: string;
+  platform: SpecialStore;
+  query: string;
+};
+
+function includesAny(values: string[], keywords: string[]) {
+  const joined = values.join(" ").toLocaleLowerCase("tr");
+
+  return keywords.some((keyword) =>
+    joined.includes(keyword.toLocaleLowerCase("tr"))
+  );
+}
+
+export function makeSpecialStoreUrl(platform: SpecialStore, query: string) {
+  return `/go?platform=${platform}&q=${encodeURIComponent(query)}`;
+}
+
+export function getSpecialStoreLinks(gift: Gift): SpecialStoreLink[] {
+  const values = [
+    gift.title,
+    gift.category,
+    gift.subCategory,
+    ...gift.interests,
+    ...gift.styles,
+    gift.searchQuery,
+  ];
+
+  const isBeauty = includesAny(values, [
+    "beauty",
+    "makyaj",
+    "cilt",
+    "kozmetik",
+    "parfüm",
+    "bakım",
+    "serum",
+    "nemlendirici",
+    "güneş kremi",
+  ]);
+
+  const isMakeup = includesAny(values, [
+    "makyaj",
+    "ruj",
+    "maskara",
+    "fondöten",
+    "allık",
+    "far",
+    "lip",
+    "concealer",
+  ]);
+
+  const isSkincare = includesAny(values, [
+    "cilt",
+    "bakım",
+    "serum",
+    "nemlendirici",
+    "temizleyici",
+    "tonik",
+    "güneş kremi",
+    "the purest",
+  ]);
+
+  if (!isBeauty && !isMakeup && !isSkincare) {
+    return [];
+  }
+
+  const stores: SpecialStoreLink[] = [];
+
+  if (isMakeup) {
+    stores.push(
+      {
+        label: "Sephora'da ara",
+        platform: "sephora",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Watsons'ta ara",
+        platform: "watsons",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Gratis'te ara",
+        platform: "gratis",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Nars ürünlerine bak",
+        platform: "nars",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Maybelline ürünlerine bak",
+        platform: "maybelline",
+        query: gift.searchQuery,
+      }
+    );
+  }
+
+  if (isSkincare) {
+    stores.push(
+      {
+        label: "The Purest ürünlerine bak",
+        platform: "thepurest",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Watsons'ta ara",
+        platform: "watsons",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Gratis'te ara",
+        platform: "gratis",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Sephora'da ara",
+        platform: "sephora",
+        query: gift.searchQuery,
+      }
+    );
+  }
+
+  if (stores.length === 0) {
+    stores.push(
+      {
+        label: "Watsons'ta ara",
+        platform: "watsons",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Gratis'te ara",
+        platform: "gratis",
+        query: gift.searchQuery,
+      },
+      {
+        label: "Sephora'da ara",
+        platform: "sephora",
+        query: gift.searchQuery,
+      }
+    );
+  }
+
+  const unique = new Map<string, SpecialStoreLink>();
+
+  stores.forEach((store) => {
+    unique.set(store.platform, store);
+  });
+
+  return Array.from(unique.values()).slice(0, 5);
+}
