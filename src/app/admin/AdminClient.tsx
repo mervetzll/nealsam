@@ -129,6 +129,14 @@ const tabs = [
 ];
 
 export default function AdminClient() {
+  async function handleLogout() {
+    await fetch("/api/admin-logout", {
+      method: "POST",
+    });
+
+    window.location.href = "/admin/login";
+  }
+
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [giftSearch, setGiftSearch] = useState("");
 
@@ -162,12 +170,12 @@ export default function AdminClient() {
               Siteye dön
             </a>
 
-            <a
-              href="/"
+            <button
+              onClick={handleLogout}
               className="rounded-full bg-[#b83280] px-5 py-3 text-sm font-bold text-white"
             >
-              Ana sayfa
-            </a>
+              Çıkış yap
+            </button>
           </div>
         </div>
 

@@ -5,30 +5,28 @@ export const config = {
 };
 
 export function proxy(request: NextRequest) {
-  const basicAuth = request.headers.get("authorization");
+  const { pathname } = request.nextUrl;
 
-  const adminUser = process.env.ADMIN_USER;
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  const sessionSecret = process.env.ADMIN_SESSION_SECRET;
+  const sessionCookie = request.cookies.get("nealsam_admin_session")?.value;
 
-  if (!adminUser || !adminPassword) {
-    return new NextResponse("Admin configuration is missing.", {
+  if (pathname === "/admin/login") {
+    if (sessionSecret && sessionCookie === sessionSecret) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+
+    return NextResponse.next();
+  }
+
+  if (!sessionSecret) {
+    return new NextResponse("Admin session configuration is missing.", {
       status: 500,
     });
   }
 
-  if (basicAuth) {
-    const authValue = basicAuth.split(" ")[1];
-    const [user, password] = atob(authValue).split(":");
-
-    if (user === adminUser && password === adminPassword) {
-      return NextResponse.next();
-    }
+  if (sessionCookie === sessionSecret) {
+    return NextResponse.next();
   }
 
-  return new NextResponse("Authentication required.", {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="NeAlsam Admin"',
-    },
-  });
+  return NextResponse.redirect(new URL("/admin/login", request.url));
 }
