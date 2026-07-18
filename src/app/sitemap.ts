@@ -3,36 +3,24 @@ import type { MetadataRoute } from "next";
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://nealsamhediye.netlify.app";
 
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/hediye-bul`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/deneyim`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/paketler`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/yardim`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
+  const routes = [
+    "",
+    "/hediye-bul",
+    "/deneyim",
+    "/paketler",
+    "/yardim",
+    "/blog",
+    "/blog/sevgiliye-ne-hediye-alinir",
+    "/blog/anneye-dogum-gunu-hediyesi",
+    "/blog/arkadasa-hediye-fikirleri",
+    "/blog/500-tl-alti-hediye-onerileri",
+    "/blog/kime-ne-hediye-alinir",
   ];
+
+  return routes.map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: route === "" ? 1 : route === "/hediye-bul" ? 0.9 : 0.7,
+  }));
 }
