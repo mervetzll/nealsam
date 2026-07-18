@@ -4,7 +4,7 @@ export const config = {
   matcher: ["/admin/:path*"],
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const basicAuth = request.headers.get("authorization");
 
   const adminUser = process.env.ADMIN_USER;

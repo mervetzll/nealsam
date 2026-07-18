@@ -2,8 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-const ADMIN_PASSWORD = "disabled";
-
 const stats = [
   {
     title: "Toplam Hediye Fikri",
@@ -131,8 +129,6 @@ const tabs = [
 ];
 
 export default function AdminClient() {
-  const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [giftSearch, setGiftSearch] = useState("");
 
@@ -144,61 +140,6 @@ export default function AdminClient() {
     );
   }, [giftSearch]);
 
-  function handleLogin() {
-    if (password === ADMIN_PASSWORD) {
-      setIsLoggedIn(true);
-      return;
-    }
-
-    alert("Şifre yanlış.");
-  }
-
-  if (!isLoggedIn) {
-    return (
-      <main className="min-h-screen bg-[#fff7f3] px-6 py-12 text-[#2b1b1b]">
-        <section className="mx-auto flex min-h-[70vh] max-w-xl items-center">
-          <div className="w-full rounded-[2rem] bg-white p-8 shadow-sm">
-            <p className="text-sm font-bold text-[#b83280]">NeAlsam Admin</p>
-
-            <h1 className="mt-3 text-4xl font-extrabold">
-              Yönetim paneli girişi
-            </h1>
-
-            <p className="mt-4 leading-7 text-[#6b4b4b]">
-              Admin paneline devam etmek için şifre gir.
-            </p>
-
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") handleLogin();
-              }}
-              placeholder="Admin şifresi"
-              className="mt-6 w-full rounded-2xl border border-[#f0d7df] bg-[#fffaf7] px-5 py-4 outline-none focus:border-[#b83280]"
-            />
-
-            <button
-              onClick={handleLogin}
-              className="mt-5 w-full rounded-full bg-[#b83280] px-6 py-4 font-bold text-white"
-            >
-              Admin paneline gir
-            </button>
-
-            <a
-              href="/"
-              className="mt-5 block text-center text-sm font-bold text-[#b83280]"
-            >
-              Ana sayfaya dön
-            </a>
-
-
-          </div>
-        </section>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-[#fff7f3] px-6 py-8 text-[#2b1b1b]">
@@ -221,12 +162,12 @@ export default function AdminClient() {
               Siteye dön
             </a>
 
-            <button
-              onClick={() => setIsLoggedIn(false)}
+            <a
+              href="/"
               className="rounded-full bg-[#b83280] px-5 py-3 text-sm font-bold text-white"
             >
-              Çıkış yap
-            </button>
+              Ana sayfa
+            </a>
           </div>
         </div>
 
