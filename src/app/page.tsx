@@ -343,6 +343,72 @@ export default function Home() {
           </div>
         </section>
       </section>
-    </main>
+    
+        <section id="blog" className="py-16">
+          <div className="rounded-[2rem] bg-white p-8 shadow-sm">
+            <p className="text-sm font-bold text-[#b83280]">
+              Hediye Rehberi Blog
+            </p>
+
+            <h2 className="mt-3 text-4xl font-extrabold">
+              Kime ne hediye alınır?
+            </h2>
+
+            <p className="mt-4 max-w-3xl leading-7 text-[#6b4b4b]">
+              Sevgiliye, anneye, arkadaşa ve bütçeye göre hediye seçme
+              rehberleriyle doğru hediyeyi daha kolay bulabilirsin.
+            </p>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              <a
+                href="/blog/sevgiliye-ne-hediye-alinir"
+                className="rounded-3xl bg-[#fffaf7] p-5 transition hover:-translate-y-1 hover:shadow-md"
+              >
+                <p className="text-sm font-bold text-[#b83280]">Rehber</p>
+                <h3 className="mt-2 text-xl font-extrabold">
+                  Sevgiliye Ne Hediye Alınır?
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+                  Romantik, kullanışlı ve kişiye özel sevgili hediyesi fikirleri.
+                </p>
+              </a>
+
+              <a
+                href="/blog/anneye-dogum-gunu-hediyesi"
+                className="rounded-3xl bg-[#fffaf7] p-5 transition hover:-translate-y-1 hover:shadow-md"
+              >
+                <p className="text-sm font-bold text-[#b83280]">Rehber</p>
+                <h3 className="mt-2 text-xl font-extrabold">
+                  Anneye Doğum Günü Hediyesi
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+                  Anneye alınabilecek duygusal, zarif ve kullanışlı hediyeler.
+                </p>
+              </a>
+
+              <a
+                href="/blog/500-tl-alti-hediye-onerileri"
+                className="rounded-3xl bg-[#fffaf7] p-5 transition hover:-translate-y-1 hover:shadow-md"
+              >
+                <p className="text-sm font-bold text-[#b83280]">Rehber</p>
+                <h3 className="mt-2 text-xl font-extrabold">
+                  500 TL Altı Hediye Önerileri
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+                  Uygun fiyatlı ama anlamlı hediye fikirleri.
+                </p>
+              </a>
+            </div>
+
+            <a
+              href="/blog"
+              className="mt-8 inline-block rounded-full bg-[#b83280] px-6 py-3 font-bold text-white"
+            >
+              Tüm hediye rehberlerini gör
+            </a>
+          </div>
+        </section>
+
+</main>
   );
 }

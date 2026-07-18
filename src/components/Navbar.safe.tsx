@@ -59,10 +59,6 @@ export default function Navbar() {
           {isLoggedIn ? "Hesabım" : "Giriş Yap"}
         </Link>
       </div>
-    
-          <a href="/blog" className="hover:text-[#b83280]">
-            Blog
-          </a>
-</nav>
+    </nav>
   );
 }
