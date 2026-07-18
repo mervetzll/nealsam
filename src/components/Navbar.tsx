@@ -1,68 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { label: "Ana Sayfa", href: "/" },
-  { label: "Hediye Bul", href: "/hediye-bul" },
-  { label: "Deneyim", href: "/deneyim" },
-  { label: "Paketler", href: "/paketler" },
-  { label: "Yardım", href: "/yardim" },
+  { href: "/", label: "Ana Sayfa" },
+  { href: "/hediye-bul", label: "Hediye Bul" },
+  { href: "/deneyim", label: "Deneyim" },
+  { href: "/paketler", label: "Paketler" },
+  { href: "/yardim", label: "Yardım" },
+  { href: "/blog", label: "Hediye Rehberi" },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(Boolean(localStorage.getItem("nealsam_user")));
-  }, [pathname]);
 
   return (
-    <nav className="mx-auto mb-8 flex max-w-6xl flex-col gap-4 px-4 pt-5 text-[#2b1b1b] sm:px-6 md:flex-row md:items-center md:justify-between">
-      <Link href="/" className="text-3xl font-black text-[#b83280]">
-        NeAlsam
-      </Link>
-
-      <div className="flex gap-2 overflow-x-auto pb-2 text-sm font-bold md:flex-wrap md:overflow-visible md:pb-0">
-        {navItems.map((item) => {
-          const isActive =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`shrink-0 rounded-full px-4 py-3 transition ${
-                isActive
-                  ? "bg-[#b83280] text-white"
-                  : "bg-white text-[#2b1b1b] hover:bg-[#fff0f7]"
-              }`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-
+    <header className="w-full border-b border-[#eadede] bg-[#f7efec]">
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-6">
         <Link
-          href={isLoggedIn ? "/hesabim" : "/giris"}
-          className={`shrink-0 rounded-full px-4 py-3 transition ${
-            pathname.startsWith("/hesabim") || pathname.startsWith("/giris")
-              ? "bg-[#2b1b1b] text-white"
-              : "bg-[#fff0f7] text-[#b83280] hover:bg-white"
-          }`}
+          href="/"
+          className="text-5xl font-extrabold tracking-tight text-[#b13d86]"
         >
-          {isLoggedIn ? "Hesabım" : "Giriş Yap"}
+          NeAlsam
         </Link>
+
+        <nav className="ml-6 flex flex-1 items-center gap-4">
+          {navItems.map((item) => {
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname === item.href || pathname.startsWith(item.href + "/");
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-full px-8 py-5 text-2xl font-bold transition ${
+                  isActive
+                    ? "bg-[#b13d86] text-white"
+                    : "bg-[#f4f1f1] text-[#2d1f1f] hover:bg-[#efe7ea]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+
+          <Link
+            href="/giris"
+            className={`ml-auto rounded-full px-8 py-5 text-2xl font-bold transition ${
+              pathname === "/giris"
+                ? "bg-[#f0d8e9] text-[#b13d86]"
+                : "bg-[#f6ebf2] text-[#b13d86] hover:bg-[#f0d8e9]"
+            }`}
+          >
+            Giriş Yap
+          </Link>
+        </nav>
       </div>
-    
-          <a href="/blog" className="hover:text-[#b83280]">
-            Blog
-          </a>
-</nav>
+    </header>
   );
 }
