@@ -16,16 +16,16 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="w-full border-b border-[#eadede] bg-[#f7efec]">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-6">
+    <header className="w-full border-b border-[#eadede] bg-[#fff7f3]">
+      <div className="mx-auto flex max-w-7xl items-center gap-6 px-6 py-5">
         <Link
           href="/"
-          className="text-5xl font-extrabold tracking-tight text-[#b13d86]"
+          className="text-4xl font-extrabold tracking-tight text-[#b83280]"
         >
           NeAlsam
         </Link>
 
-        <nav className="ml-6 flex flex-1 items-center gap-4">
+        <nav className="flex flex-1 items-center gap-3">
           {navItems.map((item) => {
             const isActive =
               item.href === "/"
@@ -36,10 +36,10 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-full px-8 py-5 text-2xl font-bold transition ${
+                className={`rounded-full px-6 py-3 text-base font-bold transition ${
                   isActive
-                    ? "bg-[#b13d86] text-white"
-                    : "bg-[#f4f1f1] text-[#2d1f1f] hover:bg-[#efe7ea]"
+                    ? "bg-[#b83280] text-white"
+                    : "bg-white text-[#2b1b1b] hover:bg-[#fff0f7] hover:text-[#b83280]"
                 }`}
               >
                 {item.label}
@@ -49,10 +49,10 @@ export default function Navbar() {
 
           <Link
             href="/giris"
-            className={`ml-auto rounded-full px-8 py-5 text-2xl font-bold transition ${
+            className={`ml-auto rounded-full px-6 py-3 text-base font-bold transition ${
               pathname === "/giris"
-                ? "bg-[#f0d8e9] text-[#b13d86]"
-                : "bg-[#f6ebf2] text-[#b13d86] hover:bg-[#f0d8e9]"
+                ? "bg-[#b83280] text-white"
+                : "bg-[#fff0f7] text-[#b83280] hover:bg-[#b83280] hover:text-white"
             }`}
           >
             Giriş Yap
