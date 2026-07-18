@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-const ADMIN_PASSWORD = "nealsam2026";
+const ADMIN_PASSWORD = "disabled";
 
 const stats = [
   {
@@ -193,10 +193,7 @@ export default function AdminClient() {
               Ana sayfaya dön
             </a>
 
-            <p className="mt-6 rounded-2xl bg-[#fff0f7] p-4 text-xs leading-6 text-[#6b4b4b]">
-              Geçici admin şifresi: <strong>nealsam2026</strong>. Sonraki
-              aşamada bunu gerçek kullanıcı girişiyle değiştireceğiz.
-            </p>
+
           </div>
         </section>
       </main>
