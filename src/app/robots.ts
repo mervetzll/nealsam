@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://nealsamhediye.netlify.app/sitemap.xml",
+    sitemap: "https://nealsamhediye.com/sitemap.xml",
   };
 }

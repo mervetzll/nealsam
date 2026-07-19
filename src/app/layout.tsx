@@ -13,9 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "NeAlsam Hediye | Kime Ne Hediye Alınır?",
+  metadataBase: new URL("https://nealsamhediye.com"),
+  title: {
+    default: "NeAlsam Hediye | Kime Ne Hediye Alınır?",
+    template: "%s | NeAlsam Hediye",
+  },
   description:
-    "NeAlsam Hediye ile bütçene, kişiye, özel güne ve ilgi alanlarına göre hediye fikirleri bul. Anneye, sevgiliye, arkadaşa ve kardeşe hediye önerileri.",
+    "NeAlsam Hediye ile bütçene, kişiye, özel güne ve ilgi alanlarına göre hediye fikirleri bul. Sevgiliye, anneye, arkadaşa ve kardeşe hediye önerileri.",
   keywords: [
     "ne alsam",
     "hediye ne alsam",
@@ -27,6 +31,33 @@ export const metadata = {
     "arkadaşa hediye",
     "kime ne hediye alınır",
   ],
+  alternates: {
+    canonical: "https://nealsamhediye.com",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "512x512", type: "image/png" }],
+  },
+  openGraph: {
+    title: "NeAlsam Hediye | Kime Ne Hediye Alınır?",
+    description:
+      "Kime, bütçeye ve özel güne göre hediye önerileri. NeAlsam Hediye ile doğru hediyeyi bul.",
+    url: "https://nealsamhediye.com",
+    siteName: "NeAlsam Hediye",
+    images: [
+      {
+        url: "/icon.png",
+        width: 512,
+        height: 512,
+        alt: "NeAlsam Hediye Logo",
+      },
+    ],
+    locale: "tr_TR",
+    type: "website",
+  },
   verification: {
     google: "Kq0Ot_bkG9exUFEjvGAQD-nsfk_76hb_n1pkGB-N6-w",
   },
@@ -42,7 +73,25 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "NeAlsam Hediye",
+              alternateName: ["NeAlsam", "Ne Alsam Hediye"],
+              url: "https://nealsamhediye.com",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://nealsamhediye.com/hediye-bul?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
+{children}</body>
     </html>
   );
 }
