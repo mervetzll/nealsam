@@ -21,6 +21,7 @@ export default function ExperienceModes() {
   const [memory, setMemory] = useState("");
   const [selectedNoteId, setSelectedNoteId] = useState("");
   const [qrCode, setQrCode] = useState("");
+  const [noteUrl, setNoteUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
   const notes = useMemo(
@@ -49,9 +50,9 @@ export default function ExperienceModes() {
 
   async function createQrForSelectedNote() {
     const origin =
-      typeof window !== "undefined"
+      typeof window !== "undefined" && window.location.hostname !== "localhost"
         ? window.location.origin
-        : "https://nealsamhediye.com";
+        : "https://nealsamhediye.netlify.app";
 
     const params = new URLSearchParams({
       title: selectedNote.title,
@@ -65,6 +66,7 @@ export default function ExperienceModes() {
       width: 260,
     });
 
+    setNoteUrl(url);
     setQrCode(qr);
     setCopied(false);
   }
@@ -169,6 +171,7 @@ export default function ExperienceModes() {
                   onClick={() => {
                     setSelectedNoteId(note.id);
                     setQrCode("");
+                    setNoteUrl("");
                   }}
                   className={`rounded-3xl border p-5 text-left transition ${
                     selected
@@ -213,6 +216,17 @@ export default function ExperienceModes() {
                 alt="Seçili özel not QR kodu"
                 className="mx-auto h-56 w-56 rounded-2xl bg-white p-3"
               />
+              {noteUrl && (
+                <a
+                  href={noteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 block break-words rounded-2xl bg-white p-4 text-xs font-bold text-[#b83280]"
+                >
+                  Not linkini test et
+                </a>
+              )}
+
               <a
                 href={qrCode}
                 download="nealsam-hediye-notu-qr.png"
