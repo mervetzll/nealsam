@@ -47,6 +47,16 @@ const planDetails: Record<
     renewalText: "Her ay otomatik yenilenir",
     features: ["Hediye Avı", "Kader Bağları", "Gizemli Hediye", "Gelecekteki Ben"],
   },
+  basic: {
+    qrLimit: "Ayda 3 hediye hakkı",
+    renewalText: "Tek seferlik veya aylık kullanılabilir",
+    features: ["Mini hediye önerileri", "Kısa not önerisi", "Ürün arama yönlendirmesi"],
+  },
+  plus: {
+    qrLimit: "Ayda 10 hediye hakkı",
+    renewalText: "Tek seferlik veya aylık kullanılabilir",
+    features: ["Detaylı hediye önerileri", "Kişisel not", "Sunum önerisi", "Alternatif fikirler"],
+  },
   premium: {
     qrLimit: "Ayda 100 QR mesaj",
     renewalText: "Her ay otomatik yenilenir",

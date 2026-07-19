@@ -1,109 +1,151 @@
-export type PlanId = "free" | "note" | "experience" | "premium";
+export type PlanId = "free" | "note" | "experience" | "basic" | "plus" | "premium";
 
-export type ExperienceMode =
-  | "not"
-  | "kader"
-  | "anti"
-  | "rpg"
-  | "av"
-  | "gelecek"
-  | "gizemli";
-
-export const PLAN_LIMITS: Record<PlanId, number> = {
-  free: 5,
-  note: 30,
-  experience: 20,
-  premium: 100,
+export type Plan = {
+  id: PlanId;
+  name: string;
+  price: number;
+  description: string;
+  features: string[];
 };
 
 export const PLAN_NAMES: Record<PlanId, string> = {
   free: "Ücretsiz",
-  note: "Not Paketi - 49 TL / ay",
-  experience: "Deneyim Paketi - 99 TL / ay",
-  premium: "Premium Özel Paket - 149 TL / ay",
+  note: "Not Paketi",
+  experience: "Deneyim Paketi",
+  basic: "Mini Hediye Paketi",
+  plus: "Özel Hediye Paketi",
+  premium: "Hikâyeli Hediye Paketi",
 };
 
-export const PLAN_PERMISSIONS: Record<
-  PlanId,
+export const PLAN_LIMITS: Record<PlanId, number> = {
+  free: 1,
+  note: 30,
+  experience: 20,
+  basic: 3,
+  plus: 10,
+  premium: 999,
+};
+
+export const plans: Plan[] = [
   {
-    modes: ExperienceMode[];
-    canUseQr: boolean;
-    canDownloadCard: boolean;
-    canUsePremiumPanel: boolean;
-  }
-> = {
-  free: {
-    modes: ["not", "anti", "rpg"],
-    canUseQr: true,
-    canDownloadCard: false,
-    canUsePremiumPanel: false,
+    id: "note",
+    name: "Not Paketi",
+    price: 29,
+    description: "QR kodlu kişisel not ve hediye mesajı hazırlama paketi.",
+    features: [
+      "Premium notlar",
+      "QR kodlu mesaj",
+      "WhatsApp metni",
+      "Kart olarak indir",
+    ],
   },
-  note: {
-    modes: ["not", "anti", "rpg"],
-    canUseQr: true,
-    canDownloadCard: true,
-    canUsePremiumPanel: true,
+  {
+    id: "experience",
+    name: "Deneyim Paketi",
+    price: 79,
+    description: "Hediye Avı, Kader Bağları, Gizemli Hediye ve yaratıcı deneyim modları.",
+    features: [
+      "Hediye Avı",
+      "Kader Bağları",
+      "Gizemli Hediye",
+      "Gelecekteki Ben",
+    ],
   },
-  experience: {
-    modes: ["kader", "av", "gelecek", "gizemli", "anti", "rpg"],
-    canUseQr: true,
-    canDownloadCard: true,
-    canUsePremiumPanel: true,
+  {
+    id: "basic",
+    name: "Mini Hediye Paketi",
+    price: 49,
+    description: "Hızlı hediye fikri ve kısa not önerisi.",
+    features: [
+      "Kişiye göre hediye fikri",
+      "Kısa kişisel not",
+      "Ürün arama yönlendirmesi",
+    ],
   },
-  premium: {
-    modes: ["not", "kader", "anti", "rpg", "av", "gelecek", "gizemli"],
-    canUseQr: true,
-    canDownloadCard: true,
-    canUsePremiumPanel: true,
+  {
+    id: "plus",
+    name: "Özel Hediye Paketi",
+    price: 99,
+    description: "Daha özel fikir, not ve sunum önerisi.",
+    features: [
+      "Daha detaylı hediye fikri",
+      "Kişisel not metni",
+      "Sunum önerisi",
+      "Alternatif hediye fikirleri",
+    ],
   },
-};
+  {
+    id: "premium",
+    name: "Hikâyeli Hediye Paketi",
+    price: 149,
+    description: "Hediye fikri, mektup ve yaratıcı hikâye sunumu.",
+    features: [
+      "Özel hediye fikri",
+      "Duygusal mektup",
+      "Hediye hikâyesi",
+      "Sunum konsepti",
+      "Alternatif mağaza aramaları",
+    ],
+  },
+];
 
-export function normalizePlan(plan: string | null): PlanId {
-  if (plan === "note" || plan === "experience" || plan === "premium") {
+export function getPlanById(id: string | null) {
+  return plans.find((plan) => plan.id === id) || null;
+}
+
+export function normalizePlan(plan: string | null | undefined): PlanId {
+  if (
+    plan === "note" ||
+    plan === "experience" ||
+    plan === "basic" ||
+    plan === "plus" ||
+    plan === "premium"
+  ) {
     return plan;
   }
 
   return "free";
 }
 
-export function canUseMode(plan: string | null, mode: ExperienceMode) {
-  const normalizedPlan = normalizePlan(plan);
-
-  return PLAN_PERMISSIONS[normalizedPlan].modes.includes(mode);
-}
-
-export function canDownloadCard(plan: string | null) {
-  const normalizedPlan = normalizePlan(plan);
-
-  return PLAN_PERMISSIONS[normalizedPlan].canDownloadCard;
-}
-
-export function getCurrentMonthKey() {
-  return new Date().toISOString().slice(0, 7);
-}
-
-export function getUsedCount(plan: string | null) {
+export function getUsedCount(key = "nealsam_used_count") {
   if (typeof window === "undefined") return 0;
 
-  const normalizedPlan = normalizePlan(plan);
-  const month = getCurrentMonthKey();
-  const usage = JSON.parse(localStorage.getItem("nealsam_usage") || "{}");
+  const value = window.localStorage.getItem(key);
+  const parsed = Number(value);
 
-  return usage?.[month]?.[normalizedPlan] || 0;
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function increaseUsedCount(plan: string | null) {
-  if (typeof window === "undefined") return;
-
+export function canUseMode(plan: string | null | undefined, mode?: string) {
   const normalizedPlan = normalizePlan(plan);
-  const month = getCurrentMonthKey();
-  const usage = JSON.parse(localStorage.getItem("nealsam_usage") || "{}");
-  const currentCount = usage?.[month]?.[normalizedPlan] || 0;
 
-  usage[month] = {
-    ...(usage[month] || {}),
-    [normalizedPlan]: currentCount + 1,
-  };
+  if (normalizedPlan === "premium") return true;
 
-  localStorage.setItem("nealsam_usage", JSON.stringify(usage));
+  if (normalizedPlan === "experience") return true;
+
+  if (normalizedPlan === "plus") {
+    return mode !== "gizemli";
+  }
+
+  if (normalizedPlan === "basic") {
+    return mode === "not" || mode === "kader" || !mode;
+  }
+
+  if (normalizedPlan === "note") {
+    return mode === "not" || !mode;
+  }
+
+  return mode === "not" || !mode;
+}
+
+export function canDownloadCard(plan: string | null | undefined) {
+  const normalizedPlan = normalizePlan(plan);
+
+  return (
+    normalizedPlan === "note" ||
+    normalizedPlan === "experience" ||
+    normalizedPlan === "basic" ||
+    normalizedPlan === "plus" ||
+    normalizedPlan === "premium"
+  );
 }
