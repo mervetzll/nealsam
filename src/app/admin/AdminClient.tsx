@@ -1,5 +1,7 @@
 "use client";
 
+import GiftManager from "@/components/admin/GiftManager";
+
 import { useEffect, useMemo, useState } from "react";
 
 const stats = [
@@ -266,69 +268,7 @@ export default function AdminClient() {
           </>
         )}
 
-        {activeTab === "Hediyeler" && (
-          <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-sm font-bold text-[#b83280]">
-                  Hediye Yönetimi
-                </p>
-                <h2 className="mt-2 text-3xl font-extrabold">
-                  Öneri havuzu
-                </h2>
-              </div>
-
-              <input
-                value={giftSearch}
-                onChange={(event) => setGiftSearch(event.target.value)}
-                placeholder="Hediye ara..."
-                className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-5 py-3 outline-none focus:border-[#b83280]"
-              />
-            </div>
-
-            {isGiftLoading ? (
-              <div className="mt-6 rounded-3xl bg-[#fffaf7] p-6 text-sm font-bold text-[#b83280]">
-                Hediyeler yükleniyor...
-              </div>
-            ) : (
-              <div className="mt-6 overflow-hidden rounded-3xl border border-[#f0d7df]">
-                <table className="w-full border-collapse text-left text-sm">
-                <thead className="bg-[#fff0f7] text-[#b83280]">
-                  <tr>
-                    <th className="p-4">Hediye</th>
-                    <th className="p-4">Kategori</th>
-                    <th className="p-4">Fiyat</th>
-                    <th className="p-4">Durum</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredGifts.map((gift) => (
-                    <tr key={gift.title} className="border-t border-[#f0d7df]">
-                      <td className="p-4 font-bold">{gift.title}</td>
-                      <td className="p-4">
-                        {gift.category} / {gift.sub_category}
-                      </td>
-                      <td className="p-4">
-                        {gift.price_min}–{gift.price_max} TL
-                      </td>
-                      <td className="p-4">
-                        <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
-                          {gift.is_active ? "Aktif" : "Pasif"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                </table>
-              </div>
-            )}
-
-            <p className="mt-4 text-sm leading-6 text-[#6b4b4b]">
-              Bu tablo artık Supabase veritabanındaki gerçek hediye verilerini gösteriyor.
-              Toplam görünen hediye sayısı: <strong>{filteredGifts.length}</strong>
-            </p>
-          </div>
-        )}
+        {activeTab === "Hediyeler" && <GiftManager />}
 
         {activeTab === "Blog" && (
           <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">

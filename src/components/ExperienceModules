@@ -1,0 +1,403 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+type Mode =
+  | "kader"
+  | "anti"
+  | "rpg"
+  | "av"
+  | "gelecek";
+
+type Result = {
+  title: string;
+  description: string;
+  giftIdeas: string[];
+  searchQueries: string[];
+  note: string;
+  extra?: string[];
+};
+
+const modes: {
+  id: Mode;
+  title: string;
+  subtitle: string;
+  placeholder: string;
+  button: string;
+}[] = [
+  {
+    id: "kader",
+    title: "Kader Bağları",
+    subtitle: "Bir anıyı hediyeye ve hikâyeye dönüştür.",
+    placeholder:
+      "Örn: Üniversitede yağmurlu bir günde otobüsü kaçırmıştık ve o gün tanışmıştık...",
+    button: "Anıdan hediye üret",
+  },
+  {
+    id: "anti",
+    title: "Anti-Hediye",
+    subtitle: "Sevdiklerinden değil, nefret ettiklerinden hediye bul.",
+    placeholder:
+      "Örn: Erken kalkmaktan nefret eder, anahtarlarını kaybeder, kahvesi hemen soğur...",
+    button: "Nefretlerinden hediye bul",
+  },
+  {
+    id: "rpg",
+    title: "RPG Karakter Hediyesi",
+    subtitle: "Hediye alacağın kişiyi oyun karakterine çevir.",
+    placeholder:
+      "Örn: Gamer, sabırsız, kahve bağımlısı. Zeka 90, sabır 20, karizma 70...",
+    button: "Karaktere göre hediye bul",
+  },
+  {
+    id: "av",
+    title: "Hediye Avı",
+    subtitle: "Hediyeyi sakla, biz bilmece ve görev akışını yazalım.",
+    placeholder:
+      "Örn: Hediye evde saklanacak. Final yeri gardırop. Romantik ve komik olsun...",
+    button: "Hediye avı hazırla",
+  },
+  {
+    id: "gelecek",
+    title: "Gelecekteki Ben’den Mektup",
+    subtitle: "Hediyenin yanına 20 yıl sonradan gelmiş gibi bir mektup ekle.",
+    placeholder:
+      "Örn: Adı Zeynep. 22 yaşında. Yazılımcı olmak istiyor. Çok çalışkan ama kendine güveni bazen düşüyor...",
+    button: "Mektup oluştur",
+  },
+];
+
+function makeSearchUrl(site: "trendyol" | "amazon" | "hepsiburada", query: string) {
+  const encoded = encodeURIComponent(query);
+
+  if (site === "trendyol") {
+    return `https://www.trendyol.com/sr?q=${encoded}`;
+  }
+
+  if (site === "amazon") {
+    return `https://www.amazon.com.tr/s?k=${encoded}`;
+  }
+
+  return `https://www.hepsiburada.com/ara?q=${encoded}`;
+}
+
+function generateResult(mode: Mode, text: string): Result {
+  const lower = text.toLowerCase();
+
+  if (mode === "kader") {
+    const rain = lower.includes("yağmur");
+    const bus = lower.includes("otobüs");
+    const school = lower.includes("üniversite") || lower.includes("okul");
+
+    const giftIdeas = [
+      rain ? "Yağmur temalı özel not kartı" : "Anı temalı özel not kartı",
+      bus ? "Nostaljik otobüs bileti tasarımı" : "O güne özel mini anı kartı",
+      school ? "Üniversite anısı temalı çerçeve" : "Kişiye özel anı posteri",
+      "Küçük bir anı kutusu",
+    ];
+
+    return {
+      title: "Bu anıdan çıkan hediye fikri",
+      description:
+        "Bu hikâyede tesadüf, nostalji ve kader teması güçlü. Bu yüzden hediyenin sadece ürün değil, o günü hatırlatan küçük detaylardan oluşması daha anlamlı olur.",
+      giftIdeas,
+      searchQueries: [
+        rain ? "yağmur temalı hediye" : "anı kutusu hediye",
+        bus ? "kişiye özel otobüs bileti tasarımı" : "kişiye özel anı posteri",
+        "kişiye özel not kartı",
+      ],
+      note:
+        "Bazı günler sıradan başlar ama hayatın yönünü değiştirir. O gün de bizim için öyleydi. İyi ki o an yaşandı, iyi ki yollarımız kesişti.",
+      extra: [
+        "Alternatif evren hikâyesi: Eğer o gün o küçük tesadüf yaşanmasaydı, belki de aynı şehirde iki yabancı olarak kalacaktınız. Ama hayat, en güzel bağları bazen en plansız anlarda kurar.",
+      ],
+    };
+  }
+
+  if (mode === "anti") {
+    const keys = lower.includes("anahtar");
+    const wake = lower.includes("erken") || lower.includes("uyan");
+    const coffee = lower.includes("kahve");
+    const cold = lower.includes("soğuk");
+
+    const giftIdeas = [
+      keys ? "Bluetooth akıllı anahtarlık" : "Günlük hayat kolaylaştırıcı mini aksesuar",
+      wake ? "Güçlü alarm saati veya gün ışığı alarmı" : "Pratik masaüstü yardımcı ürün",
+      coffee || cold ? "Kupa ısıtıcı veya kaliteli termos kupa" : "Kullanışlı organizer",
+      "Komik not kartı",
+    ];
+
+    return {
+      title: "Nefret ettiği şeylerden çıkan hediye",
+      description:
+        "Bu kişi için en iyi hediye, sevdiği şeyi büyütmekten çok hayatında sinir olduğu küçük problemi çözmek. Bu yüzden öneriler hem kullanışlı hem de biraz şakacı seçildi.",
+      giftIdeas,
+      searchQueries: [
+        keys ? "bluetooth akıllı anahtarlık" : "pratik hediye",
+        wake ? "güçlü alarm saati" : "masaüstü organizer",
+        coffee || cold ? "kupa ısıtıcı" : "kullanışlı hediye",
+      ],
+      note:
+        "Hayatındaki küçük kaoslara minik bir çözüm bulmak istedim. Seni değiştirmeye çalışmıyorum, sadece kaybolan şeyleri ve zor sabahları biraz daha kolaylaştırıyorum.",
+      extra: [
+        "Şaka kartı fikri: Bu hediye, seninle değil, senin günlük dertlerinle savaşmak için seçildi.",
+      ],
+    };
+  }
+
+  if (mode === "rpg") {
+    const gamer = lower.includes("gamer") || lower.includes("oyun");
+    const coffee = lower.includes("kahve");
+    const impatient = lower.includes("sabır") || lower.includes("sabırsız");
+    const smart = lower.includes("zeka") || lower.includes("akıllı");
+
+    const giftIdeas = [
+      gamer ? "Gaming mousepad veya RGB masa aksesuarı" : "Kişiye özel karakter kartı",
+      coffee ? "Kahve kupası ve kahve seti" : "Masaüstü dekoratif obje",
+      impatient ? "Zor ama eğlenceli puzzle" : "Strateji kutu oyunu",
+      smart ? "Zeka oyunu veya yaratıcı problem çözme oyunu" : "Kişiselleştirilmiş not kartı",
+    ];
+
+    return {
+      title: "Karakter analizine göre hediye",
+      description:
+        "Bu kişi enerjik, kendine özgü ve oyunlaştırılmış hediyelerden hoşlanabilecek bir karakter gibi görünüyor. Hediyeyi 'ekipman' mantığıyla sunmak daha eğlenceli olur.",
+      giftIdeas,
+      searchQueries: [
+        gamer ? "gaming masa aksesuarı" : "kişiye özel karakter kartı",
+        coffee ? "kahve hediye seti" : "masaüstü dekoratif hediye",
+        impatient ? "zor puzzle hediye" : "strateji kutu oyunu",
+      ],
+      note:
+        "Bu hediye, karakterinin güçlü yönlerini kutlamak ve küçük zayıflıklarına tatlı bir güçlendirme vermek için seçildi. Yeni ekipmanın hayırlı olsun.",
+      extra: [
+        "Karakter kartı: Sınıf: Özel Karakter. Pasif yetenek: Ortamın enerjisini değiştirir. Zayıf yön: Bazen fazla hızlı düşünür.",
+      ],
+    };
+  }
+
+  if (mode === "av") {
+    return {
+      title: "Hediye Avı Planı",
+      description:
+        "Bu modda ürünü biz satmıyoruz. Sen hediyeyi alıp saklıyorsun, biz alıcının hediyeye ulaşması için bilmece ve görev akışı hazırlıyoruz.",
+      giftIdeas: [
+        "Ev içi hediye avı kartları",
+        "WhatsApp mesaj görevleri",
+        "Final lokasyon kartı",
+        "Komik veya romantik ipucu notları",
+      ],
+      searchQueries: [
+        "hediye not kartı",
+        "kişiye özel zarf",
+        "hediye kutusu",
+      ],
+      note:
+        "Bugün hediyeni direkt vermek istemedim. Çünkü bazı şeyler hemen bulununca değil, aranınca daha değerli olur.",
+      extra: [
+        "1. ipucu: Güne başlarken ilk baktığın yere git.",
+        "2. ipucu: En çok kullandığın ama en az fark ettiğin şeyin yanındayım.",
+        "3. ipucu: Biraz düzen, biraz saklanma. Final seni bekliyor.",
+        "Final mesajı: Buldun. Ama asıl hediye bu kutu değil, bu oyunu senin için düşünmüş olmam.",
+      ],
+    };
+  }
+
+  return {
+    title: "Gelecekteki Ben’den Mektup",
+    description:
+      "Bu mod, fiziksel hediyenin yanına konabilecek duygusal bir mektup üretir. Ürün satılmaz; kullanıcı mektubu PDF veya not olarak kullanabilir.",
+    giftIdeas: [
+      "QR kodlu dijital mektup",
+      "Basılabilir mektup kartı",
+      "Minimal zarf ve not kartı",
+      "Anı kutusuna eklenebilir gelecek mesajı",
+    ],
+    searchQueries: [
+      "kişiye özel mektup kartı",
+      "hediye zarfı",
+      "anı kutusu",
+    ],
+    note:
+      "Merhaba, ben senin yıllar sonraki halinim. Bugün endişelendiğin birçok şeyin zamanla nasıl anlam kazandığını görmek isterdim. Şunu bil: Şu an verdiğin emekler, ileride gururla hatırlayacağın bir hikâyeye dönüşecek.",
+    extra: [
+      "Kısa kart cümlesi: Bugünkü sen, gelecekteki senin en cesur başlangıcın.",
+    ],
+  };
+}
+
+export default function ExperienceModules() {
+  const [selectedMode, setSelectedMode] = useState<Mode>("kader");
+  const [text, setText] = useState("");
+  const [result, setResult] = useState<Result | null>(null);
+
+  const activeMode = useMemo(
+    () => modes.find((mode) => mode.id === selectedMode),
+    [selectedMode]
+  );
+
+  function handleGenerate() {
+    if (text.trim().length < 10) {
+      alert("Biraz daha detay yazmalısın.");
+      return;
+    }
+
+    setResult(generateResult(selectedMode, text));
+  }
+
+  return (
+    <section id="deneyim" className="bg-[#fff7f3] px-6 py-16 text-[#2b1b1b]">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-10 text-center">
+          <p className="mb-3 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#b83280] shadow-sm">
+            Yeni modüller
+          </p>
+
+          <h2 className="text-4xl font-extrabold">
+            Hediye satmıyoruz, hediyenin anlamını buluyoruz.
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-3xl text-gray-600">
+            İnternette aranacak ürün fikirlerini veririz; yanına koyacağın not,
+            hikâye, bilmece ve mektubu biz hazırlarız.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-5">
+          {modes.map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => {
+                setSelectedMode(mode.id);
+                setResult(null);
+              }}
+              className={`rounded-3xl border p-4 text-left transition ${
+                selectedMode === mode.id
+                  ? "border-[#b83280] bg-white shadow-md"
+                  : "border-[#f0d7df] bg-[#fffaf7] hover:bg-white"
+              }`}
+            >
+              <h3 className="font-bold text-[#b83280]">{mode.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{mode.subtitle}</p>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <div className="rounded-3xl bg-white p-6 shadow-sm">
+            <h3 className="mb-3 text-2xl font-bold">{activeMode?.title}</h3>
+
+            <textarea
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              placeholder={activeMode?.placeholder}
+              className="min-h-[220px] w-full rounded-2xl border border-[#f0d7df] bg-[#fffaf7] p-4 outline-none focus:border-[#b83280]"
+            />
+
+            <button
+              onClick={handleGenerate}
+              className="mt-4 w-full rounded-full bg-[#b83280] px-6 py-3 font-semibold text-white"
+            >
+              {activeMode?.button}
+            </button>
+          </div>
+
+          <div className="rounded-3xl bg-white p-6 shadow-sm">
+            {!result ? (
+              <div className="flex h-full min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-[#f0d7df] p-6 text-center text-gray-500">
+                Sol tarafa bilgi yazınca burada hediye fikri, arama linkleri ve
+                kişisel not oluşacak.
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-2xl font-bold text-[#b83280]">
+                  {result.title}
+                </h3>
+
+                <p className="mt-3 text-gray-700">{result.description}</p>
+
+                <div className="mt-6">
+                  <h4 className="mb-2 font-bold">Hediye fikirleri</h4>
+
+                  <div className="grid gap-3">
+                    {result.giftIdeas.map((idea) => (
+                      <div
+                        key={idea}
+                        className="rounded-2xl bg-[#fff7f3] p-3 text-sm"
+                      >
+                        {idea}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <h4 className="mb-2 font-bold">İnternette ara</h4>
+
+                  <div className="grid gap-3">
+                    {result.searchQueries.map((query) => (
+                      <div
+                        key={query}
+                        className="rounded-2xl border border-[#f0d7df] p-3"
+                      >
+                        <p className="mb-3 text-sm font-semibold">{query}</p>
+
+                        <div className="flex flex-wrap gap-2">
+                          <a
+                            href={makeSearchUrl("trendyol", query)}
+                            target="_blank"
+                            className="rounded-full bg-[#b83280] px-3 py-2 text-xs font-semibold text-white"
+                          >
+                            Trendyol
+                          </a>
+
+                          <a
+                            href={makeSearchUrl("amazon", query)}
+                            target="_blank"
+                            className="rounded-full bg-[#2b1b1b] px-3 py-2 text-xs font-semibold text-white"
+                          >
+                            Amazon
+                          </a>
+
+                          <a
+                            href={makeSearchUrl("hepsiburada", query)}
+                            target="_blank"
+                            className="rounded-full bg-[#f59e0b] px-3 py-2 text-xs font-semibold text-white"
+                          >
+                            Hepsiburada
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-[#fff7f3] p-4">
+                  <h4 className="mb-2 font-bold">Bizden alınabilecek not</h4>
+                  <p className="text-sm leading-6">{result.note}</p>
+                </div>
+
+                {result.extra && (
+                  <div className="mt-6">
+                    <h4 className="mb-2 font-bold">Ek içerik</h4>
+
+                    <div className="grid gap-3">
+                      {result.extra.map((item) => (
+                        <div
+                          key={item}
+                          className="rounded-2xl bg-[#fffaf7] p-3 text-sm leading-6"
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
