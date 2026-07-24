@@ -1,455 +1,237 @@
 import type { Gift, RiskLevel, ScoredGift } from "@/types/gift";
-import { gifts } from "@/data/gifts";
 
-const budgetRanges: Record<string, { min: number; max: number }> = {
-  "0–250 TL": { min: 0, max: 250 },
-  "250–500 TL": { min: 250, max: 500 },
-  "500–1000 TL": { min: 500, max: 1000 },
-  "1000–2500 TL": { min: 1000, max: 2500 },
-  "2500 TL+": { min: 2500, max: 999999 },
+type AnswerMap = Record<number, string[]>;
+
+type BudgetRange = {
+  label: string;
+  min: number;
+  max: number;
 };
 
-const avoidRules: Record<string, string[]> = {
-  "Beden/numara riski olmasın": [
-    "Giyim",
-    "Moda",
-    "Şal",
-    "Eşarp",
-    "Ayakkabı",
-    "Beden",
-  ],
-  "Koku seçimi gerektirmesin": [
-    "Parfüm",
-    "Koku",
-    "Mum",
-    "Oda kokusu",
-  ],
-  "Renk/ton seçimi gerektirmesin": [
-    "Makyaj",
-    "Ruj",
-    "Fondöten",
-    "Oje",
-    "Renk",
-    "Ton",
-  ],
-  "Kırılabilir olmasın": [
-    "Kupa",
-    "Fincan",
-    "Cam",
-    "Seramik",
-    "Dekorasyon",
-    "Çerçeve",
-  ],
-  "Çok romantik olmasın": [
-    "Romantik",
-    "Sevgililer Günü",
-    "Yıl dönümü",
-  ],
-  "Kişiye özel olmasın": [
-    "Kişiye özel",
-    "İsimli",
-    "Fotoğraflı",
-    "Spotify kodlu",
-  ],
-};
+const budgetRanges: BudgetRange[] = [
+  { label: "0–250 TL", min: 0, max: 250 },
+  { label: "250–500 TL", min: 250, max: 500 },
+  { label: "500–1000 TL", min: 500, max: 1000 },
+  { label: "1000–2500 TL", min: 1000, max: 2500 },
+  { label: "2500 TL+", min: 2500, max: 999999 },
+];
 
 const interestCategoryMap: Record<string, string[]> = {
-  Makyaj: ["Beauty", "Moda"],
-  "Cilt bakımı": ["Beauty", "Ev dekorasyonu"],
-  Kahve: ["Kahve", "Kitap", "Deneyim", "Klasik"],
-  Kitap: ["Kitap", "Kırtasiye", "Kahve", "Klasik"],
-  Teknoloji: ["Teknoloji", "Oyun", "Seyahat"],
-  Oyun: ["Oyun", "Teknoloji", "Deneyim"],
-  Spor: ["Spor", "Teknoloji", "Seyahat"],
-  Moda: ["Moda", "Takı", "Beauty"],
-  Takı: ["Takı", "Moda", "Klasik"],
-  "Ev dekorasyonu": ["Ev dekorasyonu", "Kahve", "Beauty", "Klasik"],
-  Seyahat: ["Seyahat", "Teknoloji", "Deneyim", "Spor"],
-  Müzik: ["Müzik", "Teknoloji", "Deneyim", "Ev dekorasyonu"],
+  Kahve: ["Kahve", "Mutfak", "Ev"],
+  Kitap: ["Kitap", "Kırtasiye", "Hobi"],
+  Makyaj: ["Makyaj", "Kozmetik", "Beauty"],
+  "Cilt bakımı": ["Cilt bakımı", "Kozmetik", "Beauty"],
+  Teknoloji: ["Teknoloji", "Elektronik"],
+  Oyun: ["Oyun", "Teknoloji"],
+  Spor: ["Spor", "Fitness"],
+  Moda: ["Moda", "Giyim", "Aksesuar"],
+  Takı: ["Takı", "Aksesuar"],
+  "Ev dekorasyonu": ["Ev dekorasyonu", "Dekorasyon", "Ev"],
+  Seyahat: ["Seyahat", "Outdoor"],
+  Müzik: ["Müzik", "Hobi"],
 };
 
-export function getPriceText(gift: Gift) {
-  if (gift.priceMax >= 999999) {
-    return `${gift.priceMin} TL+`;
+const riskRules: Record<string, (gift: Gift) => number> = {
+  "Beden/numara riski olmasın": (gift) =>
+    includesAny(gift, ["Giyim", "Ayakkabı", "Moda"]) ? -35 : 8,
+
+  "Koku seçimi gerektirmesin": (gift) =>
+    includesAny(gift, ["Parfüm", "Koku"]) ? -35 : 6,
+
+  "Renk/ton seçimi gerektirmesin": (gift) =>
+    includesAny(gift, ["Makyaj", "Kozmetik", "Beauty"]) ? -25 : 5,
+
+  "Kırılabilir olmasın": (gift) =>
+    includesAny(gift, ["Cam", "Seramik", "Ev dekorasyonu", "Dekorasyon"]) ? -25 : 5,
+
+  "Çok romantik olmasın": (gift) =>
+    gift.styles.includes("Romantik") || gift.recipients.includes("Sevgilim") ? -25 : 5,
+
+  "Kişiye özel olmasın": (gift) =>
+    gift.styles.includes("Kişiye özel") || includesAny(gift, ["Kişiye özel"]) ? -25 : 5,
+
+  "Son dakika alınabilir olsun": (gift) =>
+    gift.urgency.includes("Bugün lazım") || gift.urgency.includes("1–2 gün içinde") ? 15 : -15,
+
+  "Fark etmez": () => 0,
+};
+
+function includesAny(gift: Gift, words: string[]) {
+  const haystack = [
+    gift.title,
+    gift.category,
+    gift.subCategory,
+    gift.reason,
+    gift.note,
+    gift.searchQuery,
+    ...gift.styles,
+    ...gift.interests,
+    ...gift.recipients,
+  ]
+    .join(" ")
+    .toLocaleLowerCase("tr");
+
+  return words.some((word) => haystack.includes(word.toLocaleLowerCase("tr")));
+}
+
+function getBudgetRange(label?: string) {
+  return budgetRanges.find((range) => range.label === label) || null;
+}
+
+function getBudgetScore(gift: Gift, budgetLabel?: string) {
+  const budget = getBudgetRange(budgetLabel);
+
+  if (!budget) return 0;
+
+  const giftMid = (gift.priceMin + gift.priceMax) / 2;
+  const budgetMid = (budget.min + budget.max) / 2;
+
+  const overlaps = gift.priceMax >= budget.min && gift.priceMin <= budget.max;
+
+  if (overlaps) {
+    if (gift.priceMin >= budget.min && gift.priceMax <= budget.max) return 35;
+    return 26;
   }
 
+  if (gift.priceMin > budget.max) {
+    const difference = gift.priceMin - budget.max;
+
+    if (difference <= 150) return 10;
+    if (difference <= 400) return -10;
+
+    return -30;
+  }
+
+  if (gift.priceMax < budget.min) {
+    const difference = budget.min - gift.priceMax;
+
+    if (difference <= 150) return 14;
+    if (giftMid < budgetMid * 0.35) return -6;
+
+    return 4;
+  }
+
+  return 0;
+}
+
+function getRiskPenalty(riskLevel: RiskLevel) {
+  if (riskLevel === "low") return 10;
+  if (riskLevel === "medium") return 0;
+  return -12;
+}
+
+function uniq(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function getAnswer(answers: AnswerMap, index: number) {
+  return answers[index]?.[0];
+}
+
+function getAnswers(answers: AnswerMap, index: number) {
+  return answers[index] || [];
+}
+
+export function getPriceText(gift: Pick<Gift, "priceMin" | "priceMax">) {
+  if (gift.priceMin === gift.priceMax) return `${gift.priceMin} TL`;
   return `${gift.priceMin}–${gift.priceMax} TL`;
 }
 
-export function getRiskLabel(risk: RiskLevel) {
-  if (risk === "low") return "Düşük riskli";
-  if (risk === "medium") return "Orta riskli";
-  return "Riskli seçim";
+export function getRiskLabel(riskLevel: RiskLevel) {
+  if (riskLevel === "low") return "Düşük risk";
+  if (riskLevel === "medium") return "Orta risk";
+  return "Yüksek risk";
 }
 
 export function makeSearchUrl(
-  platform: "google" | "trendyol" | "amazon" | "hepsiburada",
-  query: string
+  query: string,
+  store: "google" | "trendyol" | "amazon" | "hepsiburada" = "google"
 ) {
-  const encodedQuery = encodeURIComponent(query);
+  const encoded = encodeURIComponent(query);
 
-  return `/go?platform=${platform}&q=${encodedQuery}`;
+  if (store === "trendyol") return `https://www.trendyol.com/sr?q=${encoded}`;
+  if (store === "amazon") return `https://www.amazon.com.tr/s?k=${encoded}`;
+  if (store === "hepsiburada") return `https://www.hepsiburada.com/ara?q=${encoded}`;
+
+  return `https://www.google.com/search?q=${encoded}`;
 }
 
+export function getGiftResults(gifts: Gift[], answers: AnswerMap): ScoredGift[] {
+  const recipient = getAnswer(answers, 0);
+  const budget = getAnswer(answers, 1);
+  const occasion = getAnswer(answers, 2);
+  const interests = getAnswers(answers, 3);
+  const style = getAnswer(answers, 4);
+  const urgency = getAnswer(answers, 5);
+  const riskAvoidance = getAnswers(answers, 6);
 
-function getBudgetMatchScore(gift: Gift, budget?: string) {
-  if (!budget) return 0;
-
-  const range = budgetRanges[budget];
-  if (!range) return 0;
-
-  const overlaps = gift.priceMin <= range.max && gift.priceMax >= range.min;
-  const fullyInside = gift.priceMin >= range.min && gift.priceMax <= range.max;
-
-  if (fullyInside) return 8;
-  if (overlaps) return 4;
-  return -8;
-}
-
-function getRiskScore(risk: RiskLevel) {
-  if (risk === "low") return 4;
-  if (risk === "medium") return 1;
-  return -3;
-}
-
-function getAllowedCategories(interests: string[]) {
-  const allowed = new Set<string>();
-
-  interests.forEach((interest) => {
-    const categories = interestCategoryMap[interest] || [];
-    categories.forEach((category) => allowed.add(category));
-  });
-
-  return Array.from(allowed);
-}
-
-function textIncludes(source: string, target: string) {
-  return source.toLocaleLowerCase("tr").includes(target.toLocaleLowerCase("tr"));
-}
-
-function giftContainsValue(gift: Gift, value: string) {
-  const searchableValues = [
-    gift.title,
-    gift.category,
-    gift.subCategory,
-    ...gift.interests,
-    ...gift.styles,
-    ...gift.occasions,
-    ...gift.urgency,
-  ];
-
-  return searchableValues.some((item) => textIncludes(item, value));
-}
-
-function isAvoidedGift(gift: Gift, avoidOptions: string[]) {
-  if (avoidOptions.includes("Fark etmez")) return false;
-
-  if (avoidOptions.includes("Son dakika alınabilir olsun")) {
-    const isFastGift =
-      gift.urgency.includes("Bugün lazım") ||
-      gift.urgency.includes("1–2 gün içinde");
-
-    if (!isFastGift) {
-      return true;
-    }
-  }
-
-  return avoidOptions.some((avoidOption) => {
-    if (avoidOption === "Son dakika alınabilir olsun") return false;
-
-    const blockedValues = avoidRules[avoidOption] || [];
-
-    return blockedValues.some((blockedValue) =>
-      giftContainsValue(gift, blockedValue)
-    );
-  });
-}
-
-export function getGiftResults(
-  answers: string[][],
-  blockedTitles: string[]
-): ScoredGift[] {
-  const recipient = answers[0]?.[0];
-  const budget = answers[1]?.[0];
-  const occasion = answers[2]?.[0];
-  const interests = answers[3] || [];
-  const style = answers[4]?.[0];
-  const urgency = answers[5]?.[0];
-  const avoidOptions = answers[6] || [];
-
-  const hasInterests = interests.length > 0;
-  const allowedCategories = getAllowedCategories(interests);
-
-  const strictFiltered = gifts.filter((gift) => {
-    if (blockedTitles.includes(gift.title)) return false;
-    if (isAvoidedGift(gift, avoidOptions)) return false;
-
-    const matchesRecipient = recipient
-      ? gift.recipients.includes(recipient) || recipient === "Diğer"
-      : true;
-
-    const matchesInterest = interests.some((interest) =>
-      gift.interests.includes(interest)
-    );
-
-    const matchesAllowedCategory =
-      allowedCategories.length === 0 ||
-      allowedCategories.includes(gift.category);
-
-    if (hasInterests) {
-      return matchesRecipient && matchesInterest && matchesAllowedCategory;
-    }
-
-    return matchesRecipient;
-  });
-
-  const categoryFallback = gifts.filter((gift) => {
-    if (blockedTitles.includes(gift.title)) return false;
-    if (isAvoidedGift(gift, avoidOptions)) return false;
-
-    const matchesRecipient = recipient
-      ? gift.recipients.includes(recipient) || recipient === "Diğer"
-      : true;
-
-    const matchesAllowedCategory =
-      allowedCategories.length === 0 ||
-      allowedCategories.includes(gift.category);
-
-    return matchesRecipient && matchesAllowedCategory;
-  });
-
-  const safeFallback = gifts.filter((gift) => {
-    if (blockedTitles.includes(gift.title)) return false;
-    if (isAvoidedGift(gift, avoidOptions)) return false;
-    return true;
-  });
-
-  const giftsToScore =
-    strictFiltered.length >= 5
-      ? strictFiltered
-      : categoryFallback.length >= 5
-      ? categoryFallback
-      : safeFallback.length > 0
-      ? safeFallback
-      : gifts.filter((gift) => !blockedTitles.includes(gift.title));
-
-  const scored: ScoredGift[] = giftsToScore.map((gift) => {
+  const scored = gifts.map((gift) => {
     let score = 0;
 
+    if (recipient && gift.recipients.includes(recipient)) score += 32;
+    if (recipient === "Diğer") score += 8;
+
+    score += getBudgetScore(gift, budget);
+
+    if (occasion && gift.occasions.includes(occasion)) score += 18;
+    if (occasion === "İçimden geldi" && gift.styles.includes("Kullanışlı")) score += 6;
+
     interests.forEach((interest) => {
-      if (gift.interests.includes(interest)) {
-        score += 24;
+      if (gift.interests.includes(interest)) score += 16;
+
+      const mappedCategories = interestCategoryMap[interest] || [];
+      if (mappedCategories.some((category) => includesAny(gift, [category]))) {
+        score += 8;
       }
     });
 
-    if (allowedCategories.includes(gift.category)) {
-      score += 12;
+    if (style && gift.styles.includes(style)) score += 22;
+    if (style === "Deneyim hediyesi" && includesAny(gift, ["Deneyim", "Etkinlik", "Anı"])) {
+      score += 16;
     }
 
-    if (recipient && gift.recipients.includes(recipient)) {
-      score += 8;
-    }
+    if (urgency && gift.urgency.includes(urgency)) score += 16;
+    if (urgency === "Bugün lazım" && gift.urgency.includes("Bugün lazım")) score += 10;
 
-    if (style && gift.styles.includes(style)) {
-      score += 7;
-    }
+    score += getRiskPenalty(gift.riskLevel);
 
-    if (occasion && gift.occasions.includes(occasion)) {
-      score += 5;
-    }
+    riskAvoidance.forEach((risk) => {
+      const rule = riskRules[risk];
+      if (rule) score += rule(gift);
+    });
 
-    if (urgency && gift.urgency.includes(urgency)) {
-      score += 5;
-    }
+    if (score < 0) score = 0;
 
-    score += getBudgetMatchScore(gift, budget);
-    score += getRiskScore(gift.riskLevel);
+    const matchPercent = Math.max(42, Math.min(98, Math.round(score)));
 
-    if (urgency === "Bugün lazım" && gift.riskLevel === "low") {
-      score += 3;
-    }
-
-    if (urgency === "Zamanım var" && gift.styles.includes("Kişiye özel")) {
-      score += 3;
-    }
-
-    if (avoidOptions.includes("Son dakika alınabilir olsun")) {
-      if (
-        gift.urgency.includes("Bugün lazım") ||
-        gift.urgency.includes("1–2 gün içinde")
-      ) {
-        score += 10;
-      }
-    }
-
-    if (isAvoidedGift(gift, avoidOptions)) {
-      score -= 100;
-    }
-
-    const matchPercent = Math.max(55, Math.min(98, 50 + score));
-
-    return { ...gift, score, matchPercent };
+    return {
+      ...gift,
+      score,
+      matchPercent,
+    };
   });
 
-  return scored.sort((a, b) => b.score - a.score).slice(0, 10);
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
 }
 
-type SpecialStore =
-  | "sephora"
-  | "watsons"
-  | "gratis"
-  | "thepurest"
-  | "nars"
-  | "maybelline";
+export function makeResultSummary(answers: AnswerMap) {
+  const recipient = getAnswer(answers, 0) || "seçilen kişi";
+  const budget = getAnswer(answers, 1) || "seçilen bütçe";
+  const occasion = getAnswer(answers, 2) || "özel gün";
+  const style = getAnswer(answers, 4) || "uygun tarz";
 
-type SpecialStoreLink = {
-  label: string;
-  platform: SpecialStore;
-  query: string;
-};
-
-function includesAny(values: string[], keywords: string[]) {
-  const joined = values.join(" ").toLocaleLowerCase("tr");
-
-  return keywords.some((keyword) =>
-    joined.includes(keyword.toLocaleLowerCase("tr"))
-  );
+  return `${recipient} için ${budget} aralığında, ${occasion.toLocaleLowerCase("tr")} odaklı ve ${style.toLocaleLowerCase("tr")} tarzına yakın öneriler hazırladık.`;
 }
 
-export function makeSpecialStoreUrl(platform: SpecialStore, query: string) {
-  return `/go?platform=${platform}&q=${encodeURIComponent(query)}`;
-}
+export function makeNotePrompt(gift: Gift, answers: AnswerMap) {
+  const recipient = getAnswer(answers, 0) || "özel biri";
+  const style = getAnswer(answers, 4) || "Duygusal";
 
-export function getSpecialStoreLinks(gift: Gift): SpecialStoreLink[] {
-  const values = [
+  return uniq([
+    recipient,
+    style,
     gift.title,
-    gift.category,
-    gift.subCategory,
-    ...gift.interests,
-    ...gift.styles,
-    gift.searchQuery,
-  ];
-
-  const isBeauty = includesAny(values, [
-    "beauty",
-    "makyaj",
-    "cilt",
-    "kozmetik",
-    "parfüm",
-    "bakım",
-    "serum",
-    "nemlendirici",
-    "güneş kremi",
-  ]);
-
-  const isMakeup = includesAny(values, [
-    "makyaj",
-    "ruj",
-    "maskara",
-    "fondöten",
-    "allık",
-    "far",
-    "lip",
-    "concealer",
-  ]);
-
-  const isSkincare = includesAny(values, [
-    "cilt",
-    "bakım",
-    "serum",
-    "nemlendirici",
-    "temizleyici",
-    "tonik",
-    "güneş kremi",
-    "the purest",
-  ]);
-
-  if (!isBeauty && !isMakeup && !isSkincare) {
-    return [];
-  }
-
-  const stores: SpecialStoreLink[] = [];
-
-  if (isMakeup) {
-    stores.push(
-      {
-        label: "Sephora'da ara",
-        platform: "sephora",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Watsons'ta ara",
-        platform: "watsons",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Gratis'te ara",
-        platform: "gratis",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Nars ürünlerine bak",
-        platform: "nars",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Maybelline ürünlerine bak",
-        platform: "maybelline",
-        query: gift.searchQuery,
-      }
-    );
-  }
-
-  if (isSkincare) {
-    stores.push(
-      {
-        label: "The Purest ürünlerine bak",
-        platform: "thepurest",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Watsons'ta ara",
-        platform: "watsons",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Gratis'te ara",
-        platform: "gratis",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Sephora'da ara",
-        platform: "sephora",
-        query: gift.searchQuery,
-      }
-    );
-  }
-
-  if (stores.length === 0) {
-    stores.push(
-      {
-        label: "Watsons'ta ara",
-        platform: "watsons",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Gratis'te ara",
-        platform: "gratis",
-        query: gift.searchQuery,
-      },
-      {
-        label: "Sephora'da ara",
-        platform: "sephora",
-        query: gift.searchQuery,
-      }
-    );
-  }
-
-  const unique = new Map<string, SpecialStoreLink>();
-
-  stores.forEach((store) => {
-    unique.set(store.platform, store);
-  });
-
-  return Array.from(unique.values()).slice(0, 5);
+  ]).join(" - ");
 }
