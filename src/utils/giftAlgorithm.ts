@@ -31,6 +31,57 @@ const interestCategoryMap: Record<string, string[]> = {
   Müzik: ["Müzik", "Hobi"],
 };
 
+const feminineSignals = [
+  "makyaj",
+  "kozmetik",
+  "beauty",
+  "cilt bakımı",
+  "takı",
+  "kolye",
+  "bileklik",
+  "küpe",
+  "çanta",
+  "bakım seti",
+  "parfüm",
+  "çiçek",
+  "mum",
+  "dekoratif",
+];
+
+const masculineSignals = [
+  "erkek",
+  "teknoloji",
+  "elektronik",
+  "oyun",
+  "gaming",
+  "spor",
+  "fitness",
+  "cüzdan",
+  "saat",
+  "traş",
+  "tıraş",
+  "araba",
+  "aksesuar",
+  "kamp",
+  "outdoor",
+];
+
+const neutralSignals = [
+  "kahve",
+  "kitap",
+  "defter",
+  "mug",
+  "termos",
+  "deneyim",
+  "anı",
+  "kişiye özel",
+  "fotoğraf",
+  "çikolata",
+  "kutu",
+  "ev",
+  "müzik",
+];
+
 const riskRules: Record<string, (gift: Gift) => number> = {
   "Beden/numara riski olmasın": (gift) =>
     includesAny(gift, ["Giyim", "Ayakkabı", "Moda"]) ? -35 : 8,
@@ -114,6 +165,31 @@ function getBudgetScore(gift: Gift, budgetLabel?: string) {
   return 0;
 }
 
+function getGenderScore(gift: Gift, gender?: string) {
+  if (!gender || gender === "Fark etmez") {
+    if (includesAny(gift, neutralSignals)) return 8;
+    return 0;
+  }
+
+  const feminine = includesAny(gift, feminineSignals);
+  const masculine = includesAny(gift, masculineSignals);
+  const neutral = includesAny(gift, neutralSignals);
+
+  if (gender === "Kadın") {
+    if (feminine) return 20;
+    if (masculine && !neutral) return -18;
+    if (neutral) return 8;
+  }
+
+  if (gender === "Erkek") {
+    if (masculine) return 20;
+    if (feminine && !neutral) return -18;
+    if (neutral) return 8;
+  }
+
+  return 0;
+}
+
 function getRiskPenalty(riskLevel: RiskLevel) {
   if (riskLevel === "low") return 10;
   if (riskLevel === "medium") return 0;
@@ -158,12 +234,13 @@ export function makeSearchUrl(
 
 export function getGiftResults(gifts: Gift[], answers: AnswerMap): ScoredGift[] {
   const recipient = getAnswer(answers, 0);
-  const budget = getAnswer(answers, 1);
-  const occasion = getAnswer(answers, 2);
-  const interests = getAnswers(answers, 3);
-  const style = getAnswer(answers, 4);
-  const urgency = getAnswer(answers, 5);
-  const riskAvoidance = getAnswers(answers, 6);
+  const gender = getAnswer(answers, 1);
+  const budget = getAnswer(answers, 2);
+  const occasion = getAnswer(answers, 3);
+  const interests = getAnswers(answers, 4);
+  const style = getAnswer(answers, 5);
+  const urgency = getAnswer(answers, 6);
+  const riskAvoidance = getAnswers(answers, 7);
 
   const scored = gifts.map((gift) => {
     let score = 0;
@@ -171,6 +248,7 @@ export function getGiftResults(gifts: Gift[], answers: AnswerMap): ScoredGift[] 
     if (recipient && gift.recipients.includes(recipient)) score += 32;
     if (recipient === "Diğer") score += 8;
 
+    score += getGenderScore(gift, gender);
     score += getBudgetScore(gift, budget);
 
     if (occasion && gift.occasions.includes(occasion)) score += 18;
@@ -218,20 +296,18 @@ export function getGiftResults(gifts: Gift[], answers: AnswerMap): ScoredGift[] 
 
 export function makeResultSummary(answers: AnswerMap) {
   const recipient = getAnswer(answers, 0) || "seçilen kişi";
-  const budget = getAnswer(answers, 1) || "seçilen bütçe";
-  const occasion = getAnswer(answers, 2) || "özel gün";
-  const style = getAnswer(answers, 4) || "uygun tarz";
+  const gender = getAnswer(answers, 1) || "fark etmez";
+  const budget = getAnswer(answers, 2) || "seçilen bütçe";
+  const occasion = getAnswer(answers, 3) || "özel gün";
+  const style = getAnswer(answers, 5) || "uygun tarz";
 
-  return `${recipient} için ${budget} aralığında, ${occasion.toLocaleLowerCase("tr")} odaklı ve ${style.toLocaleLowerCase("tr")} tarzına yakın öneriler hazırladık.`;
+  return `${recipient} için ${gender.toLocaleLowerCase("tr")} seçimine uygun, ${budget} aralığında, ${occasion.toLocaleLowerCase("tr")} odaklı ve ${style.toLocaleLowerCase("tr")} tarzına yakın öneriler hazırladık.`;
 }
 
 export function makeNotePrompt(gift: Gift, answers: AnswerMap) {
   const recipient = getAnswer(answers, 0) || "özel biri";
-  const style = getAnswer(answers, 4) || "Duygusal";
+  const gender = getAnswer(answers, 1) || "Fark etmez";
+  const style = getAnswer(answers, 5) || "Duygusal";
 
-  return uniq([
-    recipient,
-    style,
-    gift.title,
-  ]).join(" - ");
+  return uniq([recipient, gender, style, gift.title]).join(" - ");
 }

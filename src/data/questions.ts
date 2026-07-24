@@ -15,6 +15,10 @@ export const questions: Question[] = [
     ],
   },
   {
+    title: "Hediye alacağın kişi?",
+    options: ["Kadın", "Erkek", "Fark etmez"],
+  },
+  {
     title: "Bütçen ne kadar?",
     options: ["0–250 TL", "250–500 TL", "500–1000 TL", "1000–2500 TL", "2500 TL+"],
   },
