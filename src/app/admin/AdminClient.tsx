@@ -1,379 +1,320 @@
 "use client";
 
+import { useState } from "react";
 import GiftManager from "@/components/admin/GiftManager";
 
-import { useEffect, useMemo, useState } from "react";
+type TabId = "dashboard" | "gifts" | "seo" | "plans" | "tasks";
 
-const stats = [
+const tabs: { id: TabId; label: string }[] = [
+  { id: "dashboard", label: "Dashboard" },
+  { id: "gifts", label: "Hediyeler" },
+  { id: "seo", label: "SEO" },
+  { id: "plans", label: "Paketler" },
+  { id: "tasks", label: "Yapılacaklar" },
+];
+
+const liveLinks = [
+  { label: "Canlı site", href: "https://nealsamhediye.com" },
+  { label: "Hediye Bul", href: "https://nealsamhediye.com/hediye-bul" },
+  { label: "Blog", href: "https://nealsamhediye.com/blog" },
+  { label: "Deneyim", href: "https://nealsamhediye.com/deneyim" },
+];
+
+const seoPages = [
+  "https://nealsamhediye.com/",
+  "https://nealsamhediye.com/hediye-bul",
+  "https://nealsamhediye.com/blog",
+  "https://nealsamhediye.com/blog/kime-ne-hediye-alinir",
+  "https://nealsamhediye.com/blog/sevgiliye-ne-hediye-alinir",
+  "https://nealsamhediye.com/sitemap.xml",
+];
+
+const tasks = [
   {
-    title: "Toplam Hediye Fikri",
-    value: "120+",
-    change: "+ yeni fikir eklenebilir",
+    title: "Hediye havuzunu büyüt",
+    desc: "Kadın, erkek, anne, baba, arkadaş, sevgili ve iş arkadaşı için daha fazla ürün ekle.",
+    status: "Devam ediyor",
   },
   {
-    title: "Blog Yazısı",
-    value: "5",
-    change: "SEO içerikleri başladı",
+    title: "Mağaza linklerini test et",
+    desc: "Cilt bakımı, makyaj, teknoloji, takı ve ev kategorilerinde doğru mağazaya gidiyor mu kontrol et.",
+    status: "Önemli",
   },
   {
-    title: "Sitemap Sayfası",
-    value: "11",
-    change: "Google keşif için hazır",
+    title: "Search Console kontrolü",
+    desc: "Ana sayfa, hediye bul ve blog sayfaları index alıyor mu kontrol et.",
+    status: "SEO",
   },
   {
-    title: "Google Durumu",
-    value: "Doğrulandı",
-    change: "Search Console aktif",
+    title: "Paketleri netleştir",
+    desc: "Not, deneyim ve premium paketlerin kullanıcıya ne verdiğini sadeleştir.",
+    status: "Ürün",
   },
 ];
 
-type AdminGift = {
-  id: string;
-  title: string;
-  category: string;
-  sub_category: string;
-  price_min: number;
-  price_max: number;
-  risk_level: string;
-  is_active: boolean;
-  created_at: string;
-};
-
-const blogPosts = [
-  {
-    title: "Sevgiliye Ne Hediye Alınır?",
-    url: "/blog/sevgiliye-ne-hediye-alinir",
-    keyword: "sevgiliye hediye",
-    status: "Yayında",
-  },
-  {
-    title: "Anneye Doğum Günü Hediyesi",
-    url: "/blog/anneye-dogum-gunu-hediyesi",
-    keyword: "anneye hediye",
-    status: "Yayında",
-  },
-  {
-    title: "500 TL Altı Hediye Önerileri",
-    url: "/blog/500-tl-alti-hediye-onerileri",
-    keyword: "500 tl altı hediye",
-    status: "Yayında",
-  },
-  {
-    title: "Kime Ne Hediye Alınır?",
-    url: "/blog/kime-ne-hediye-alinir",
-    keyword: "kime ne hediye alınır",
-    status: "Yayında",
-  },
-];
-
-const seoTasks = [
-  "Google Search Console’da ana sayfa için index isteği gönder",
-  "Blog sayfaları için URL Inspection yap",
-  "Sitemap discovered pages sayısını kontrol et",
-  "Ana sayfa title ve description metinlerini düzenli kontrol et",
-  "Blog yazılarına iç link ekle",
-  "Hediye Bul sayfasına SEO açıklama alanı ekle",
-];
-
-const todos = [
-  {
-    title: "Hediye Bul risk sorusunu düzelt",
-    priority: "Yüksek",
-    status: "Bekliyor",
-  },
-  {
-    title: "Ana sayfaya daha güçlü SEO metni ekle",
-    priority: "Yüksek",
-    status: "Bekliyor",
-  },
-  {
-    title: "Paketler sayfasını ticari modele göre düzenle",
-    priority: "Orta",
-    status: "Planlandı",
-  },
-  {
-    title: "Gerçek admin giriş sistemi kur",
-    priority: "Yüksek",
-    status: "Sonraki aşama",
-  },
-];
-
-const quickLinks = [
-  { label: "Canlı Site", href: "https://nealsamhediye.netlify.app/" },
-  { label: "Hediye Bul", href: "/hediye-bul" },
-  { label: "Blog", href: "/blog" },
-  { label: "Paketler", href: "/paketler" },
-  { label: "Sitemap", href: "/sitemap.xml" },
-];
-
-const tabs = [
-  "Dashboard",
-  "Hediyeler",
-  "Blog",
-  "SEO",
-  "Paketler",
-  "Yapılacaklar",
-];
+function openUrl(url: string) {
+  window.open(url, "_blank", "noopener,noreferrer");
+}
 
 export default function AdminClient() {
-  const [adminGifts, setAdminGifts] = useState<AdminGift[]>([]);
-  const [isGiftLoading, setIsGiftLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabId>("dashboard");
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  useEffect(() => {
-    async function loadGifts() {
-      try {
-        const response = await fetch("/api/admin-gifts");
-        const data = await response.json();
-
-        setAdminGifts(data.gifts || []);
-      } catch (error) {
-        console.error("Hediyeler yüklenemedi:", error);
-      } finally {
-        setIsGiftLoading(false);
-      }
+  async function logout() {
+    try {
+      setLoggingOut(true);
+      await fetch("/api/admin-logout", {
+        method: "POST",
+      });
+      window.location.href = "/admin/login";
+    } catch {
+      setLoggingOut(false);
+      alert("Çıkış yapılırken hata oluştu.");
     }
-
-    loadGifts();
-  }, []);
-  async function handleLogout() {
-    await fetch("/api/admin-logout", {
-      method: "POST",
-    });
-
-    window.location.href = "/admin/login";
   }
 
-  const [activeTab, setActiveTab] = useState("Dashboard");
-  const [giftSearch, setGiftSearch] = useState("");
-
-  const filteredGifts = useMemo(() => {
-    return adminGifts.filter((gift) =>
-      `${gift.title} ${gift.category} ${gift.sub_category} ${gift.price_min} ${gift.price_max}`
-        .toLocaleLowerCase("tr")
-        .includes(giftSearch.toLocaleLowerCase("tr"))
-    );
-  }, [adminGifts, giftSearch]);
-
-
   return (
-    <main className="min-h-screen bg-[#fff7f3] px-6 py-8 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff7f3] px-5 py-8 text-[#2b1b1b]">
       <section className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-4 rounded-[2rem] bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm font-bold text-[#b83280]">NeAlsam Admin</p>
-            <h1 className="mt-2 text-4xl font-extrabold">Yönetim Paneli</h1>
-            <p className="mt-3 max-w-3xl leading-7 text-[#6b4b4b]">
-              Hediye önerilerini, blog içeriklerini, SEO durumunu ve site
-              geliştirme adımlarını buradan takip edebilirsin.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <a
-              href="/"
-              className="rounded-full bg-[#fff0f7] px-5 py-3 text-sm font-bold text-[#b83280]"
-            >
-              Siteye dön
-            </a>
-
-            <button
-              onClick={handleLogout}
-              className="rounded-full bg-[#b83280] px-5 py-3 text-sm font-bold text-white"
-            >
-              Çıkış yap
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-6 flex gap-2 overflow-x-auto rounded-full bg-white p-2 shadow-sm">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`shrink-0 rounded-full px-5 py-3 text-sm font-bold transition ${
-                activeTab === tab
-                  ? "bg-[#b83280] text-white"
-                  : "bg-[#fffaf7] text-[#6b4b4b] hover:text-[#b83280]"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {activeTab === "Dashboard" && (
-          <>
-            <div className="mt-6 grid gap-5 md:grid-cols-4">
-              {stats.map((stat) => (
-                <div
-                  key={stat.title}
-                  className="rounded-3xl bg-white p-6 shadow-sm"
-                >
-                  <p className="text-sm font-bold text-[#b83280]">
-                    {stat.title}
-                  </p>
-                  <h2 className="mt-3 text-3xl font-extrabold">
-                    {stat.value}
-                  </h2>
-                  <p className="mt-2 text-sm text-[#6b4b4b]">{stat.change}</p>
-                </div>
-              ))}
+        <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm md:p-8">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.3em] text-[#b83280]">
+                NeAlsam Admin
+              </p>
+              <h1 className="mt-3 text-4xl font-extrabold md:text-5xl">
+                Yönetim paneli
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#6b4b4b]">
+                Hediye fikirlerini, SEO sayfalarını, paketleri ve site kontrollerini
+                buradan yönetebilirsin.
+              </p>
             </div>
 
-            <div className="mt-6 grid gap-6 lg:grid-cols-3">
-              <div className="rounded-[2rem] bg-white p-6 shadow-sm lg:col-span-2">
-                <p className="text-sm font-bold text-[#b83280]">Genel Durum</p>
-                <h2 className="mt-2 text-3xl font-extrabold">
-                  Bugünkü odak noktaları
-                </h2>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => openUrl("https://nealsamhediye.com")}
+                className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white"
+              >
+                Siteyi Aç
+              </button>
 
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  {todos.slice(0, 4).map((todo) => (
-                    <div
-                      key={todo.title}
-                      className="rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <h3 className="font-extrabold">{todo.title}</h3>
-                        <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
-                          {todo.priority}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-sm font-semibold text-[#6b4b4b]">
-                        {todo.status}
-                      </p>
-                    </div>
-                  ))}
+              <button
+                onClick={logout}
+                disabled={loggingOut}
+                className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-5 py-3 text-sm font-bold text-[#b83280] disabled:opacity-50"
+              >
+                {loggingOut ? "Çıkılıyor..." : "Çıkış Yap"}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-7 flex gap-2 overflow-x-auto rounded-full bg-[#fff0f7] p-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`shrink-0 rounded-full px-5 py-3 text-sm font-bold transition ${
+                  activeTab === tab.id
+                    ? "bg-[#b83280] text-white shadow-sm"
+                    : "text-[#6b4b4b] hover:bg-white"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {activeTab === "dashboard" && (
+          <div className="mt-6 grid gap-6">
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+                <p className="text-sm font-bold text-[#b83280]">Site durumu</p>
+                <h2 className="mt-3 text-3xl font-extrabold">Aktif</h2>
+                <p className="mt-2 text-sm text-[#6b4b4b]">
+                  Domain ve Vercel yayını çalışıyor.
+                </p>
+              </div>
+
+              <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+                <p className="text-sm font-bold text-[#b83280]">Ana özellik</p>
+                <h2 className="mt-3 text-3xl font-extrabold">Hediye Bul</h2>
+                <p className="mt-2 text-sm text-[#6b4b4b]">
+                  Filtreleme ve mağaza yönlendirme aktif.
+                </p>
+              </div>
+
+              <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+                <p className="text-sm font-bold text-[#b83280]">SEO</p>
+                <h2 className="mt-3 text-3xl font-extrabold">Hazır</h2>
+                <p className="mt-2 text-sm text-[#6b4b4b]">
+                  Blog, sitemap ve Search Console kontrol edilecek.
+                </p>
+              </div>
+
+              <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+                <p className="text-sm font-bold text-[#b83280]">Paketler</p>
+                <h2 className="mt-3 text-3xl font-extrabold">Test</h2>
+                <p className="mt-2 text-sm text-[#6b4b4b]">
+                  Ödeme altyapısı gerçek ödeme öncesi hazır durumda.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-2xl font-extrabold">Hızlı linkler</h2>
+                  <p className="mt-2 text-sm text-[#6b4b4b]">
+                    Canlı sayfaları hızlıca kontrol et.
+                  </p>
                 </div>
               </div>
 
-              <aside className="rounded-[2rem] bg-white p-6 shadow-sm">
-                <p className="text-sm font-bold text-[#b83280]">Hızlı Linkler</p>
-                <h2 className="mt-2 text-3xl font-extrabold">Kontrol et</h2>
-
-                <div className="mt-5 space-y-3">
-                  {quickLinks.map((link) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      target={link.href.startsWith("http") ? "_blank" : "_self"}
-                      className="block rounded-2xl bg-[#fff0f7] px-4 py-3 text-sm font-bold text-[#b83280]"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-              </aside>
-            </div>
-          </>
-        )}
-
-        {activeTab === "Hediyeler" && <GiftManager />}
-
-        {activeTab === "Blog" && (
-          <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
-            <p className="text-sm font-bold text-[#b83280]">Blog Yönetimi</p>
-            <h2 className="mt-2 text-3xl font-extrabold">
-              Hediye rehberi yazıları
-            </h2>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {blogPosts.map((post) => (
-                <div
-                  key={post.url}
-                  className="rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-xl font-extrabold">{post.title}</h3>
-                    <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
-                      {post.status}
-                    </span>
-                  </div>
-
-                  <p className="mt-3 text-sm text-[#6b4b4b]">
-                    Hedef kelime: <strong>{post.keyword}</strong>
-                  </p>
-
-                  <a
-                    href={post.url}
-                    className="mt-4 inline-block rounded-full bg-[#b83280] px-5 py-3 text-sm font-bold text-white"
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {liveLinks.map((link) => (
+                  <button
+                    key={link.href}
+                    onClick={() => openUrl(link.href)}
+                    className="rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5 text-left transition hover:bg-[#fff0f7]"
                   >
-                    Yazıyı aç
-                  </a>
-                </div>
-              ))}
+                    <p className="text-sm font-bold text-[#b83280]">
+                      {link.label}
+                    </p>
+                    <p className="mt-2 break-all text-xs text-[#6b4b4b]">
+                      {link.href}
+                    </p>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {activeTab === "SEO" && (
-          <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
-            <p className="text-sm font-bold text-[#b83280]">SEO Kontrol</p>
-            <h2 className="mt-2 text-3xl font-extrabold">
-              Google görünürlüğü
-            </h2>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {seoTasks.map((task) => (
-                <div
-                  key={task}
-                  className="rounded-3xl bg-[#fffaf7] p-5 text-sm font-semibold leading-6 text-[#6b4b4b]"
-                >
-                  {task}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 rounded-3xl bg-[#fff0f7] p-5">
-              <h3 className="text-xl font-extrabold">Search Console Notu</h3>
-              <p className="mt-3 leading-7 text-[#6b4b4b]">
-                Google doğrulaması tamamlandı. Sitemap gönderildi. Index isteği
-                için kota dolarsa ertesi gün tekrar denenmeli.
+        {activeTab === "gifts" && (
+          <div className="mt-6 rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+            <div className="mb-6">
+              <h2 className="text-3xl font-extrabold">Hediye yönetimi</h2>
+              <p className="mt-2 text-sm text-[#6b4b4b]">
+                Hediye ekle, sil, aktif/pasif yap ve sonuç havuzunu yönet.
               </p>
             </div>
+
+            <GiftManager />
           </div>
         )}
 
-        {activeTab === "Paketler" && (
-          <div className="mt-6 grid gap-5 md:grid-cols-3">
-            {["Ücretsiz", "Premium", "Deneyim Paketi"].map((plan) => (
-              <div key={plan} className="rounded-[2rem] bg-white p-6 shadow-sm">
-                <p className="text-sm font-bold text-[#b83280]">Paket</p>
-                <h2 className="mt-2 text-3xl font-extrabold">{plan}</h2>
-                <p className="mt-4 leading-7 text-[#6b4b4b]">
-                  Bu paketin açıklaması, fiyatı ve içerikleri sonraki aşamada
-                  buradan yönetilebilir.
+        {activeTab === "seo" && (
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+              <h2 className="text-3xl font-extrabold">SEO kontrol listesi</h2>
+              <p className="mt-2 text-sm text-[#6b4b4b]">
+                Search Console’da kontrol edilecek önemli sayfalar.
+              </p>
+
+              <div className="mt-5 grid gap-3">
+                {seoPages.map((page) => (
+                  <div
+                    key={page}
+                    className="flex flex-col gap-3 rounded-3xl bg-[#fffaf7] p-4 md:flex-row md:items-center md:justify-between"
+                  >
+                    <p className="break-all text-sm font-bold text-[#2b1b1b]">
+                      {page}
+                    </p>
+
+                    <button
+                      onClick={() => openUrl(page)}
+                      className="rounded-full bg-[#b83280] px-4 py-2 text-sm font-bold text-white"
+                    >
+                      Aç
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+              <h2 className="text-2xl font-extrabold">SEO notları</h2>
+
+              <div className="mt-5 space-y-4 text-sm leading-6 text-[#6b4b4b]">
+                <p>
+                  Ana hedef kelime: <b>ne alsam hediye</b>
                 </p>
-                <button className="mt-5 rounded-full bg-[#b83280] px-5 py-3 text-sm font-bold text-white opacity-60">
-                  Yakında düzenlenebilir
-                </button>
+                <p>
+                  Hediye Bul sayfası ana dönüşüm sayfası olduğu için en önemli
+                  sayfalardan biri.
+                </p>
+                <p>
+                  Blog sayfaları Google’dan trafik çekmek için düzenli
+                  genişletilmeli.
+                </p>
+                <p>
+                  Admin, ödeme, demo ve kişisel not sayfaları indexlenmemeli.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "plans" && (
+          <div className="mt-6 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                name: "Not Paketi",
+                price: "29 TL",
+                desc: "Hediye notu, QR mesaj ve kart indirme odaklı.",
+              },
+              {
+                name: "Deneyim Paketi",
+                price: "79 TL",
+                desc: "Hikaye, gizemli hediye, kader bağı ve deneyim modları.",
+              },
+              {
+                name: "Premium Paket",
+                price: "149 TL",
+                desc: "Tüm modlar, daha özel notlar ve kapsamlı deneyim.",
+              },
+            ].map((plan) => (
+              <div
+                key={plan.name}
+                className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm"
+              >
+                <p className="text-sm font-bold text-[#b83280]">{plan.name}</p>
+                <h2 className="mt-3 text-4xl font-extrabold">{plan.price}</h2>
+                <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+                  {plan.desc}
+                </p>
               </div>
             ))}
           </div>
         )}
 
-        {activeTab === "Yapılacaklar" && (
-          <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
-            <p className="text-sm font-bold text-[#b83280]">Roadmap</p>
-            <h2 className="mt-2 text-3xl font-extrabold">
-              NeAlsam geliştirme listesi
-            </h2>
+        {activeTab === "tasks" && (
+          <div className="mt-6 rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+            <h2 className="text-3xl font-extrabold">Yapılacaklar</h2>
+            <p className="mt-2 text-sm text-[#6b4b4b]">
+              Siteyi büyütmek için sıradaki işler.
+            </p>
 
-            <div className="mt-6 space-y-4">
-              {todos.map((todo) => (
+            <div className="mt-6 grid gap-4">
+              {tasks.map((task) => (
                 <div
-                  key={todo.title}
-                  className="flex flex-col gap-3 rounded-3xl bg-[#fffaf7] p-5 md:flex-row md:items-center md:justify-between"
+                  key={task.title}
+                  className="rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5"
                 >
-                  <div>
-                    <h3 className="font-extrabold">{todo.title}</h3>
-                    <p className="mt-1 text-sm text-[#6b4b4b]">
-                      Durum: {todo.status}
-                    </p>
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <h3 className="text-xl font-extrabold">{task.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-[#6b4b4b]">
+                        {task.desc}
+                      </p>
+                    </div>
+
+                    <span className="w-fit rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-bold text-[#b83280]">
+                      {task.status}
+                    </span>
                   </div>
-                  <span className="w-fit rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-bold text-[#b83280]">
-                    {todo.priority}
-                  </span>
                 </div>
               ))}
             </div>
