@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { giftTemplates } from "@/data/giftTemplates";
+import ExportGiftsButton from "@/components/admin/ExportGiftsButton";
 
 type RiskLevel = "low" | "medium" | "high";
 
@@ -482,6 +483,10 @@ export default function GiftManager() {
             <p className="mt-1 text-sm text-slate-500">
               {filteredGifts.length} hediye gösteriliyor. Toplam {gifts.length} kayıt var.
             </p>
+
+            <div className="mt-3">
+              <ExportGiftsButton gifts={filteredGifts} />
+            </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-3 lg:w-[720px]">
