@@ -311,3 +311,80 @@ export function makeNotePrompt(gift: Gift, answers: AnswerMap) {
 
   return uniq([recipient, gender, style, gift.title]).join(" - ");
 }
+
+export function getGiftBadges(gift: Gift, answers: string[][]): string[] {
+  const badges: string[] = [];
+
+  const urgency = answers[6] || [];
+  const riskAvoidance = answers[7] || [];
+
+  if (gift.riskLevel === "low") {
+    badges.push("En güvenli seçim");
+  }
+
+  if (
+    urgency.includes("Bugün lazım") &&
+    gift.urgency.some((item) => item === "Bugün lazım")
+  ) {
+    badges.push("Son dakika uygun");
+  }
+
+  if (
+    gift.styles.some(
+      (style) =>
+        style === "Kişiye özel" ||
+        style === "Duygusal" ||
+        style === "Romantik" ||
+        style === "Deneyim hediyesi"
+    )
+  ) {
+    badges.push("Daha özel seçim");
+  }
+
+  if (
+    riskAvoidance.includes("Beden/ölçü riski olmasın") &&
+    gift.riskLevel === "low"
+  ) {
+    badges.push("Beden riski yok");
+  }
+
+  if (
+    riskAvoidance.includes("Zevk riski düşük olsun") &&
+    gift.riskLevel === "low"
+  ) {
+    badges.push("Zevk riski düşük");
+  }
+
+  return badges.slice(0, 3);
+}
+
+export function getMatchExplanation(gift: Gift, answers: string[][]): string {
+  const recipient = answers[0]?.[0];
+  const budget = answers[2]?.[0];
+  const occasion = answers[3]?.[0];
+
+  const parts: string[] = [];
+
+  if (recipient) {
+    parts.push(`${recipient.toLowerCase()} için uygun`);
+  }
+
+  if (budget) {
+    parts.push(`${budget.toLowerCase()} bütçesine yakın`);
+  }
+
+  if (occasion) {
+    parts.push(`${occasion.toLowerCase()} için anlamlı`);
+  }
+
+  if (gift.riskLevel === "low") {
+    parts.push("düşük riskli");
+  }
+
+  if (parts.length === 0) {
+    return "Seçtiğin cevaplara göre dengeli bir öneri.";
+  }
+
+  return `${parts.join(", ")} bir hediye olduğu için önerildi.`;
+}
+
