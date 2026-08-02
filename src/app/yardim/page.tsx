@@ -1,87 +1,156 @@
-import Navbar from "@/components/Navbar";
 import Link from "next/link";
+
+export const metadata = {
+  title: "Yardım ve SSS | NeAlsam Hediye",
+  description:
+    "NeAlsam Hediye nasıl çalışır, hediye önerileri nasıl seçilir, premium deneyim ve admin sistemi hakkında sık sorulan sorular.",
+};
 
 const faqs = [
   {
-    q: "NeAlsam fiziksel ürün satıyor mu?",
-    a: "Hayır. NeAlsam ürün satmaz. Sana hediye fikri, arama linki, kişisel not, QR mesaj, hikâye, mektup ve yaratıcı sunum fikri üretir.",
+    question: "NeAlsam nasıl çalışır?",
+    answer:
+      "NeAlsam; kime hediye alacağını, bütçeni, özel günü, ilgi alanlarını ve risk tercihlerini dikkate alarak sana daha uygun hediye fikirleri önerir.",
   },
   {
-    q: "Hediyeyi nereden alacağım?",
-    a: "Hediyeyi Trendyol, Amazon, Hepsiburada veya istediğin herhangi bir mağazadan kendin alırsın.",
+    question: "Öneriler gerçek ürün mü?",
+    answer:
+      "NeAlsam doğrudan ürün satmaz. Sana uygun hediye fikri verir ve ilgili mağazalarda arama yapabileceğin yönlendirmeler sunar.",
   },
   {
-    q: "QR kod ne işe yarıyor?",
-    a: "QR kod seçtiğin notu dijital olarak taşır. Hediyenin yanına koyduğunda alıcı QR’ı okutarak özel mesajını görebilir.",
+    question: "Hediye önerileri neye göre sıralanıyor?",
+    answer:
+      "Öneriler kişi, bütçe, özel gün, ilgi alanı, hediye tarzı, aciliyet ve risk tercihlerine göre puanlanır. Daha yüksek eşleşen hediyeler üstte görünür.",
   },
   {
-    q: "Paket alınca ne oluyor?",
-    a: "Demo sürümde paket hesabına tanımlanır. Gerçek sürümde ödeme sonrası paket veritabanında hesabına bağlanır.",
+    question: "Risk seviyesi ne demek?",
+    answer:
+      "Risk seviyesi; beden, renk, koku, cilt uyumu veya kişisel zevk gibi belirsizlikleri ifade eder. Düşük riskli hediyeler genelde daha güvenli seçeneklerdir.",
   },
   {
-    q: "Aylık kullanım hakkı nasıl çalışıyor?",
-    a: "İçerik oluşturdukça kalan hakkın azalır. Hesabım sayfasından kalan hakkını görebilirsin.",
+    question: "Premium deneyim ne işe yarar?",
+    answer:
+      "Premium deneyim; hediye fikrini daha özel hale getirmek için QR kodlu mesaj, kişiye özel not, deneyim fikri ve indirilebilir kart gibi ekstra özellikler sunar.",
   },
   {
-    q: "E-posta doğrulama neden var?",
-    a: "Paket ve ödeme bilgilerini doğru hesaba bağlamak için e-posta doğrulama gerekir.",
+    question: "NeAlsam ödeme veya kart bilgisi alıyor mu?",
+    answer:
+      "Mevcut sistem ödeme altyapısı için hazırlık durumundadır. Gerçek ödeme sistemi bağlanmadan kart bilgisi alınmaz.",
+  },
+  {
+    question: "Admin panel ne işe yarar?",
+    answer:
+      "Admin panel, hediye havuzunu yönetmek için kullanılır. Yeni hediye ekleme, aktif/pasif yapma, düzenleme, kategori filtreleme ve sistem durumunu kontrol etme gibi işlemler buradan yapılır.",
+  },
+  {
+    question: "Bir hediye önerisi bana uygun değilse ne yapabilirim?",
+    answer:
+      "Hediye Bul sonucunda istemediğin hediyeyi veya benzer kategorileri filtreleyebilirsin. Ayrıca cevaplarını değiştirerek daha doğru öneriler alabilirsin.",
+  },
+];
+
+const supportCards = [
+  {
+    title: "Hediye bulamıyorum",
+    text: "Bütçeyi biraz genişlet, ilgi alanlarını artır ve düşük riskli seçenekleri tercih et.",
+  },
+  {
+    title: "Son dakika hediyesi lazım",
+    text: "Bugün lazım seçeneğini işaretle. Dijital hediyeler, çiçek, kahve seti ve organizer gibi seçenekler daha uygun olabilir.",
+  },
+  {
+    title: "Çok özel bir hediye istiyorum",
+    text: "Romantik, duygusal veya deneyim hediyesi tarzlarını seç. Premium deneyim bölümünden QR not ve özel mesaj hazırlayabilirsin.",
   },
 ];
 
 export default function HelpPage() {
   return (
-    <main className="min-h-screen bg-[#fff7f3] text-[#2b1b1b]">
-      <Navbar />
-
-      <section className="mx-auto max-w-5xl px-6 pb-16">
-        <div className="rounded-3xl bg-white p-8 text-center shadow-sm">
-          <p className="mb-4 inline-flex rounded-full bg-[#fff0f7] px-4 py-2 text-sm font-bold text-[#b83280]">
-            Yardım ve SSS
+    <main className="min-h-screen bg-[#fff7fb]">
+      <section className="mx-auto max-w-7xl px-5 py-16">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-bold text-pink-600">Yardım Merkezi</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
+            NeAlsam hakkında merak edilenler
+          </h1>
+          <p className="mt-5 text-base leading-7 text-[#6b4a4a]">
+            Hediye önerilerinin nasıl çalıştığını, risk seviyelerini, premium
+            deneyimi ve mağaza yönlendirmelerini burada bulabilirsin.
           </p>
 
-          <h1 className="text-5xl font-black">NeAlsam nasıl çalışır?</h1>
-
-          <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-[#6b4b4b]">
-            NeAlsam hediyeyi satmaz; hediyenin fikrini, notunu, QR mesajını,
-            hikâyesini ve sunumunu hazırlar.
-          </p>
-        </div>
-
-        <div className="mt-8 grid gap-4">
-          {faqs.map((item) => (
-            <div key={item.q} className="rounded-3xl bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-black text-[#b83280]">{item.q}</h2>
-              <p className="mt-3 text-sm leading-7 text-[#6b4b4b]">
-                {item.a}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-8 rounded-3xl bg-[#2b1b1b] p-8 text-center text-white">
-          <h2 className="text-3xl font-black">Başlamak ister misin?</h2>
-
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-[#ffeaf3]">
-            Önce hediye fikri bulabilir, sonra seçtiğin hediyenin yanına özel
-            not ve QR mesaj oluşturabilirsin.
-          </p>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               href="/hediye-bul"
-              className="rounded-full bg-white px-6 py-3 font-bold text-[#b83280]"
+              className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white transition hover:opacity-90"
             >
               Hediye Bul
             </Link>
 
             <Link
-              href="/deneyim?mode=not"
-              className="rounded-full bg-[#b83280] px-6 py-3 font-bold text-white"
+              href="/paketler"
+              className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
             >
-              Not Oluştur
+              Paketleri İncele
             </Link>
           </div>
         </div>
+
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {supportCards.map((card) => (
+            <article
+              key={card.title}
+              className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm"
+            >
+              <h2 className="text-xl font-black text-[#2b1b1b]">
+                {card.title}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
+                {card.text}
+              </p>
+            </article>
+          ))}
+        </div>
+
+        <section className="mt-14 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
+          <p className="text-sm font-bold text-pink-600">Sık Sorulan Sorular</p>
+          <h2 className="mt-2 text-3xl font-black text-[#2b1b1b]">
+            Kısa cevaplarla NeAlsam
+          </h2>
+
+          <div className="mt-7 grid gap-4">
+            {faqs.map((faq) => (
+              <article
+                key={faq.question}
+                className="rounded-2xl border border-pink-100 bg-[#fff7fb] p-5"
+              >
+                <h3 className="font-black text-[#2b1b1b]">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
+                  {faq.answer}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12 rounded-[2rem] bg-[#2b1b1b] p-8 text-white">
+          <p className="text-sm font-bold text-pink-200">
+            Hâlâ karar veremedin mi?
+          </p>
+          <h2 className="mt-2 text-3xl font-black">
+            En hızlı yol testi başlatmak
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-white/75">
+            Kime hediye alacağını, bütçeni ve özel günü seç; NeAlsam sana daha
+            uygun hediye fikirlerini sıralasın.
+          </p>
+
+          <Link
+            href="/hediye-bul"
+            className="mt-6 inline-flex rounded-full bg-white px-6 py-4 text-sm font-black text-[#2b1b1b] transition hover:bg-pink-50"
+          >
+            Hediye Bul’a Git
+          </Link>
+        </section>
       </section>
     </main>
   );
