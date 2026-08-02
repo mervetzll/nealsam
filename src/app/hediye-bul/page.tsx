@@ -1,5 +1,7 @@
 "use client";
 
+import ShareGiftButton from "@/components/ShareGiftButton";
+
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { gifts as fallbackGifts } from "@/data/gifts";
@@ -207,7 +209,26 @@ function GiftResultCard({
           </Link>
         </div>
       </div>
-    </article>
+    
+                      <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff7fb] p-4">
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                          <div>
+                            <p className="text-sm font-black text-[#2b1b1b]">
+                              Bu öneriyi paylaş
+                            </p>
+                            <p className="mt-1 text-xs font-semibold text-[#7a5c5c]">
+                              Hediye fikrini WhatsApp, mesaj veya not olarak paylaşabilirsin.
+                            </p>
+                          </div>
+
+                          <ShareGiftButton
+                            title={gift.title}
+                            text={`${gift.title} — ${gift.reason}`}
+                          />
+                        </div>
+                      </div>
+
+                    </article>
   );
 }
 
