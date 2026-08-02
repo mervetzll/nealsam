@@ -17,53 +17,44 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center gap-4 px-5 py-4">
         <GiftLogo small />
 
-        <div className="ml-auto hidden items-center gap-2 lg:flex">
+        <div className="ml-auto hidden items-center gap-2 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] transition hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700"
+              className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm transition hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700"
             >
               {item.label}
             </Link>
           ))}
         </div>
 
-        <div className="ml-auto flex items-center gap-2 lg:hidden">
-          <Link
-            href="/hediye-bul"
-            className="rounded-full bg-[#2b1b1b] px-4 py-2 text-sm font-black text-white transition hover:opacity-90"
-          >
-            Hediye Bul
-          </Link>
-
-          <Link
-            href="/hesabim"
-            className="rounded-full border border-pink-200 bg-white px-4 py-2 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-          >
-            Hesabım
-          </Link>
-        </div>
-
         <Link
-          href="/hediye-bul"
-          className="hidden rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90 lg:inline-flex"
+          href="/giris"
+          className="hidden rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-pink-700 md:inline-flex"
         >
-          Başla
+          Giriş Yap
         </Link>
       </nav>
 
-      <div className="border-t border-pink-50 bg-[#fff7fb] px-5 py-2 lg:hidden">
+      <div className="border-t border-pink-50 bg-[#fff7fb] px-5 py-2 md:hidden">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap rounded-full bg-white px-4 py-2 text-xs font-black text-[#6b4a4a] shadow-sm"
+              className="whitespace-nowrap rounded-full border border-pink-100 bg-white px-4 py-2 text-xs font-black text-[#6b4a4a] shadow-sm"
             >
               {item.label}
             </Link>
           ))}
+
+          <Link
+            href="/giris"
+            className="whitespace-nowrap rounded-full bg-pink-600 px-4 py-2 text-xs font-black text-white shadow-sm"
+          >
+            Giriş Yap
+          </Link>
         </div>
       </div>
     </header>
