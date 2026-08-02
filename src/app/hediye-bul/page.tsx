@@ -80,7 +80,7 @@ function GiftResultCard({
   const bestNote = storeLinks.find((item) => item.note)?.note;
 
   return (
-    <article className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
+    <article className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -139,7 +139,7 @@ function GiftResultCard({
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-bold text-[#b83280]">
-              Daha doğru mağaza önerileri
+              Bu hediye için daha doğru mağaza önerileri
             </p>
             <p className="mt-2 text-sm leading-6 text-[#6b4b4b]">
               {bestNote || "Bu hediye için en mantıklı arama kaynakları hazırlandı."}
