@@ -109,7 +109,18 @@ export default function PackagesPage() {
                 {item.description}
               </p>
 
-              <p className="mt-6 text-3xl font-black">{item.price}</p>
+              <div
+                className={`mt-6 rounded-2xl px-5 py-4 ${
+                  item.highlighted ? "bg-white" : "bg-pink-50"
+                }`}
+              >
+                <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+                  Paket Fiyatı
+                </p>
+                <p className="mt-1 text-4xl font-black text-[#2b1b1b]">
+                  {item.price}
+                </p>
+              </div>
 
               <ul className="mt-6 space-y-3">
                 {item.items.map((feature) => (
