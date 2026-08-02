@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { gifts } from "@/data/gifts";
+import { useEffect, useMemo, useState } from "react";
+import { gifts as fallbackGifts } from "@/data/gifts";
 import { questions } from "@/data/questions";
-import type { ScoredGift } from "@/types/gift";
+import type { Gift, ScoredGift } from "@/types/gift";
 import { getStoreLinksForGift } from "@/utils/giftStores";
 import {
   getGiftResults,
@@ -217,14 +217,46 @@ export default function HediyeBulPage() {
   const [showResults, setShowResults] = useState(false);
   const [blockedTitles, setBlockedTitles] = useState<string[]>([]);
   const [blockedCategories, setBlockedCategories] = useState<string[]>([]);
+  const [giftPool, setGiftPool] = useState<Gift[]>(fallbackGifts);
+  const [giftSource, setGiftSource] = useState<"supabase" | "fallback" | "loading">("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPublicGifts() {
+      try {
+        const response = await fetch("/api/gifts", {
+          cache: "no-store",
+        });
+
+        const data = await response.json();
+
+        if (!cancelled && Array.isArray(data.gifts) && data.gifts.length > 0) {
+          setGiftPool(data.gifts);
+          setGiftSource(data.source === "supabase" ? "supabase" : "fallback");
+        }
+      } catch {
+        if (!cancelled) {
+          setGiftPool(fallbackGifts);
+          setGiftSource("fallback");
+        }
+      }
+    }
+
+    loadPublicGifts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const currentQuestion = questions[step];
   const answeredCurrent = (answers[step] || []).length > 0;
   const progress = Math.round(((step + 1) / questions.length) * 100);
 
   const allResults = useMemo(() => {
-    return getGiftResults(gifts, answers);
-  }, [answers]);
+    return getGiftResults(giftPool, answers);
+  }, [answers, giftPool]);
 
   const results = useMemo(() => {
     return allResults
@@ -286,6 +318,10 @@ export default function HediyeBulPage() {
                 </h1>
                 <p className="mt-5 max-w-3xl text-lg leading-8 text-[#6b4b4b]">
                   {makeResultSummary(answers)}
+                </p>
+
+                <p className="mt-3 text-xs font-bold text-[#b83280]">
+                  Hediye havuzu: {giftSource === "supabase" ? "Admin panel / Supabase" : giftSource === "loading" ? "Yükleniyor" : "Yedek liste"}
                 </p>
               </div>
 
