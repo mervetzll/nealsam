@@ -164,6 +164,34 @@ export default function OdemeClient() {
               />
             </div>
 
+
+            <div className="mt-8 rounded-[1.5rem] border border-pink-100 bg-white p-5">
+              <h3 className="font-black text-[#2b1b1b]">
+                Ödeme akışı nasıl olacak?
+              </h3>
+
+              <div className="mt-5 grid gap-3">
+                {[
+                  "Paket seçimini ve toplam tutarı kontrol edersin.",
+                  "Gerçek ödeme altyapısı aktif olduğunda güvenli sağlayıcıya yönlendirilirsin.",
+                  "Ödeme tamamlanınca premium hediye deneyimi açılır.",
+                  "Hediye notu, QR mesaj ve özel önerileri kullanabilirsin.",
+                ].map((step, index) => (
+                  <div
+                    key={step}
+                    className="flex gap-3 rounded-2xl bg-[#fff7fb] p-4"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pink-600 text-xs font-black text-white">
+                      {index + 1}
+                    </span>
+                    <p className="text-sm font-semibold leading-6 text-[#6b4a4a]">
+                      {step}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
               <h3 className="font-black text-amber-900">
                 Ödeme altyapısı henüz test modunda
