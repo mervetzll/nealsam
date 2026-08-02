@@ -2,272 +2,597 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+type RiskLevel = "low" | "medium" | "high";
+
 type AdminGift = {
   id: string;
   title: string;
   category: string;
-  sub_category: string;
-  price_min: number;
-  price_max: number;
+  subCategory: string;
+  priceMin: number;
+  priceMax: number;
   recipients: string[];
   interests: string[];
   styles: string[];
   occasions: string[];
   urgency: string[];
-  risk_level: string;
+  riskLevel: RiskLevel;
   reason: string;
   note: string;
-  search_query: string;
-  is_active: boolean;
-  created_at: string;
+  searchQuery: string;
+  isActive: boolean;
+  createdAt?: string;
 };
 
-const emptyForm = {
+type GiftForm = Omit<AdminGift, "id" | "createdAt"> & {
+  id?: string;
+};
+
+const emptyForm: GiftForm = {
   title: "",
-  category: "Kahve",
-  sub_category: "",
-  price_min: "",
-  price_max: "",
-  recipients: "Sevgilim,Annem,Arkadaşım,Kardeşim",
-  interests: "",
-  styles: "Kullanışlı,Minimal",
-  occasions: "Doğum günü,İçimden geldi",
-  urgency: "1–2 gün içinde,1 hafta içinde",
-  risk_level: "low",
+  category: "",
+  subCategory: "",
+  priceMin: 0,
+  priceMax: 0,
+  recipients: [],
+  interests: [],
+  styles: [],
+  occasions: [],
+  urgency: [],
+  riskLevel: "low",
   reason: "",
   note: "",
-  search_query: "",
+  searchQuery: "",
+  isActive: true,
 };
 
-function splitValues(value: string) {
+function arrayToText(values: string[]) {
+  return values.join(", ");
+}
+
+function textToArray(value: string) {
   return value
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
 }
 
+function formFromGift(gift: AdminGift): GiftForm {
+  return {
+    id: gift.id,
+    title: gift.title,
+    category: gift.category,
+    subCategory: gift.subCategory,
+    priceMin: gift.priceMin,
+    priceMax: gift.priceMax,
+    recipients: gift.recipients || [],
+    interests: gift.interests || [],
+    styles: gift.styles || [],
+    occasions: gift.occasions || [],
+    urgency: gift.urgency || [],
+    riskLevel: gift.riskLevel || "low",
+    reason: gift.reason || "",
+    note: gift.note || "",
+    searchQuery: gift.searchQuery || "",
+    isActive: gift.isActive,
+  };
+}
+
+function getSearchUrl(query: string) {
+  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+}
+
 export default function GiftManager() {
   const [gifts, setGifts] = useState<AdminGift[]>([]);
+  const [form, setForm] = useState<GiftForm>(emptyForm);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const isEditing = Boolean(form.id);
 
   const filteredGifts = useMemo(() => {
-    return gifts.filter((gift) =>
-      `${gift.title} ${gift.category} ${gift.sub_category}`
-        .toLocaleLowerCase("tr")
-        .includes(search.toLocaleLowerCase("tr"))
-    );
+    const q = search.toLocaleLowerCase("tr-TR").trim();
+
+    if (!q) return gifts;
+
+    return gifts.filter((gift) => {
+      return [
+        gift.title,
+        gift.category,
+        gift.subCategory,
+        gift.searchQuery,
+        gift.reason,
+        ...gift.recipients,
+        ...gift.interests,
+        ...gift.styles,
+      ]
+        .join(" ")
+        .toLocaleLowerCase("tr-TR")
+        .includes(q);
+    });
   }, [gifts, search]);
 
+  const activeCount = gifts.filter((gift) => gift.isActive).length;
+  const passiveCount = gifts.length - activeCount;
+
   async function loadGifts() {
-    setIsLoading(true);
+    try {
+      setLoading(true);
+      setError("");
 
-    const response = await fetch("/api/admin-gifts");
-    const data = await response.json();
+      const response = await fetch("/api/admin-gifts", {
+        cache: "no-store",
+      });
 
-    setGifts(data.gifts || []);
-    setIsLoading(false);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Hediyeler alınamadı.");
+      }
+
+      setGifts(data.gifts || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bilinmeyen hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     loadGifts();
   }, []);
 
-  async function addGift(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage("");
+  function updateForm<K extends keyof GiftForm>(key: K, value: GiftForm[K]) {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  }
 
-    const payload = {
-      title: form.title,
-      category: form.category,
-      sub_category: form.sub_category,
-      price_min: Number(form.price_min),
-      price_max: Number(form.price_max),
-      recipients: splitValues(form.recipients),
-      interests: splitValues(form.interests),
-      styles: splitValues(form.styles),
-      occasions: splitValues(form.occasions),
-      urgency: splitValues(form.urgency),
-      risk_level: form.risk_level,
-      reason: form.reason,
-      note: form.note,
-      search_query: form.search_query,
-    };
-
-    const response = await fetch("/api/admin-gifts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      setMessage("Hediye eklenemedi.");
-      return;
-    }
-
-    setMessage("Hediye başarıyla eklendi.");
+  function resetForm() {
     setForm(emptyForm);
-    setIsFormOpen(false);
-    loadGifts();
+    setError("");
+    setSuccess("");
   }
 
-  async function toggleGift(gift: AdminGift) {
-    await fetch("/api/admin-gifts", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: gift.id,
-        is_active: !gift.is_active,
-      }),
-    });
+  async function saveGift() {
+    try {
+      setSaving(true);
+      setError("");
+      setSuccess("");
 
-    loadGifts();
+      const payload: GiftForm = {
+        ...form,
+        searchQuery: form.searchQuery.trim() || form.title.trim(),
+      };
+
+      const response = await fetch("/api/admin-gifts", {
+        method: isEditing ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kayıt başarısız.");
+      }
+
+      if (isEditing) {
+        setGifts((current) =>
+          current.map((gift) => (gift.id === data.gift.id ? data.gift : gift))
+        );
+        setSuccess("Hediye güncellendi.");
+      } else {
+        setGifts((current) => [data.gift, ...current]);
+        setSuccess("Yeni hediye eklendi.");
+      }
+
+      setForm(emptyForm);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bilinmeyen hata oluştu.");
+    } finally {
+      setSaving(false);
+    }
   }
 
-  async function deleteGift(gift: AdminGift) {
-    const confirmed = confirm(`${gift.title} silinsin mi?`);
+  async function deleteGift(id: string) {
+    const confirmed = window.confirm("Bu hediyeyi silmek istediğine emin misin?");
 
     if (!confirmed) return;
 
-    await fetch("/api/admin-gifts", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: gift.id,
-      }),
-    });
+    try {
+      setError("");
+      setSuccess("");
 
-    loadGifts();
+      const response = await fetch(`/api/admin-gifts?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Silme başarısız.");
+      }
+
+      setGifts((current) => current.filter((gift) => gift.id !== id));
+      setSuccess("Hediye silindi.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bilinmeyen hata oluştu.");
+    }
+  }
+
+  async function toggleGift(gift: AdminGift) {
+    try {
+      setError("");
+      setSuccess("");
+
+      const response = await fetch("/api/admin-gifts", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...gift,
+          isActive: !gift.isActive,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Durum değiştirilemedi.");
+      }
+
+      setGifts((current) =>
+        current.map((item) => (item.id === data.gift.id ? data.gift : item))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bilinmeyen hata oluştu.");
+    }
   }
 
   return (
-    <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-sm font-bold text-[#b83280]">Hediye Yönetimi</p>
-          <h2 className="mt-2 text-3xl font-extrabold">Supabase hediye havuzu</h2>
-          <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
-            Buradan yeni hediye ekleyebilir, hediyeleri aktif/pasif yapabilir veya silebilirsin.
-          </p>
+    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="rounded-[2rem] border border-[#f0d7df] bg-[#fffaf7] p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-2xl font-extrabold">
+              {isEditing ? "Hediyeyi düzenle" : "Yeni hediye ekle"}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[#6b4b4b]">
+              Search query alanı mağaza yönlendirmelerini etkiler. Örneğin:
+              “cilt bakım seti hediye”, “makyaj organizeri”, “erkek deri cüzdan”.
+            </p>
+          </div>
+
+          {isEditing && (
+            <button
+              onClick={resetForm}
+              className="rounded-full bg-white px-4 py-2 text-xs font-bold text-[#b83280]"
+            >
+              Yeni ekle
+            </button>
+          )}
         </div>
 
-        <button
-          onClick={() => setIsFormOpen((value) => !value)}
-          className="rounded-full bg-[#b83280] px-6 py-3 text-sm font-bold text-white"
-        >
-          {isFormOpen ? "Formu kapat" : "Yeni hediye ekle"}
-        </button>
-      </div>
+        <div className="mt-5 grid gap-4">
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">Hediye adı</span>
+            <input
+              value={form.title}
+              onChange={(event) => updateForm("title", event.target.value)}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              placeholder="Cilt bakım başlangıç seti"
+            />
+          </label>
 
-      {message && (
-        <div className="mt-5 rounded-2xl bg-[#fff0f7] p-4 text-sm font-bold text-[#b83280]">
-          {message}
-        </div>
-      )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-[#2b1b1b]">Kategori</span>
+              <input
+                value={form.category}
+                onChange={(event) => updateForm("category", event.target.value)}
+                className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+                placeholder="Cilt bakımı"
+              />
+            </label>
 
-      {isFormOpen && (
-        <form onSubmit={addGift} className="mt-6 rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <input className="rounded-2xl border p-4" placeholder="Hediye adı" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-            <input className="rounded-2xl border p-4" placeholder="Kategori" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required />
-            <input className="rounded-2xl border p-4" placeholder="Alt kategori" value={form.sub_category} onChange={(e) => setForm({ ...form, sub_category: e.target.value })} required />
-            <input className="rounded-2xl border p-4" placeholder="Arama kelimesi" value={form.search_query} onChange={(e) => setForm({ ...form, search_query: e.target.value })} required />
-            <input className="rounded-2xl border p-4" placeholder="Min fiyat" type="number" value={form.price_min} onChange={(e) => setForm({ ...form, price_min: e.target.value })} required />
-            <input className="rounded-2xl border p-4" placeholder="Max fiyat" type="number" value={form.price_max} onChange={(e) => setForm({ ...form, price_max: e.target.value })} required />
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-[#2b1b1b]">Alt kategori</span>
+              <input
+                value={form.subCategory}
+                onChange={(event) => updateForm("subCategory", event.target.value)}
+                className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+                placeholder="Bakım seti"
+              />
+            </label>
+          </div>
 
-            <input className="rounded-2xl border p-4" placeholder="Alıcılar, virgülle ayır" value={form.recipients} onChange={(e) => setForm({ ...form, recipients: e.target.value })} />
-            <input className="rounded-2xl border p-4" placeholder="İlgi alanları, virgülle ayır" value={form.interests} onChange={(e) => setForm({ ...form, interests: e.target.value })} />
-            <input className="rounded-2xl border p-4" placeholder="Tarzlar, virgülle ayır" value={form.styles} onChange={(e) => setForm({ ...form, styles: e.target.value })} />
-            <input className="rounded-2xl border p-4" placeholder="Özel günler, virgülle ayır" value={form.occasions} onChange={(e) => setForm({ ...form, occasions: e.target.value })} />
-            <input className="rounded-2xl border p-4" placeholder="Acil durumlar, virgülle ayır" value={form.urgency} onChange={(e) => setForm({ ...form, urgency: e.target.value })} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-[#2b1b1b]">Min fiyat</span>
+              <input
+                type="number"
+                value={form.priceMin}
+                onChange={(event) => updateForm("priceMin", Number(event.target.value))}
+                className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              />
+            </label>
 
-            <select className="rounded-2xl border p-4" value={form.risk_level} onChange={(e) => setForm({ ...form, risk_level: e.target.value })}>
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-[#2b1b1b]">Max fiyat</span>
+              <input
+                type="number"
+                value={form.priceMax}
+                onChange={(event) => updateForm("priceMax", Number(event.target.value))}
+                className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              />
+            </label>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">
+              Alıcılar
+            </span>
+            <input
+              value={arrayToText(form.recipients)}
+              onChange={(event) => updateForm("recipients", textToArray(event.target.value))}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              placeholder="Sevgilim, Annem, Arkadaşım"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">
+              İlgi alanları
+            </span>
+            <input
+              value={arrayToText(form.interests)}
+              onChange={(event) => updateForm("interests", textToArray(event.target.value))}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              placeholder="Cilt bakımı, Makyaj, Moda"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">Tarzlar</span>
+            <input
+              value={arrayToText(form.styles)}
+              onChange={(event) => updateForm("styles", textToArray(event.target.value))}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              placeholder="Kullanışlı, Minimal, Lüks"
+            />
+          </label>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-[#2b1b1b]">Özel günler</span>
+              <input
+                value={arrayToText(form.occasions)}
+                onChange={(event) => updateForm("occasions", textToArray(event.target.value))}
+                className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+                placeholder="Doğum günü, İçimden geldi"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-bold text-[#2b1b1b]">Aciliyet</span>
+              <input
+                value={arrayToText(form.urgency)}
+                onChange={(event) => updateForm("urgency", textToArray(event.target.value))}
+                className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+                placeholder="Bugün lazım, 1–2 gün içinde"
+              />
+            </label>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">Risk seviyesi</span>
+            <select
+              value={form.riskLevel}
+              onChange={(event) => updateForm("riskLevel", event.target.value as RiskLevel)}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+            >
               <option value="low">Düşük risk</option>
               <option value="medium">Orta risk</option>
               <option value="high">Yüksek risk</option>
             </select>
+          </label>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">Neden uygun?</span>
+            <textarea
+              value={form.reason}
+              onChange={(event) => updateForm("reason", event.target.value)}
+              rows={3}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              placeholder="Bu hediye neden uygun?"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">Not önerisi</span>
+            <textarea
+              value={form.note}
+              onChange={(event) => updateForm("note", event.target.value)}
+              rows={3}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              placeholder="Yanına koyulacak kısa not"
+            />
+          </label>
+
+          <label className="grid gap-2">
+            <span className="text-sm font-bold text-[#2b1b1b]">
+              Search query / mağaza arama metni
+            </span>
+            <input
+              value={form.searchQuery}
+              onChange={(event) => updateForm("searchQuery", event.target.value)}
+              className="rounded-2xl border border-[#f0d7df] bg-white px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+              placeholder="cilt bakım seti hediye"
+            />
+
+            {form.searchQuery && (
+              <a
+                href={getSearchUrl(form.searchQuery)}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs font-bold text-[#b83280] underline"
+              >
+                Bu aramayı test et
+              </a>
+            )}
+          </label>
+
+          <label className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3">
+            <input
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(event) => updateForm("isActive", event.target.checked)}
+            />
+            <span className="text-sm font-bold text-[#2b1b1b]">
+              Aktif olarak yayınla
+            </span>
+          </label>
+
+          {error && (
+            <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="rounded-2xl bg-green-50 px-4 py-3 text-sm font-bold text-green-700">
+              {success}
+            </div>
+          )}
+
+          <button
+            onClick={saveGift}
+            disabled={saving}
+            className="rounded-full bg-[#b83280] px-6 py-4 text-sm font-bold text-white disabled:opacity-50"
+          >
+            {saving ? "Kaydediliyor..." : isEditing ? "Hediyeyi güncelle" : "Hediye ekle"}
+          </button>
+        </div>
+      </section>
+
+      <section className="rounded-[2rem] border border-[#f0d7df] bg-white p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h3 className="text-2xl font-extrabold">Hediye listesi</h3>
+            <p className="mt-2 text-sm text-[#6b4b4b]">
+              Toplam {gifts.length} hediye · {activeCount} aktif · {passiveCount} pasif
+            </p>
           </div>
 
-          <textarea className="mt-4 w-full rounded-2xl border p-4" placeholder="Neden öneriliyor?" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} required />
-          <textarea className="mt-4 w-full rounded-2xl border p-4" placeholder="Hediye notu" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} required />
-
-          <button className="mt-5 rounded-full bg-[#b83280] px-6 py-3 text-sm font-bold text-white">
-            Hediyeyi kaydet
+          <button
+            onClick={loadGifts}
+            className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-5 py-3 text-sm font-bold text-[#b83280]"
+          >
+            Yenile
           </button>
-        </form>
-      )}
+        </div>
 
-      <div className="mt-6 flex items-center justify-between gap-4">
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Hediye ara..."
-          className="w-full rounded-full border border-[#f0d7df] bg-[#fffaf7] px-5 py-3 outline-none focus:border-[#b83280]"
+          className="mt-5 w-full rounded-2xl border border-[#f0d7df] bg-[#fffaf7] px-4 py-3 text-sm outline-none focus:border-[#b83280]"
+          placeholder="Hediye, kategori, ilgi alanı veya search query ara..."
         />
 
-        <span className="shrink-0 rounded-full bg-[#fff0f7] px-5 py-3 text-sm font-bold text-[#b83280]">
-          {filteredGifts.length} hediye
-        </span>
-      </div>
+        {loading ? (
+          <div className="mt-6 rounded-3xl bg-[#fffaf7] p-6 text-sm font-bold text-[#6b4b4b]">
+            Hediyeler yükleniyor...
+          </div>
+        ) : (
+          <div className="mt-5 max-h-[900px] space-y-4 overflow-y-auto pr-1">
+            {filteredGifts.map((gift) => (
+              <article
+                key={gift.id}
+                className="rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5"
+              >
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap gap-2">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-bold ${
+                          gift.isActive
+                            ? "bg-green-50 text-green-700"
+                            : "bg-red-50 text-red-700"
+                        }`}
+                      >
+                        {gift.isActive ? "Aktif" : "Pasif"}
+                      </span>
+                      <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#b83280]">
+                        {gift.riskLevel}
+                      </span>
+                    </div>
 
-      {isLoading ? (
-        <div className="mt-6 rounded-3xl bg-[#fffaf7] p-6 text-sm font-bold text-[#b83280]">
-          Hediyeler yükleniyor...
-        </div>
-      ) : (
-        <div className="mt-6 overflow-hidden rounded-3xl border border-[#f0d7df]">
-          <table className="w-full border-collapse text-left text-sm">
-            <thead className="bg-[#fff0f7] text-[#b83280]">
-              <tr>
-                <th className="p-4">Hediye</th>
-                <th className="p-4">Kategori</th>
-                <th className="p-4">Fiyat</th>
-                <th className="p-4">Durum</th>
-                <th className="p-4">İşlem</th>
-              </tr>
-            </thead>
+                    <h4 className="mt-3 text-xl font-extrabold">{gift.title}</h4>
+                    <p className="mt-1 text-sm font-bold text-[#b83280]">
+                      {gift.category} / {gift.subCategory} · {gift.priceMin}–{gift.priceMax} TL
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+                      {gift.reason}
+                    </p>
 
-            <tbody>
-              {filteredGifts.map((gift) => (
-                <tr key={gift.id} className="border-t border-[#f0d7df]">
-                  <td className="p-4 font-bold">{gift.title}</td>
-                  <td className="p-4">{gift.category} / {gift.sub_category}</td>
-                  <td className="p-4">{gift.price_min}–{gift.price_max} TL</td>
-                  <td className="p-4">
-                    <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
-                      {gift.is_active ? "Aktif" : "Pasif"}
-                    </span>
-                  </td>
-                  <td className="flex gap-2 p-4">
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {gift.interests.slice(0, 5).map((item) => (
+                        <span
+                          key={item}
+                          className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#6b4b4b]"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className="mt-3 break-all text-xs text-[#6b4b4b]">
+                      <b>Search:</b> {gift.searchQuery}
+                    </p>
+                  </div>
+
+                  <div className="flex shrink-0 flex-wrap gap-2 md:justify-end">
                     <button
-                      onClick={() => toggleGift(gift)}
-                      className="rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-bold text-[#b83280]"
+                      onClick={() => setForm(formFromGift(gift))}
+                      className="rounded-full bg-[#2b1b1b] px-4 py-2 text-xs font-bold text-white"
                     >
-                      {gift.is_active ? "Pasifleştir" : "Aktifleştir"}
+                      Düzenle
                     </button>
 
                     <button
-                      onClick={() => deleteGift(gift)}
-                      className="rounded-full bg-[#2b1b1b] px-4 py-2 text-xs font-bold text-white"
+                      onClick={() => toggleGift(gift)}
+                      className="rounded-full bg-white px-4 py-2 text-xs font-bold text-[#b83280]"
+                    >
+                      {gift.isActive ? "Pasifleştir" : "Aktifleştir"}
+                    </button>
+
+                    <button
+                      onClick={() => deleteGift(gift.id)}
+                      className="rounded-full bg-red-50 px-4 py-2 text-xs font-bold text-red-700"
                     >
                       Sil
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            {filteredGifts.length === 0 && (
+              <div className="rounded-3xl bg-[#fffaf7] p-6 text-center text-sm font-bold text-[#6b4b4b]">
+                Aramana uygun hediye bulunamadı.
+              </div>
+            )}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
