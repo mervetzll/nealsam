@@ -23,7 +23,7 @@ const packages = [
   },
   {
     name: "Plus",
-    price: "Orta paket",
+    price: "49 TL",
     description: "Daha düşünülmüş ve açıklamalı öneriler isteyenler için.",
     cta: "Plus’ı Seç",
     href: "/odeme?plan=plus",
@@ -37,7 +37,7 @@ const packages = [
   },
   {
     name: "Premium",
-    price: "En özel paket",
+    price: "99 TL",
     description: "Hediyeyi küçük bir sürpriz deneyimine dönüştürmek isteyenler için.",
     cta: "Premium’u Seç",
     href: "/odeme?plan=premium",

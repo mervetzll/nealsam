@@ -1,20 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const packageDetails: Record<
-  string,
-  {
-    name: string;
-    price: string;
-    description: string;
-    items: string[];
-  }
-> = {
+type PackageDetail = {
+  name: string;
+  price: number;
+  description: string;
+  items: string[];
+};
+
+const packageDetails: Record<string, PackageDetail> = {
   free: {
     name: "Ücretsiz",
-    price: "0 TL",
+    price: 0,
     description: "Hızlıca temel hediye önerisi almak isteyenler için.",
     items: [
       "Temel hediye önerileri",
@@ -22,9 +21,19 @@ const packageDetails: Record<
       "Basit mağaza yönlendirmesi",
     ],
   },
+  note: {
+    name: "Hediye Notu",
+    price: 19,
+    description: "Sadece hediye notu hazırlamak isteyenler için.",
+    items: [
+      "Kişiye uygun not fikri",
+      "Duygusal mesaj önerisi",
+      "Kopyalanabilir metin",
+    ],
+  },
   plus: {
     name: "Plus",
-    price: "Orta paket",
+    price: 49,
     description: "Daha detaylı ve açıklamalı hediye önerileri isteyenler için.",
     items: [
       "Daha fazla öneri",
@@ -33,10 +42,21 @@ const packageDetails: Record<
       "Daha iyi mağaza yönlendirmesi",
     ],
   },
+  experience: {
+    name: "Deneyim",
+    price: 79,
+    description: "Hediye fikrini bir anıya dönüştürmek isteyenler için.",
+    items: [
+      "Deneyim hediyesi önerileri",
+      "QR mesaj fikri",
+      "Özel sunum önerisi",
+    ],
+  },
   premium: {
     name: "Premium",
-    price: "En özel paket",
-    description: "Hediyeyi küçük bir sürpriz deneyimine dönüştürmek isteyenler için.",
+    price: 99,
+    description:
+      "Hediyeyi küçük bir sürpriz deneyimine dönüştürmek isteyenler için.",
     items: [
       "QR kodlu sürpriz mesaj",
       "Kişiye özel hediye notu",
@@ -45,44 +65,42 @@ const packageDetails: Record<
       "Daha özel ve duygusal öneriler",
     ],
   },
-  note: {
-    name: "Hediye Notu",
-    price: "Mini paket",
-    description: "Sadece hediye notu hazırlamak isteyenler için.",
-    items: [
-      "Kişiye uygun not fikri",
-      "Duygusal mesaj önerisi",
-      "Kopyalanabilir metin",
-    ],
-  },
-  experience: {
-    name: "Deneyim",
-    price: "Deneyim paketi",
-    description: "Hediye fikrini bir anıya dönüştürmek isteyenler için.",
-    items: [
-      "Deneyim hediyesi önerileri",
-      "QR mesaj fikri",
-      "Özel sunum önerisi",
-    ],
-  },
 };
 
+function formatPrice(value: number) {
+  return `${value.toLocaleString("tr-TR")} TL`;
+}
+
 export default function OdemeClient() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPlan = searchParams.get("plan") || "premium";
   const plan = packageDetails[selectedPlan] || packageDetails.premium;
 
+  const packagePrice = plan.price;
+  const serviceFee = 0;
+  const discount = 0;
+  const total = packagePrice + serviceFee - discount;
+
   return (
     <main className="min-h-screen bg-[#fff7fb]">
-      <section className="mx-auto max-w-6xl px-5 py-16">
+      <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="mb-6 rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+        >
+          ← Geri Dön
+        </button>
+
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold text-pink-600">Ödeme</p>
+          <p className="text-sm font-bold text-pink-600">Ödeme Özeti</p>
           <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
-            Paketini onayla
+            Paketini kontrol et
           </h1>
           <p className="mt-5 text-base leading-7 text-[#6b4a4a]">
-            Seçtiğin paketi kontrol et. Gerçek ödeme altyapısı bağlandığında bu
-            sayfa güvenli ödeme adımına yönlendirecek.
+            Devam etmeden önce seçilen paketi, toplam tutarı ve ödeme durumunu
+            açıkça görebilirsin. Bu sayfada kart bilgisi alınmaz.
           </p>
         </div>
 
@@ -103,10 +121,10 @@ export default function OdemeClient() {
 
               <div className="rounded-2xl bg-[#fff0f7] px-5 py-4 text-right">
                 <p className="text-xs font-bold uppercase tracking-wide text-pink-600">
-                  Paket
+                  Paket Fiyatı
                 </p>
-                <p className="mt-1 text-2xl font-black text-[#2b1b1b]">
-                  {plan.price}
+                <p className="mt-1 text-3xl font-black text-[#2b1b1b]">
+                  {formatPrice(packagePrice)}
                 </p>
               </div>
             </div>
@@ -134,37 +152,59 @@ export default function OdemeClient() {
             <div className="mt-8 grid gap-4 md:grid-cols-3">
               <InfoCard
                 title="Kart bilgisi alınmaz"
-                text="Gerçek ödeme altyapısı bağlanmadan kart bilgisi istenmez."
+                text="Bu ekranda kart numarası, CVV veya banka bilgisi istenmez."
               />
               <InfoCard
-                title="Güvenli ödeme"
-                text="Canlı ödeme için iyzico veya PayTR gibi sağlayıcılar bağlanabilir."
+                title="Güvenli sağlayıcı"
+                text="Canlı ödeme için iyzico veya PayTR gibi ödeme sağlayıcısı bağlanmalıdır."
               />
               <InfoCard
-                title="Test modu"
-                text="Şu an bu ekran ödeme akışının hazırlık sayfasıdır."
+                title="Şeffaf toplam"
+                text="Kullanıcı paket fiyatını ve ödenecek toplamı ayrı ayrı görür."
               />
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <h3 className="font-black text-amber-900">
+                Ödeme altyapısı henüz test modunda
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-amber-800">
+                Bu sayfa şu anda ödeme akışını göstermek için hazırlandı.
+                Gerçek ödeme açılmadan kullanıcıdan kart bilgisi alınmaz ve
+                ödeme sağlayıcısı bağlanmadan tahsilat yapılmaz.
+              </p>
             </div>
           </section>
 
           <aside className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
             <h2 className="text-2xl font-black text-[#2b1b1b]">
-              Sipariş Özeti
+              Hesap Özeti
             </h2>
 
             <div className="mt-6 space-y-4">
               <SummaryRow label="Paket" value={plan.name} />
-              <SummaryRow label="Durum" value="Hazırlık modu" />
-              <SummaryRow label="Ödeme" value="Bağlanacak" />
+              <SummaryRow label="Paket bedeli" value={formatPrice(packagePrice)} />
+              <SummaryRow label="Hizmet bedeli" value={formatPrice(serviceFee)} />
+              <SummaryRow label="İndirim" value={`-${formatPrice(discount)}`} />
             </div>
 
-            <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <p className="text-sm font-bold text-amber-800">
-                Gerçek ödeme henüz aktif değil
+            <div className="mt-6 rounded-2xl bg-[#2b1b1b] p-5 text-white">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm font-bold text-white/75">
+                  Ödenecek Toplam
+                </span>
+                <span className="text-3xl font-black">{formatPrice(total)}</span>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4">
+              <p className="text-sm font-black text-red-800">
+                Bu sayfada kart bilgisi girilmez
               </p>
-              <p className="mt-2 text-sm leading-6 text-amber-800/85">
-                Bu sayfa tasarım ve ödeme akışı hazırlığı içindir. Canlı ödeme
-                açılmadan kullanıcıdan kart bilgisi alınmaz.
+              <p className="mt-2 text-sm leading-6 text-red-700">
+                Ödeme butonu ancak gerçek ödeme altyapısı bağlandığında aktif
+                edilmelidir. Şu an kullanıcı sadece paket ve hesap özetini
+                görebilir.
               </p>
             </div>
 
@@ -173,7 +213,7 @@ export default function OdemeClient() {
               disabled
               className="mt-6 w-full rounded-full bg-slate-300 px-5 py-4 text-sm font-black text-white"
             >
-              Ödeme Altyapısı Bağlanacak
+              Güvenli Ödeme Yakında Aktif
             </button>
 
             <Link
