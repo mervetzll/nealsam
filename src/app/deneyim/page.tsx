@@ -7,7 +7,7 @@ export default function DeneyimPage() {
       <Navbar />
 
       <section className="mx-auto max-w-6xl px-6 pb-4 pt-6 text-center">
-        <p className="mb-3 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#b83280] shadow-sm">
+        <p className="mb-3 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-pink-600 shadow-sm">
           Deneyim Modları
         </p>
 

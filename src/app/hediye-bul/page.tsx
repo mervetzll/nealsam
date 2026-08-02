@@ -82,11 +82,11 @@ function GiftResultCard({
   const bestNote = storeLinks.find((item) => item.note)?.note;
 
   return (
-    <article className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <article className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
+            <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-pink-600">
               %{gift.matchPercent} eşleşme
             </span>
             <span className="rounded-full bg-[#fffaf7] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
@@ -101,13 +101,13 @@ function GiftResultCard({
             {gift.title}
           </h3>
 
-          <p className="mt-2 text-sm font-bold text-[#b83280]">
+          <p className="mt-2 text-sm font-bold text-pink-600">
             {gift.category} / {gift.subCategory} · {getPriceText(gift)}
           </p>
         </div>
 
         <div className="rounded-3xl bg-[#fff0f7] px-5 py-4 text-center">
-          <p className="text-xs font-bold text-[#b83280]">Tahmini bütçe</p>
+          <p className="text-xs font-bold text-pink-600">Tahmini bütçe</p>
           <p className="mt-1 text-lg font-extrabold text-[#2b1b1b]">
             {getPriceText(gift)}
           </p>
@@ -116,12 +116,12 @@ function GiftResultCard({
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <div className="rounded-3xl bg-[#fffaf7] p-5">
-          <p className="text-sm font-bold text-[#b83280]">Neden uygun?</p>
+          <p className="text-sm font-bold text-pink-600">Neden uygun?</p>
           <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">{gift.reason}</p>
         </div>
 
         <div className="rounded-3xl bg-[#fffaf7] p-5">
-          <p className="text-sm font-bold text-[#b83280]">Yanına koyulacak not</p>
+          <p className="text-sm font-bold text-pink-600">Yanına koyulacak not</p>
           <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">{gift.note}</p>
         </div>
       </div>
@@ -130,17 +130,17 @@ function GiftResultCard({
         {gift.interests.slice(0, 5).map((interest) => (
           <span
             key={interest}
-            className="rounded-full border border-[#f0d7df] px-3 py-1 text-xs font-bold text-[#6b4b4b]"
+            className="rounded-full border border-pink-100 px-3 py-1 text-xs font-bold text-[#6b4b4b]"
           >
             {interest}
           </span>
         ))}
       </div>
 
-      <div className="mt-6 rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5">
+      <div className="mt-6 rounded-3xl border border-pink-100 bg-[#fffaf7] p-5">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-bold text-[#b83280]">
+            <p className="text-sm font-bold text-pink-600">
               Bu hediye için daha doğru mağaza önerileri
             </p>
             <p className="mt-2 text-sm leading-6 text-[#6b4b4b]">
@@ -159,7 +159,7 @@ function GiftResultCard({
               className={`rounded-full px-4 py-3 text-center text-sm font-bold transition ${
                 link.priority === "best"
                   ? "bg-[#2b1b1b] text-white hover:opacity-90"
-                  : "bg-[#fff0f7] text-[#b83280] hover:bg-[#fce7f3]"
+                  : "bg-[#fff0f7] text-pink-600 hover:bg-[#fff0f7]"
               }`}
             >
               {link.label}
@@ -171,21 +171,21 @@ function GiftResultCard({
       <div className="mt-5 flex flex-wrap gap-3">
         <button
           onClick={() => onBlockTitle(gift.title)}
-          className="rounded-full border border-[#f0d7df] bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
+          className="rounded-full border border-pink-100 bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
         >
           Bunu istemiyorum
         </button>
 
         <button
           onClick={() => onBlockCategory(gift.category)}
-          className="rounded-full border border-[#f0d7df] bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
+          className="rounded-full border border-pink-100 bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
         >
           Benzerlerini gösterme
         </button>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5">
-        <p className="text-sm font-bold text-[#b83280]">
+      <div className="mt-5 rounded-3xl border border-pink-100 bg-[#fffaf7] p-5">
+        <p className="text-sm font-bold text-pink-600">
           Hediyeyi daha özel yapmak ister misin?
         </p>
         <p className="mt-2 text-sm leading-6 text-[#6b4b4b]">
@@ -196,14 +196,14 @@ function GiftResultCard({
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href={`/deneyim?plan=premium&gift=${encodeURIComponent(notePrompt)}`}
-            className="rounded-full bg-[#b83280] px-5 py-3 text-sm font-bold text-white"
+            className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white"
           >
             Not / Hikaye / QR hazırla
           </Link>
 
           <Link
             href="/demo"
-            className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#b83280]"
+            className="rounded-full bg-white px-5 py-3 text-sm font-bold text-pink-600"
           >
             Demo ile dene
           </Link>
@@ -216,7 +216,7 @@ function GiftResultCard({
                             <p className="text-sm font-black text-[#2b1b1b]">
                               Bu öneriyi paylaş
                             </p>
-                            <p className="mt-1 text-xs font-semibold text-[#7a5c5c]">
+                            <p className="mt-1 text-xs font-semibold text-[#6b4a4a]">
                               Hediye fikrini WhatsApp, mesaj veya not olarak paylaşabilirsin.
                             </p>
                           </div>
@@ -328,7 +328,7 @@ export default function HediyeBulPage() {
       <main className="min-h-screen bg-[#fff7f3] px-6 py-14 text-[#2b1b1b]">
         <section className="mx-auto max-w-7xl">
           <div className="rounded-[2rem] bg-white p-7 shadow-sm md:p-10">
-            <p className="text-sm font-bold uppercase tracking-[0.3em] text-[#b83280]">
+            <p className="text-sm font-bold uppercase tracking-[0.3em] text-pink-600">
               NeAlsam Hediye Bul
             </p>
 
@@ -341,7 +341,7 @@ export default function HediyeBulPage() {
                   {makeResultSummary(answers)}
                 </p>
 
-                <p className="mt-3 text-xs font-bold text-[#b83280]">
+                <p className="mt-3 text-xs font-bold text-pink-600">
                   Hediye havuzu: {giftSource === "supabase" ? "Admin panel / Supabase" : giftSource === "loading" ? "Yükleniyor" : "Yedek liste"}
                 </p>
               </div>
@@ -350,7 +350,7 @@ export default function HediyeBulPage() {
                 {(blockedTitles.length > 0 || blockedCategories.length > 0) && (
                   <button
                     onClick={undoFilters}
-                    className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-6 py-3 text-sm font-bold text-[#b83280]"
+                    className="rounded-full border border-pink-100 bg-[#fffaf7] px-6 py-3 text-sm font-bold text-pink-600"
                   >
                     Filtreleri sıfırla
                   </button>
@@ -358,7 +358,7 @@ export default function HediyeBulPage() {
 
                 <button
                   onClick={restart}
-                  className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-6 py-3 text-sm font-bold text-[#b83280]"
+                  className="rounded-full border border-pink-100 bg-[#fffaf7] px-6 py-3 text-sm font-bold text-pink-600"
                 >
                   Baştan başla
                 </button>
@@ -367,7 +367,7 @@ export default function HediyeBulPage() {
 
             {(blockedTitles.length > 0 || blockedCategories.length > 0) && (
               <div className="mt-6 rounded-3xl bg-[#fff0f7] p-5">
-                <p className="text-sm font-bold text-[#b83280]">
+                <p className="text-sm font-bold text-pink-600">
                   Aktif filtreler
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -413,7 +413,7 @@ export default function HediyeBulPage() {
                 </p>
                 <button
                   onClick={undoFilters}
-                  className="mt-5 rounded-full bg-[#b83280] px-6 py-3 text-sm font-bold text-white"
+                  className="mt-5 rounded-full bg-pink-600 px-6 py-3 text-sm font-bold text-white"
                 >
                   Filtreleri sıfırla
                 </button>
@@ -429,13 +429,13 @@ export default function HediyeBulPage() {
     <main className="min-h-screen bg-[#fff7f3] px-6 py-14 text-[#2b1b1b]">
       <section className="mx-auto max-w-5xl rounded-[2rem] bg-white p-7 shadow-sm md:p-10">
         <div className="flex items-center justify-between gap-4">
-          <p className="text-sm font-bold uppercase tracking-[0.3em] text-[#b83280]">
+          <p className="text-sm font-bold uppercase tracking-[0.3em] text-pink-600">
             Hediye Bul
           </p>
 
           <Link
             href="/"
-            className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-5 py-3 text-sm font-bold text-[#b83280] transition hover:bg-[#fff0f7]"
+            className="rounded-full border border-pink-100 bg-[#fffaf7] px-5 py-3 text-sm font-bold text-pink-600 transition hover:bg-[#fff0f7]"
           >
             Ana Sayfa
           </Link>
@@ -453,20 +453,20 @@ export default function HediyeBulPage() {
           </div>
 
           <div className="rounded-3xl bg-[#fff0f7] px-5 py-4">
-            <p className="text-xs font-bold text-[#b83280]">İlerleme</p>
+            <p className="text-xs font-bold text-pink-600">İlerleme</p>
             <p className="mt-1 text-xl font-extrabold">%{progress}</p>
           </div>
         </div>
 
         <div className="mt-8 h-3 overflow-hidden rounded-full bg-[#fff0f7]">
           <div
-            className="h-full rounded-full bg-[#b83280] transition-all"
+            className="h-full rounded-full bg-pink-600 transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         <div className="mt-10">
-          <p className="text-sm font-bold text-[#b83280]">
+          <p className="text-sm font-bold text-pink-600">
             Soru {step + 1} / {questions.length}
           </p>
 
@@ -486,8 +486,8 @@ export default function HediyeBulPage() {
                   }
                   className={`rounded-3xl border px-5 py-4 text-left text-sm font-bold transition ${
                     selected
-                      ? "border-[#b83280] bg-[#fff0f7] text-[#b83280]"
-                      : "border-[#f0d7df] bg-[#fffaf7] text-[#2b1b1b] hover:border-[#b83280]"
+                      ? "border-[#b83280] bg-[#fff0f7] text-pink-600"
+                      : "border-pink-100 bg-[#fffaf7] text-[#2b1b1b] hover:border-[#b83280]"
                   }`}
                 >
                   {option}
@@ -501,7 +501,7 @@ export default function HediyeBulPage() {
           <button
             onClick={() => setStep((value) => Math.max(0, value - 1))}
             disabled={step === 0}
-            className="rounded-full border border-[#f0d7df] bg-white px-6 py-3 text-sm font-bold text-[#b83280] disabled:opacity-40"
+            className="rounded-full border border-pink-100 bg-white px-6 py-3 text-sm font-bold text-pink-600 disabled:opacity-40"
           >
             Geri
           </button>
@@ -509,7 +509,7 @@ export default function HediyeBulPage() {
           <button
             onClick={goNext}
             disabled={!answeredCurrent || (step === questions.length - 1 && !canShowResults)}
-            className="rounded-full bg-[#b83280] px-7 py-4 text-sm font-bold text-white disabled:opacity-40"
+            className="rounded-full bg-[#2b1b1b] px-7 py-4 text-sm font-bold text-white disabled:opacity-40"
           >
             {step === questions.length - 1 ? "Hediyeleri göster" : "Devam et"}
           </button>
