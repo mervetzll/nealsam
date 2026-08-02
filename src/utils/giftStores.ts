@@ -56,25 +56,20 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "Yves Rocher",
         href: siteSearch("www.yvesrocher.com.tr", query),
-        note: "Cilt bakımı için daha markalı ve özenli seçenekler.",
+        note: "Cilt bakımı için Trendyol yerine daha markalı ve özenli seçenekler.",
         priority: "best",
       },
       {
         label: "The Purest",
         href: siteSearch("thepurestsolutions.com", query),
-        note: "Aktif içerik ve serum odaklı alternatif.",
+        note: "Serum ve aktif içerik odaklı bakım ürünleri için.",
         priority: "best",
       },
       {
         label: "Dermoeczanem",
         href: `https://www.dermoeczanem.com/arama?q=${q(query)}`,
-        note: "Dermokozmetik ürünler için iyi alternatif.",
+        note: "Dermokozmetik alternatifleri için.",
         priority: "good",
-      },
-      {
-        label: "Google",
-        href: `https://www.google.com/search?q=${q(query)}`,
-        priority: "fallback",
       },
     ];
   }
@@ -84,25 +79,18 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "Sephora",
         href: siteSearch("www.sephora.com.tr", query),
-        note: "Makyaj ve güzellik ürünleri için premium seçenekler.",
+        note: "Makyaj ve güzellik ürünleri için daha hedefli arama.",
         priority: "best",
       },
       {
         label: "Gratis",
         href: siteSearch("www.gratis.com", query),
-        note: "Daha ulaşılabilir fiyatlı alternatifler.",
         priority: "good",
       },
       {
         label: "Watsons",
         href: siteSearch("www.watsons.com.tr", query),
-        note: "Kozmetik ve bakım için yaygın seçenekler.",
         priority: "good",
-      },
-      {
-        label: "Google",
-        href: `https://www.google.com/search?q=${q(query)}`,
-        priority: "fallback",
       },
     ];
   }
@@ -112,19 +100,17 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "Sephora",
         href: siteSearch("www.sephora.com.tr", query),
-        note: "Parfümde marka ve koku seçimi için daha iyi.",
+        note: "Parfümde marka ve koku seçenekleri için.",
         priority: "best",
       },
       {
         label: "Boyner",
         href: siteSearch("www.boyner.com.tr", query),
-        note: "Parfüm ve hediye seti alternatifi.",
         priority: "good",
       },
       {
         label: "Yves Rocher",
         href: siteSearch("www.yvesrocher.com.tr", query),
-        note: "Daha hafif koku ve bakım setleri.",
         priority: "good",
       },
     ];
@@ -135,13 +121,12 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "So Chic",
         href: siteSearch("www.sochic.com.tr", query),
-        note: "Takı için daha hedefli öneri.",
+        note: "Takı için daha hedefli marka araması.",
         priority: "best",
       },
       {
         label: "Atasay",
         href: siteSearch("www.atasay.com", query),
-        note: "Daha özel ve değerli takı alternatifi.",
         priority: "good",
       },
       {
@@ -163,13 +148,11 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "Amazon",
         href: `https://www.amazon.com.tr/s?k=${q(query)}`,
-        note: "Yorum ve fiyat karşılaştırması için iyi.",
         priority: "good",
       },
       {
         label: "Hepsiburada",
         href: `https://www.hepsiburada.com/ara?q=${q(query)}`,
-        note: "Alternatif fiyat ve stok kontrolü.",
         priority: "good",
       },
     ];
@@ -186,7 +169,6 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "Tchibo",
         href: siteSearch("www.tchibo.com.tr", query),
-        note: "Kahve ekipmanı ve günlük kullanım ürünleri.",
         priority: "good",
       },
       {
@@ -202,17 +184,17 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "D&R",
         href: siteSearch("www.dr.com.tr", query),
-        note: "Kitap ve kırtasiye için daha doğru.",
+        note: "Kitap ve kırtasiye için daha doğru arama.",
         priority: "best",
-      },
-      {
-        label: "Pandora Kitap",
-        href: siteSearch("www.pandora.com.tr", query),
-        priority: "good",
       },
       {
         label: "Google",
         href: `https://www.google.com/search?q=${q(query)}`,
+        priority: "fallback",
+      },
+      {
+        label: "Amazon",
+        href: `https://www.amazon.com.tr/s?k=${q(query)}`,
         priority: "fallback",
       },
     ];
@@ -223,7 +205,7 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
       {
         label: "English Home",
         href: siteSearch("www.englishhome.com", query),
-        note: "Ev hediyeleri için daha uygun.",
+        note: "Ev hediyeleri için daha uygun arama.",
         priority: "best",
       },
       {
@@ -239,27 +221,6 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
     ];
   }
 
-  if (hasAny(gift, ["deneyim", "konser", "etkinlik", "workshop", "bilet", "akşam yemeği", "kahvaltı"])) {
-    return [
-      {
-        label: "Biletinial",
-        href: siteSearch("www.biletinial.com", query),
-        note: "Etkinlik ve deneyim hediyeleri için.",
-        priority: "best",
-      },
-      {
-        label: "Passo",
-        href: siteSearch("www.passo.com.tr", query),
-        priority: "good",
-      },
-      {
-        label: "Google",
-        href: `https://www.google.com/search?q=${q(query)}`,
-        priority: "fallback",
-      },
-    ];
-  }
-
   return [
     {
       label: "Google",
@@ -270,13 +231,11 @@ export function getStoreLinksForGift(gift: Gift): StoreLink[] {
     {
       label: "Amazon",
       href: `https://www.amazon.com.tr/s?k=${q(query)}`,
-      note: "Fiyat ve yorum karşılaştırması.",
       priority: "fallback",
     },
     {
       label: "Hepsiburada",
       href: `https://www.hepsiburada.com/ara?q=${q(query)}`,
-      note: "Alternatif pazar yeri.",
       priority: "fallback",
     },
   ];
