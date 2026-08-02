@@ -1,5 +1,7 @@
 "use client";
 
+import GiftLogo from "@/components/brand/GiftLogo";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -41,7 +43,7 @@ export default function AdminLoginPage() {
       <section className="mx-auto flex min-h-[75vh] max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-[2.5rem] bg-white shadow-sm lg:grid-cols-2">
           <div className="bg-[#fff0f7] p-10 lg:p-12">
-            <p className="text-sm font-bold text-[#b83280]">NeAlsam Admin</p>
+            <GiftLogo small />
 
             <h1 className="mt-4 text-4xl font-extrabold leading-tight">
               Yönetim paneline giriş yap

@@ -1,3 +1,4 @@
+import GiftLogo from "@/components/brand/GiftLogo";
 import { existsSync, readFileSync } from "fs";
 import path from "path";
 
@@ -40,7 +41,7 @@ export default function ClicksPage() {
     <main className="min-h-screen bg-[#fff7f3] px-6 py-10 text-[#2b1b1b]">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 rounded-[2rem] bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold text-[#b83280]">NeAlsam Admin</p>
+          <GiftLogo small />
 
           <h1 className="mt-2 text-4xl font-extrabold">
             Tıklama Takibi
