@@ -16,11 +16,19 @@ type Gift = {
   createdAt?: string;
 };
 
+type HealthStatus = {
+  ok: boolean;
+  supabase: string;
+  activeGiftCount: number;
+  message: string;
+};
+
 const SITE_URL = "https://nealsamhediye.com";
 
 export default function AdminClient() {
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [gifts, setGifts] = useState<Gift[]>([]);
+  const [health, setHealth] = useState<HealthStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadGifts() {
@@ -42,8 +50,25 @@ export default function AdminClient() {
     }
   }
 
+  async function loadHealth() {
+    try {
+      const response = await fetch("/api/admin-health", {
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setHealth(data);
+      }
+    } catch (error) {
+      console.error("Admin health could not be loaded", error);
+    }
+  }
+
   useEffect(() => {
     loadGifts();
+    loadHealth();
   }, []);
 
   async function handleLogout() {
@@ -164,6 +189,64 @@ export default function AdminClient() {
                 value={loading ? "..." : stats.categoryCount}
                 description="Farklı hediye kategorisi"
               />
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-pink-600">
+                    Sistem Durumu
+                  </p>
+                  <h2 className="mt-1 text-xl font-bold text-slate-950">
+                    Admin ve Supabase bağlantısı
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-500">
+                    Bu alan Supabase ve admin API bağlantısının çalışıp
+                    çalışmadığını hızlıca gösterir.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    loadGifts();
+                    loadHealth();
+                  }}
+                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  Yenile
+                </button>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    API
+                  </p>
+                  <p className="mt-2 text-lg font-bold text-slate-950">
+                    {health?.ok ? "OK" : "Kontrol ediliyor"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Supabase
+                  </p>
+                  <p className="mt-2 text-lg font-bold text-slate-950">
+                    {health?.supabase === "connected"
+                      ? "Çalışıyor"
+                      : "Kontrol ediliyor"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Aktif Hediye
+                  </p>
+                  <p className="mt-2 text-lg font-bold text-slate-950">
+                    {health?.activeGiftCount ?? stats.active}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
