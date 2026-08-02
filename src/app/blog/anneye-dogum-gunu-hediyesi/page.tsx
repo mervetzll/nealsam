@@ -1,3 +1,4 @@
+import BlogSEOBoost from "@/components/blog/BlogSEOBoost";
 export const metadata = {
   title: "Anneye Doğum Günü Hediyesi | NeAlsam Hediye",
   description:
@@ -60,6 +61,7 @@ export default function Page() {
             Hediye önerisi al
           </a>
         </div>
+              <BlogSEOBoost topic="Anneye doğum günü hediyesi" />
       </article>
     </main>
   );

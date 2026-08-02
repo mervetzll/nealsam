@@ -1,3 +1,4 @@
+import BlogSEOBoost from "@/components/blog/BlogSEOBoost";
 export const metadata = {
   title: "500 TL Altı Hediye Önerileri | NeAlsam Hediye",
   description:
@@ -58,6 +59,7 @@ export default function Page() {
             500 TL altı hediye bul
           </a>
         </div>
+              <BlogSEOBoost topic="500 TL altı hediye" />
       </article>
     </main>
   );
