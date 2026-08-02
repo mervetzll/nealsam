@@ -371,9 +371,18 @@ export default function HediyeBulPage() {
   return (
     <main className="min-h-screen bg-[#fff7f3] px-6 py-14 text-[#2b1b1b]">
       <section className="mx-auto max-w-5xl rounded-[2rem] bg-white p-7 shadow-sm md:p-10">
-        <p className="text-sm font-bold uppercase tracking-[0.3em] text-[#b83280]">
-          Hediye Bul
-        </p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm font-bold uppercase tracking-[0.3em] text-[#b83280]">
+            Hediye Bul
+          </p>
+
+          <Link
+            href="/"
+            className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-5 py-3 text-sm font-bold text-[#b83280] transition hover:bg-[#fff0f7]"
+          >
+            Ana Sayfa
+          </Link>
+        </div>
 
         <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
