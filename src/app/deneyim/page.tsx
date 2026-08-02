@@ -1,10 +1,9 @@
-import Navbar from "@/components/Navbar";
 import ExperienceModes from "@/components/ExperienceModes";
 
 export default function DeneyimPage() {
   return (
     <main className="min-h-screen bg-[#fff7f3] text-[#2b1b1b]">
-      <Navbar />
+      
 
       <section className="mx-auto max-w-6xl px-6 pb-4 pt-6 text-center">
         <p className="mb-3 inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-pink-600 shadow-sm">

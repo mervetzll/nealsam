@@ -22,7 +22,7 @@ export default function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm transition hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700"
+              className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm transition hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-200"
             >
               {item.label}
             </Link>
@@ -31,7 +31,7 @@ export default function Navbar() {
 
         <Link
           href="/giris"
-          className="hidden rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-pink-700 md:inline-flex"
+          className="hidden rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-200 md:inline-flex"
         >
           Giriş Yap
         </Link>
