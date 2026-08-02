@@ -50,7 +50,7 @@ const features = [
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#fff7fb]">
+    <main className="min-h-screen bg-[#fff4ef]">
       <section className="mx-auto grid max-w-7xl gap-10 px-5 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div>
           <p className="inline-flex rounded-full bg-pink-100 px-4 py-2 text-sm font-bold text-pink-700">

@@ -66,7 +66,7 @@ const supportCards = [
 
 export default function HelpPage() {
   return (
-    <main className="min-h-screen bg-[#fff7fb]">
+    <main className="min-h-screen bg-[#fff4ef]">
       <section className="mx-auto max-w-7xl px-5 py-16">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-bold text-pink-600">Yardım Merkezi</p>
@@ -121,7 +121,7 @@ export default function HelpPage() {
             {faqs.map((faq) => (
               <article
                 key={faq.question}
-                className="rounded-2xl border border-pink-100 bg-[#fff7fb] p-5"
+                className="rounded-2xl border border-pink-100 bg-[#fff4ef] p-5"
               >
                 <h3 className="font-black text-[#2b1b1b]">{faq.question}</h3>
                 <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">

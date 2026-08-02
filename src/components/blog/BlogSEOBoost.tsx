@@ -68,7 +68,7 @@ export default function BlogSEOBoost({ topic }: BlogSEOBoostProps) {
           {faqs.map((faq) => (
             <div
               key={faq.question}
-              className="rounded-2xl border border-pink-100 bg-[#fff7fb] p-5"
+              className="rounded-2xl border border-pink-100 bg-[#fff4ef] p-5"
             >
               <h3 className="font-black text-[#2b1b1b]">{faq.question}</h3>
               <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">

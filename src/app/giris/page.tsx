@@ -64,7 +64,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fff7fb]">
+    <main className="min-h-screen bg-[#fff4ef]">
       <section className="mx-auto grid max-w-6xl gap-8 px-5 py-14 lg:grid-cols-[0.9fr_1.1fr]">
         <aside className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
           <p className="text-sm font-bold text-pink-600">NeAlsam Hesabı</p>
@@ -124,7 +124,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="ornek@mail.com"
-                className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff7fb] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none focus:border-pink-400 focus:bg-white"
+                className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none focus:border-pink-400 focus:bg-white"
               />
             </label>
 
@@ -135,7 +135,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="En az 6 karakter"
-                className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff7fb] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none focus:border-pink-400 focus:bg-white"
+                className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none focus:border-pink-400 focus:bg-white"
               />
             </label>
 

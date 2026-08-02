@@ -89,10 +89,10 @@ function GiftResultCard({
             <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-pink-600">
               %{gift.matchPercent} eşleşme
             </span>
-            <span className="rounded-full bg-[#fff7fb] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
+            <span className="rounded-full bg-[#fff4ef] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
               {getRecommendationLabel(gift.matchPercent)}
             </span>
-            <span className="rounded-full bg-[#fff7fb] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
+            <span className="rounded-full bg-[#fff4ef] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
               {getRiskLabel(gift.riskLevel)}
             </span>
           </div>
@@ -115,12 +115,12 @@ function GiftResultCard({
       </div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <div className="rounded-3xl bg-[#fff7fb] p-5">
+        <div className="rounded-3xl bg-[#fff4ef] p-5">
           <p className="text-sm font-bold text-pink-600">Neden uygun?</p>
           <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">{gift.reason}</p>
         </div>
 
-        <div className="rounded-3xl bg-[#fff7fb] p-5">
+        <div className="rounded-3xl bg-[#fff4ef] p-5">
           <p className="text-sm font-bold text-pink-600">Yanına koyulacak not</p>
           <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">{gift.note}</p>
         </div>
@@ -137,7 +137,7 @@ function GiftResultCard({
         ))}
       </div>
 
-      <div className="mt-6 rounded-3xl border border-pink-100 bg-[#fff7fb] p-5">
+      <div className="mt-6 rounded-3xl border border-pink-100 bg-[#fff4ef] p-5">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-bold text-pink-600">
@@ -184,7 +184,7 @@ function GiftResultCard({
         </button>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-pink-100 bg-[#fff7fb] p-5">
+      <div className="mt-5 rounded-3xl border border-pink-100 bg-[#fff4ef] p-5">
         <p className="text-sm font-bold text-pink-600">
           Hediyeyi daha özel yapmak ister misin?
         </p>
@@ -210,7 +210,7 @@ function GiftResultCard({
         </div>
       </div>
     
-                      <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff7fb] p-4">
+                      <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff4ef] p-4">
                         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <div>
                             <p className="text-sm font-black text-[#2b1b1b]">
@@ -350,7 +350,7 @@ export default function HediyeBulPage() {
                 {(blockedTitles.length > 0 || blockedCategories.length > 0) && (
                   <button
                     onClick={undoFilters}
-                    className="rounded-full border border-pink-100 bg-[#fff7fb] px-6 py-3 text-sm font-bold text-pink-600"
+                    className="rounded-full border border-pink-100 bg-[#fff4ef] px-6 py-3 text-sm font-bold text-pink-600"
                   >
                     Filtreleri sıfırla
                   </button>
@@ -358,7 +358,7 @@ export default function HediyeBulPage() {
 
                 <button
                   onClick={restart}
-                  className="rounded-full border border-pink-100 bg-[#fff7fb] px-6 py-3 text-sm font-bold text-pink-600"
+                  className="rounded-full border border-pink-100 bg-[#fff4ef] px-6 py-3 text-sm font-bold text-pink-600"
                 >
                   Baştan başla
                 </button>
@@ -435,7 +435,7 @@ export default function HediyeBulPage() {
 
           <Link
             href="/"
-            className="rounded-full border border-pink-100 bg-[#fff7fb] px-5 py-3 text-sm font-bold text-pink-600 transition hover:bg-[#fff0f7]"
+            className="rounded-full border border-pink-100 bg-[#fff4ef] px-5 py-3 text-sm font-bold text-pink-600 transition hover:bg-[#fff0f7]"
           >
             Ana Sayfa
           </Link>
@@ -487,7 +487,7 @@ export default function HediyeBulPage() {
                   className={`rounded-3xl border px-5 py-4 text-left text-sm font-bold transition ${
                     selected
                       ? "border-[#b83280] bg-[#fff0f7] text-pink-600"
-                      : "border-pink-100 bg-[#fff7fb] text-[#2b1b1b] hover:border-[#b83280]"
+                      : "border-pink-100 bg-[#fff4ef] text-[#2b1b1b] hover:border-[#b83280]"
                   }`}
                 >
                   {option}

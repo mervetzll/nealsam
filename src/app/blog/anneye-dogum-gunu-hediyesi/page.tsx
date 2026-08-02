@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-[#fffaf7] px-6 py-12 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-6 py-12 text-[#2b1b1b]">
       <article className="mx-auto max-w-4xl rounded-[2rem] bg-white p-8 shadow-sm">
         <a href="/blog" className="text-sm font-bold text-[#b83280]">
           ← Bloga dön

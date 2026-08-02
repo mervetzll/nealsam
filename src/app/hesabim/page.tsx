@@ -94,7 +94,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#fff7fb] px-5 py-16 text-center">
+      <main className="min-h-screen bg-[#fff4ef] px-5 py-16 text-center">
         <p className="font-bold text-[#2b1b1b]">Hesap yükleniyor...</p>
       </main>
     );
@@ -102,7 +102,7 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#fff7fb]">
+      <main className="min-h-screen bg-[#fff4ef]">
         <section className="mx-auto max-w-3xl px-5 py-16 text-center">
           <div className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
             <p className="text-sm font-bold text-pink-600">Hesabım</p>
@@ -127,7 +127,7 @@ export default function AccountPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fff7fb]">
+    <main className="min-h-screen bg-[#fff4ef]">
       <section className="mx-auto max-w-6xl px-5 py-14">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <aside className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
@@ -251,7 +251,7 @@ function Input({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff7fb] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none transition placeholder:text-[#9b7b7b] focus:border-pink-400 focus:bg-white"
+        className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none transition placeholder:text-[#9b7b7b] focus:border-pink-400 focus:bg-white"
       />
     </label>
   );
@@ -276,7 +276,7 @@ function TextArea({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         rows={4}
-        className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff7fb] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none transition placeholder:text-[#9b7b7b] focus:border-pink-400 focus:bg-white"
+        className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none transition placeholder:text-[#9b7b7b] focus:border-pink-400 focus:bg-white"
       />
     </label>
   );

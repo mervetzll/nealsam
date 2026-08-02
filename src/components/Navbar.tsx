@@ -37,7 +37,7 @@ export default function Navbar() {
         </Link>
       </nav>
 
-      <div className="border-t border-pink-50 bg-[#fff7fb] px-5 py-2 md:hidden">
+      <div className="border-t border-pink-50 bg-[#fff4ef] px-5 py-2 md:hidden">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto">
           {navItems.map((item) => (
             <Link

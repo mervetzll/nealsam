@@ -83,7 +83,7 @@ export default function OdemeClient() {
   const total = packagePrice + serviceFee - discount;
 
   return (
-    <main className="min-h-screen bg-[#fff7fb]">
+    <main className="min-h-screen bg-[#fff4ef]">
       <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
         <button
           type="button"
@@ -129,7 +129,7 @@ export default function OdemeClient() {
               </div>
             </div>
 
-            <div className="mt-8 rounded-[1.5rem] bg-[#fff7fb] p-5">
+            <div className="mt-8 rounded-[1.5rem] bg-[#fff4ef] p-5">
               <h3 className="font-black text-[#2b1b1b]">
                 Bu pakette neler var?
               </h3>
@@ -179,7 +179,7 @@ export default function OdemeClient() {
                 ].map((step, index) => (
                   <div
                     key={step}
-                    className="flex gap-3 rounded-2xl bg-[#fff7fb] p-4"
+                    className="flex gap-3 rounded-2xl bg-[#fff4ef] p-4"
                   >
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pink-600 text-xs font-black text-white">
                       {index + 1}

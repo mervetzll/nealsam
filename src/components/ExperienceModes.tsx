@@ -100,7 +100,7 @@ export default function ExperienceModes() {
             <select
               value={relationship}
               onChange={(event) => setRelationship(event.target.value as Relationship)}
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fffaf7] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
             >
               {relationships.map((item) => (
                 <option key={item}>{item}</option>
@@ -113,7 +113,7 @@ export default function ExperienceModes() {
             <select
               value={mood}
               onChange={(event) => setMood(event.target.value as Mood)}
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fffaf7] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
             >
               {moods.map((item) => (
                 <option key={item}>{item}</option>
@@ -127,7 +127,7 @@ export default function ExperienceModes() {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Örn: Ayşe"
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fffaf7] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
             />
           </label>
 
@@ -137,7 +137,7 @@ export default function ExperienceModes() {
               value={memory}
               onChange={(event) => setMemory(event.target.value)}
               placeholder="Örn: ilk kahvemiz"
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fffaf7] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
             />
           </label>
         </div>
@@ -176,7 +176,7 @@ export default function ExperienceModes() {
                   className={`rounded-3xl border p-5 text-left transition ${
                     selected
                       ? "border-[#b83280] bg-[#fff0f7]"
-                      : "border-[#f0d7df] bg-[#fffaf7] hover:border-[#b83280]"
+                      : "border-[#f0d7df] bg-[#fff4ef] hover:border-[#b83280]"
                   }`}
                 >
                   <p className="font-extrabold">{note.title}</p>
@@ -188,7 +188,7 @@ export default function ExperienceModes() {
             })}
           </div>
 
-          <div className="mt-6 rounded-3xl bg-[#fffaf7] p-5">
+          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-5">
             <p className="text-sm font-bold text-[#b83280]">Seçili not</p>
             <p className="mt-3 text-lg leading-8">{selectedNote.text}</p>
           </div>
@@ -210,7 +210,7 @@ export default function ExperienceModes() {
           </button>
 
           {qrCode && (
-            <div className="mt-6 rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5 text-center">
+            <div className="mt-6 rounded-3xl border border-[#f0d7df] bg-[#fff4ef] p-5 text-center">
               <img
                 src={qrCode}
                 alt="Seçili özel not QR kodu"
@@ -243,7 +243,7 @@ export default function ExperienceModes() {
         <section className="rounded-[2rem] bg-white p-7 shadow-sm">
           <p className="text-sm font-bold text-[#b83280]">Hikaye Modu</p>
           <h2 className="mt-2 text-3xl font-extrabold">Hediyenin hikayesi</h2>
-          <div className="mt-6 rounded-3xl bg-[#fffaf7] p-6">
+          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-6">
             <p className="text-base leading-8 text-[#2b1b1b]">{story}</p>
           </div>
         </section>
@@ -252,7 +252,7 @@ export default function ExperienceModes() {
           <p className="text-sm font-bold text-[#b83280]">Bulmaca / Hediye Avı</p>
           <h2 className="mt-2 text-3xl font-extrabold">İpucu kartları</h2>
 
-          <div className="mt-6 rounded-3xl bg-[#fffaf7] p-6">
+          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-6">
             <p className="font-extrabold">{riddle.question}</p>
             <div className="mt-4 space-y-3">
               {riddle.clues.map((clue) => (
@@ -276,7 +276,7 @@ export default function ExperienceModes() {
           {giftIdeas.map((gift) => (
             <article
               key={gift.title}
-              className="rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5"
+              className="rounded-3xl border border-[#f0d7df] bg-[#fff4ef] p-5"
             >
               <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
                 {gift.tag}

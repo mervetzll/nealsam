@@ -15,7 +15,7 @@ export default function OdemePage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#fff7fb] px-5 py-16 text-center">
+        <main className="min-h-screen bg-[#fff4ef] px-5 py-16 text-center">
           <p className="font-bold text-[#2b1b1b]">Ödeme sayfası yükleniyor...</p>
         </main>
       }

@@ -69,7 +69,7 @@ const premiumBenefits = [
 
 export default function PackagesPage() {
   return (
-    <main className="min-h-screen bg-[#fff7fb]">
+    <main className="min-h-screen bg-[#fff4ef]">
       <section className="mx-auto max-w-7xl px-5 py-16">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-bold text-pink-600">
