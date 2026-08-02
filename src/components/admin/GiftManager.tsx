@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { giftTemplates } from "@/data/giftTemplates";
 
 type RiskLevel = "low" | "medium" | "high";
 
@@ -44,6 +45,27 @@ const emptyGift: Gift = {
 
 function arrayToText(value: string[] | undefined) {
   return value?.join(", ") || "";
+}
+
+
+function getQualityWarnings(gift: Gift): string[] {
+  const warnings: string[] = [];
+
+  if (!gift.title.trim()) warnings.push("Hediye adı boş.");
+  if (!gift.category.trim()) warnings.push("Kategori boş.");
+  if (!gift.subCategory.trim()) warnings.push("Alt kategori boş.");
+  if (!gift.searchQuery.trim()) warnings.push("Search query boş.");
+  if (!gift.priceMin || !gift.priceMax) warnings.push("Fiyat aralığı eksik.");
+  if (gift.priceMax < gift.priceMin) warnings.push("Max fiyat min fiyattan düşük.");
+  if (gift.recipients.length === 0) warnings.push("Alıcılar boş.");
+  if (gift.interests.length === 0) warnings.push("İlgi alanları boş.");
+  if (gift.styles.length === 0) warnings.push("Tarzlar boş.");
+  if (gift.occasions.length === 0) warnings.push("Özel günler boş.");
+  if (gift.urgency.length === 0) warnings.push("Aciliyet boş.");
+  if (gift.reason.trim().length < 40) warnings.push("Neden uygun açıklaması kısa.");
+  if (gift.note.trim().length < 15) warnings.push("Not önerisi kısa.");
+
+  return warnings;
 }
 
 function textToArray(value: string) {
@@ -90,6 +112,8 @@ export default function GiftManager() {
     return Array.from(new Set(gifts.map((gift) => gift.category).filter(Boolean))).sort();
   }, [gifts]);
 
+  const qualityWarnings = useMemo(() => getQualityWarnings(form), [form]);
+
   const filteredGifts = useMemo(() => {
     return gifts.filter((gift) => {
       const q = search.toLowerCase();
@@ -116,6 +140,28 @@ export default function GiftManager() {
   function resetForm() {
     setForm(emptyGift);
     setEditingId(null);
+  }
+
+  function applyTemplate(templateName: string) {
+    const template = giftTemplates.find((item) => item.name === templateName);
+    if (!template) return;
+
+    setForm({
+      ...form,
+      category: template.category,
+      subCategory: template.subCategory,
+      recipients: template.recipients,
+      interests: template.interests,
+      styles: template.styles,
+      occasions: template.occasions,
+      urgency: template.urgency,
+      riskLevel: template.riskLevel,
+      reason: template.reason,
+      note: template.note,
+      searchQuery: form.title
+        ? `${form.title} hediye`
+        : `${template.name.toLowerCase()} hediye`,
+    });
   }
 
   function startEdit(gift: Gift) {
@@ -249,6 +295,30 @@ export default function GiftManager() {
           )}
         </div>
 
+
+        <div className="mt-6 rounded-3xl border border-pink-100 bg-pink-50 p-5">
+          <h3 className="text-lg font-bold text-slate-950">
+            Hazır hediye şablonları
+          </h3>
+          <p className="mt-1 text-sm text-slate-600">
+            Sıfırdan yazmak yerine kategoriye göre alanları otomatik doldur.
+            Sonra sadece başlık, fiyat ve arama kelimesini düzenle.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {giftTemplates.map((template) => (
+              <button
+                key={template.name}
+                type="button"
+                onClick={() => applyTemplate(template.name)}
+                className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-pink-700 shadow-sm hover:bg-pink-100"
+              >
+                {template.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <Input
             label="Hediye adı"
@@ -356,6 +426,18 @@ export default function GiftManager() {
             placeholder="Hediye kartına yazılacak tatlı not"
           />
         </div>
+
+
+        {qualityWarnings.length > 0 && (
+          <div className="mt-6 rounded-3xl border border-amber-200 bg-amber-50 p-5">
+            <h3 className="font-bold text-amber-800">Kalite kontrol uyarıları</h3>
+            <ul className="mt-3 space-y-1 text-sm text-amber-800">
+              {qualityWarnings.map((warning) => (
+                <li key={warning}>• {warning}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
           <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
