@@ -388,3 +388,33 @@ export function getMatchExplanation(gift: Gift, answers: string[][]): string {
   return `${parts.join(", ")} bir hediye olduğu için önerildi.`;
 }
 
+export function getMatchQualityLabel(score?: number): string {
+  if (typeof score !== "number") return "Dengeli öneri";
+
+  if (score >= 80) return "Çok güçlü eşleşme";
+  if (score >= 60) return "Güçlü eşleşme";
+  if (score >= 40) return "Uygun eşleşme";
+
+  return "Alternatif öneri";
+}
+
+export function getMatchQualityText(score?: number): string {
+  if (typeof score !== "number") {
+    return "Bu öneri seçtiğin cevaplara göre dengeli bir alternatif olarak gösteriliyor.";
+  }
+
+  if (score >= 80) {
+    return "Bu hediye seçtiğin kişi, bütçe, ilgi alanı ve risk tercihlerine oldukça iyi uyuyor.";
+  }
+
+  if (score >= 60) {
+    return "Bu hediye cevaplarınla genel olarak iyi örtüşüyor ve mantıklı bir seçenek olabilir.";
+  }
+
+  if (score >= 40) {
+    return "Bu hediye bazı tercihlerine uyuyor; diğer alternatiflerle birlikte değerlendirilebilir.";
+  }
+
+  return "Bu hediye daha geniş alternatif olarak listelendi. Filtreleri değiştirerek daha güçlü öneriler görebilirsin.";
+}
+
