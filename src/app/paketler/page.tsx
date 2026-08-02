@@ -25,8 +25,8 @@ const packages = [
     name: "Plus",
     price: "Orta paket",
     description: "Daha düşünülmüş ve açıklamalı öneriler isteyenler için.",
-    cta: "Plus Deneyimi Gör",
-    href: "/deneyim?plan=plus",
+    cta: "Plus’ı Seç",
+    href: "/odeme?plan=plus",
     highlighted: false,
     items: [
       "Daha fazla öneri alternatifi",
@@ -39,8 +39,8 @@ const packages = [
     name: "Premium",
     price: "En özel paket",
     description: "Hediyeyi küçük bir sürpriz deneyimine dönüştürmek isteyenler için.",
-    cta: "Premium’u İncele",
-    href: "/deneyim?plan=premium",
+    cta: "Premium’u Seç",
+    href: "/odeme?plan=premium",
     highlighted: true,
     items: [
       "QR kodlu sürpriz mesaj",
