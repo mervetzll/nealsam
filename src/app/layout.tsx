@@ -36,10 +36,10 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+      { url: "/gift-icon.svg" },
+      { url: "/gift-icon.svg", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/apple-gift-icon.svg", sizes: "512x512", type: "image/png" }],
   },
   openGraph: {
     title: "NeAlsam Hediye | Kime Ne Hediye Alınır?",
@@ -49,7 +49,7 @@ export const metadata = {
     siteName: "NeAlsam Hediye",
     images: [
       {
-        url: "/icon.png",
+        url: "/gift-icon.svg",
         width: 512,
         height: 512,
         alt: "NeAlsam Hediye Logo",

@@ -5,13 +5,13 @@ import { useMemo, useState } from "react";
 import { gifts } from "@/data/gifts";
 import { questions } from "@/data/questions";
 import type { ScoredGift } from "@/types/gift";
-import { getStoreLinksForGift } from "@/utils/giftStores";
 import {
   getGiftResults,
   getPriceText,
   getRiskLabel,
   makeNotePrompt,
   makeResultSummary,
+  makeSearchUrl,
 } from "@/utils/giftAlgorithm";
 
 type AnswerMap = Record<number, string[]>;
@@ -67,17 +67,11 @@ function getRecommendationLabel(match: number) {
 function GiftResultCard({
   gift,
   answers,
-  onBlockTitle,
-  onBlockCategory,
 }: {
   gift: ScoredGift;
   answers: AnswerMap;
-  onBlockTitle: (title: string) => void;
-  onBlockCategory: (category: string) => void;
 }) {
   const notePrompt = makeNotePrompt(gift, answers);
-  const storeLinks = getStoreLinksForGift(gift);
-  const bestNote = storeLinks.find((item) => item.note)?.note;
 
   return (
     <article className="rounded-[2rem] border border-[#f0d7df] bg-white p-6 shadow-sm">
@@ -115,12 +109,16 @@ function GiftResultCard({
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         <div className="rounded-3xl bg-[#fffaf7] p-5">
           <p className="text-sm font-bold text-[#b83280]">Neden uygun?</p>
-          <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">{gift.reason}</p>
+          <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+            {gift.reason}
+          </p>
         </div>
 
         <div className="rounded-3xl bg-[#fffaf7] p-5">
           <p className="text-sm font-bold text-[#b83280]">Yanına koyulacak not</p>
-          <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">{gift.note}</p>
+          <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+            {gift.note}
+          </p>
         </div>
       </div>
 
@@ -135,51 +133,42 @@ function GiftResultCard({
         ))}
       </div>
 
-      <div className="mt-6 rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5">
-        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-bold text-[#b83280]">
-              Daha doğru mağaza önerileri
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[#6b4b4b]">
-              {bestNote || "Bu hediye için en mantıklı arama kaynakları hazırlandı."}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {storeLinks.slice(0, 3).map((link) => (
-            <a
-              key={`${gift.title}-${link.label}`}
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className={`rounded-full px-4 py-3 text-center text-sm font-bold transition ${
-                link.priority === "best"
-                  ? "bg-[#2b1b1b] text-white hover:opacity-90"
-                  : "bg-[#fff0f7] text-[#b83280] hover:bg-[#fce7f3]"
-              }`}
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-5 flex flex-wrap gap-3">
-        <button
-          onClick={() => onBlockTitle(gift.title)}
-          className="rounded-full border border-[#f0d7df] bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <a
+          href={makeSearchUrl(gift.searchQuery, "google")}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-full bg-[#2b1b1b] px-4 py-3 text-center text-sm font-bold text-white"
         >
-          Bunu istemiyorum
-        </button>
+          Google’da ara
+        </a>
 
-        <button
-          onClick={() => onBlockCategory(gift.category)}
-          className="rounded-full border border-[#f0d7df] bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
+        <a
+          href={makeSearchUrl(gift.searchQuery, "trendyol")}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-full bg-[#fff0f7] px-4 py-3 text-center text-sm font-bold text-[#b83280]"
         >
-          Benzerlerini gösterme
-        </button>
+          Trendyol
+        </a>
+
+        <a
+          href={makeSearchUrl(gift.searchQuery, "amazon")}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-full bg-[#fff0f7] px-4 py-3 text-center text-sm font-bold text-[#b83280]"
+        >
+          Amazon
+        </a>
+
+        <a
+          href={makeSearchUrl(gift.searchQuery, "hepsiburada")}
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-full bg-[#fff0f7] px-4 py-3 text-center text-sm font-bold text-[#b83280]"
+        >
+          Hepsiburada
+        </a>
       </div>
 
       <div className="mt-5 rounded-3xl border border-[#f0d7df] bg-[#fffaf7] p-5">
@@ -215,23 +204,14 @@ export default function HediyeBulPage() {
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [step, setStep] = useState(0);
   const [showResults, setShowResults] = useState(false);
-  const [blockedTitles, setBlockedTitles] = useState<string[]>([]);
-  const [blockedCategories, setBlockedCategories] = useState<string[]>([]);
 
   const currentQuestion = questions[step];
   const answeredCurrent = (answers[step] || []).length > 0;
   const progress = Math.round(((step + 1) / questions.length) * 100);
 
-  const allResults = useMemo(() => {
+  const results = useMemo(() => {
     return getGiftResults(gifts, answers);
   }, [answers]);
-
-  const results = useMemo(() => {
-    return allResults
-      .filter((gift) => !blockedTitles.includes(gift.title))
-      .filter((gift) => !blockedCategories.includes(gift.category))
-      .slice(0, 8);
-  }, [allResults, blockedTitles, blockedCategories]);
 
   const selectedCount = Object.values(answers).filter((value) => value.length > 0).length;
   const canShowResults = selectedCount >= questions.length;
@@ -249,25 +229,6 @@ export default function HediyeBulPage() {
     setAnswers({});
     setStep(0);
     setShowResults(false);
-    setBlockedTitles([]);
-    setBlockedCategories([]);
-  }
-
-  function blockTitle(title: string) {
-    setBlockedTitles((current) =>
-      current.includes(title) ? current : [...current, title]
-    );
-  }
-
-  function blockCategory(category: string) {
-    setBlockedCategories((current) =>
-      current.includes(category) ? current : [...current, category]
-    );
-  }
-
-  function undoFilters() {
-    setBlockedTitles([]);
-    setBlockedCategories([]);
   }
 
   if (showResults) {
@@ -289,79 +250,19 @@ export default function HediyeBulPage() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                {(blockedTitles.length > 0 || blockedCategories.length > 0) && (
-                  <button
-                    onClick={undoFilters}
-                    className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-6 py-3 text-sm font-bold text-[#b83280]"
-                  >
-                    Filtreleri sıfırla
-                  </button>
-                )}
-
-                <button
-                  onClick={restart}
-                  className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-6 py-3 text-sm font-bold text-[#b83280]"
-                >
-                  Baştan başla
-                </button>
-              </div>
+              <button
+                onClick={restart}
+                className="rounded-full border border-[#f0d7df] bg-[#fffaf7] px-6 py-3 text-sm font-bold text-[#b83280]"
+              >
+                Baştan başla
+              </button>
             </div>
-
-            {(blockedTitles.length > 0 || blockedCategories.length > 0) && (
-              <div className="mt-6 rounded-3xl bg-[#fff0f7] p-5">
-                <p className="text-sm font-bold text-[#b83280]">
-                  Aktif filtreler
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {blockedTitles.map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#6b4b4b]"
-                    >
-                      İstenmeyen: {item}
-                    </span>
-                  ))}
-                  {blockedCategories.map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#6b4b4b]"
-                    >
-                      Kategori kapalı: {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="mt-8 grid gap-6">
-            {results.length > 0 ? (
-              results.map((gift) => (
-                <GiftResultCard
-                  key={gift.title}
-                  gift={gift}
-                  answers={answers}
-                  onBlockTitle={blockTitle}
-                  onBlockCategory={blockCategory}
-                />
-              ))
-            ) : (
-              <div className="rounded-[2rem] bg-white p-8 text-center shadow-sm">
-                <h2 className="text-2xl font-extrabold text-[#2b1b1b]">
-                  Bu filtrelerle öneri kalmadı
-                </h2>
-                <p className="mt-3 text-[#6b4b4b]">
-                  Birkaç filtreyi sıfırlarsan sana tekrar öneri çıkarabilirim.
-                </p>
-                <button
-                  onClick={undoFilters}
-                  className="mt-5 rounded-full bg-[#b83280] px-6 py-3 text-sm font-bold text-white"
-                >
-                  Filtreleri sıfırla
-                </button>
-              </div>
-            )}
+            {results.map((gift) => (
+              <GiftResultCard key={gift.title} gift={gift} answers={answers} />
+            ))}
           </div>
         </section>
       </main>
@@ -404,7 +305,9 @@ export default function HediyeBulPage() {
             Soru {step + 1} / {questions.length}
           </p>
 
-          <h2 className="mt-3 text-3xl font-extrabold">{currentQuestion.title}</h2>
+          <h2 className="mt-3 text-3xl font-extrabold">
+            {currentQuestion.title}
+          </h2>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {currentQuestion.options.map((option) => {

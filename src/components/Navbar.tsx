@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import GiftLogo from "@/components/brand/GiftLogo";
 
 const navItems = [
   { href: "/", label: "Ana Sayfa" },
@@ -12,34 +13,33 @@ const navItems = [
   { href: "/blog", label: "Rehber" },
 ];
 
+function isActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Navbar() {
   const pathname = usePathname();
 
   return (
     <header className="w-full border-b border-[#eadede] bg-[#fff7f3]">
-      <div className="mx-auto flex max-w-7xl items-center px-6 py-4">
-        <Link
-          href="/"
-          className="mr-8 shrink-0 text-3xl font-extrabold tracking-tight text-[#b83280]"
-        >
-          NeAlsam
+      <div className="mx-auto flex max-w-7xl items-center gap-5 px-5 py-4">
+        <Link href="/" aria-label="NeAlsam ana sayfa" className="shrink-0">
+          <GiftLogo small />
         </Link>
 
-        <nav className="flex flex-1 items-center justify-end gap-3 overflow-x-auto">
+        <nav className="flex flex-1 items-center justify-end gap-2 overflow-x-auto">
           {navItems.map((item) => {
-            const isActive =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname === item.href || pathname.startsWith(item.href + "/");
+            const active = isActive(pathname, item.href);
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-5 text-sm font-bold leading-none transition ${
-                  isActive
+                className={`flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-4 text-sm font-bold transition ${
+                  active
                     ? "bg-[#b83280] text-white"
-                    : "bg-white text-[#2b1b1b] hover:bg-[#fff0f7] hover:text-[#b83280]"
+                    : "text-[#6b4b4b] hover:bg-[#fff0f7] hover:text-[#b83280]"
                 }`}
               >
                 {item.label}
@@ -49,11 +49,7 @@ export default function Navbar() {
 
           <Link
             href="/giris"
-            className={`ml-2 flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-5 text-sm font-bold leading-none transition ${
-              pathname === "/giris"
-                ? "bg-[#b83280] text-white"
-                : "bg-[#fff0f7] text-[#b83280] hover:bg-[#b83280] hover:text-white"
-            }`}
+            className="flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-[#2b1b1b] px-4 text-sm font-bold text-white transition hover:opacity-90"
           >
             Giriş Yap
           </Link>
