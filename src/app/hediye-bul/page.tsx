@@ -1,6 +1,7 @@
 "use client";
 
 import ShareGiftButton from "@/components/ShareGiftButton";
+import SaveGiftResultButton from "@/components/SaveGiftResultButton";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -230,10 +231,14 @@ function GiftResultCard({
                             </p>
                           </div>
 
-                          <ShareGiftButton
-                            title={gift.title}
-                            text={`${gift.title} — ${gift.reason}`}
-                          />
+                          <div className="flex flex-wrap gap-2">
+                            <ShareGiftButton
+                              title={gift.title}
+                              text={`${gift.title} — ${gift.reason}`}
+                            />
+
+                            <SaveGiftResultButton gift={gift} />
+                          </div>
                         </div>
                       </div>
 

@@ -156,6 +156,13 @@ export default function AccountPage() {
                 Hediye Bul
               </Link>
 
+              <Link
+                href="/hesabim/gecmis"
+                className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+              >
+                Geçmiş Önerilerim
+              </Link>
+
               <button
                 type="button"
                 onClick={logout}
