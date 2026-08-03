@@ -1,6 +1,25 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import PremiumLock from "@/components/PremiumLock";
+import { getCurrentUserPlan, isPremiumPlan } from "@/lib/subscription";
 import ExperienceModes from "@/components/ExperienceModes";
 
 export default function DeneyimPage() {
+  const [isPremium, setIsPremium] = useState(false);
+  const [planLoaded, setPlanLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadPlan() {
+      const plan = await getCurrentUserPlan();
+      setIsPremium(isPremiumPlan(plan));
+      setPlanLoaded(true);
+    }
+
+    loadPlan();
+  }, []);
+
+
   return (
     <main className="min-h-screen bg-[#fff7f3] text-[#2b1b1b]">
       
@@ -22,6 +41,16 @@ export default function DeneyimPage() {
           Ürünü biz satmayız; fikri ve sunumu kişiselleştiririz.
         </p>
       </section>
+
+        {planLoaded && !isPremium && (
+          <div className="mx-auto mt-8 max-w-4xl">
+            <PremiumLock
+              title="QR not, özel mektup ve hikâye akışı Premium ile açılır"
+              description="Ücretsiz olarak fikri görebilirsin; QR kodlu mesaj, özel mektup ve premium hediye deneyimi için paket seçmen gerekir."
+            />
+          </div>
+        )}
+
 
       <ExperienceModes />
     </main>
