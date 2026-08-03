@@ -259,7 +259,34 @@ export default function OdemeClient() {
             </Link>
           </aside>
         </div>
-      </section>
+      
+            <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff0f7] p-4">
+              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+                Test ödeme akışı
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
+                Gerçek ödeme sağlayıcı bağlanana kadar bu bağlantılar ödeme
+                sonrası ekranları test etmek içindir.
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a
+                  href="/odeme/basarili"
+                  className="rounded-full bg-[#2b1b1b] px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
+                >
+                  Başarılı Ödeme Testi
+                </a>
+
+                <a
+                  href="/odeme/basarisiz"
+                  className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+                >
+                  Başarısız Ödeme Testi
+                </a>
+              </div>
+            </div>
+
+</section>
     </main>
   );
 }
