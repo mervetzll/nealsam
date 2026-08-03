@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { gifts as fallbackGifts } from "@/data/gifts";
 import { questions } from "@/data/questions";
 import type { Gift, ScoredGift } from "@/types/gift";
+import { supabase } from "@/lib/supabase";
 import { getStoreLinksForGift } from "@/utils/giftStores";
 import {
   getGiftResults,
@@ -15,6 +16,14 @@ import {
   makeNotePrompt,
   makeResultSummary,
 } from "@/utils/giftAlgorithm";
+
+type ProfileHint = {
+  name: string;
+  default_budget: string;
+  favorite_interests: string;
+  gift_style: string;
+};
+
 
 type AnswerMap = Record<number, string[]>;
 
@@ -240,6 +249,7 @@ export default function HediyeBulPage() {
   const [blockedCategories, setBlockedCategories] = useState<string[]>([]);
   const [giftPool, setGiftPool] = useState<Gift[]>(fallbackGifts);
   const [giftSource, setGiftSource] = useState<"supabase" | "fallback" | "loading">("loading");
+  const [profileHint, setProfileHint] = useState<ProfileHint | null>(null);
 
   useEffect(() => {
     let cancelled = false;
