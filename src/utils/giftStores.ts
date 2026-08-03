@@ -1,213 +1,300 @@
+import type { Gift } from "@/types/gift";
+
 export type StoreSuggestion = {
   name: string;
   url: string;
   reason: string;
 };
 
-function q(query: string) {
-  return encodeURIComponent(query);
+function normalize(value: string) {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .replaceAll("ı", "i")
+    .replaceAll("ğ", "g")
+    .replaceAll("ü", "u")
+    .replaceAll("ş", "s")
+    .replaceAll("ö", "o")
+    .replaceAll("ç", "c");
 }
 
-export function getStoreSuggestions(gift: {
-  title: string;
-  category: string;
-  subCategory?: string;
-  searchQuery?: string;
-}): StoreSuggestion[] {
-  const text = `${gift.title} ${gift.category} ${gift.subCategory || ""} ${
-    gift.searchQuery || ""
-  }`.toLowerCase();
+function giftText(gift: Partial<Gift>) {
+  return normalize(
+    [
+      gift.title,
+      gift.category,
+      gift.subCategory,
+      gift.reason,
+      gift.note,
+      gift.searchQuery,
+      gift.recipients?.join(" "),
+      gift.interests?.join(" "),
+      gift.styles?.join(" "),
+      gift.occasions?.join(" "),
+    ]
+      .filter(Boolean)
+      .join(" ")
+  );
+}
 
-  const query = gift.searchQuery || gift.title;
+function includesAny(text: string, words: string[]) {
+  return words.some((word) => text.includes(normalize(word)));
+}
+
+function searchUrl(site: string, query: string) {
+  return `https://www.google.com/search?q=${encodeURIComponent(`${site} ${query}`)}`;
+}
+
+export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
+  const text = giftText(gift);
+  const query = gift.searchQuery || gift.title || "hediye";
+
+  // ÖNEMLİ:
+  // "takım / takımı" kelimesi "takı" gibi algılanmasın diye
+  // kahve, fincan, ev ürünü gibi kategoriler takıdan önce kontrol edilir.
 
   if (
-    text.includes("cilt") ||
-    text.includes("bakım") ||
-    text.includes("serum") ||
-    text.includes("tonik") ||
-    text.includes("nemlendirici")
+    includesAny(text, [
+      "kahve",
+      "fincan",
+      "kupa",
+      "termos",
+      "espresso",
+      "filtre kahve",
+      "kahve seti",
+      "fincan takimi",
+      "ev urunu",
+      "mutfak",
+    ])
   ) {
     return [
       {
-        name: "The Purest",
-        url: `https://thepurestsolutions.com/search?q=${q(query)}`,
-        reason: "Cilt bakım ürünleri için daha odaklı bir marka.",
+        name: "Tchibo",
+        url: searchUrl("Tchibo", query),
+        reason: "Kahve, fincan, termos ve kahve ekipmanları için daha uygun bir mağaza.",
       },
       {
-        name: "Yves Rocher",
-        url: `https://www.yvesrocher.com.tr/search?q=${q(query)}`,
-        reason: "Bakım setleri ve kişisel bakım hediyeleri için uygun.",
+        name: "Kahve Dünyası",
+        url: searchUrl("Kahve Dünyası", query),
+        reason: "Kahve temalı hediyeler ve yanında tatlı alternatifleri için uygun.",
       },
       {
-        name: "Dermoeczanem",
-        url: `https://www.dermoeczanem.com/arama?q=${q(query)}`,
-        reason: "Dermokozmetik ve bakım ürünlerini karşılaştırmak için iyi.",
+        name: "English Home",
+        url: searchUrl("English Home", query),
+        reason: "Fincan takımı, kupa ve ev sunum ürünleri için daha doğru bir seçenek.",
       },
     ];
   }
 
   if (
-    text.includes("makyaj") &&
-    !text.includes("organizer") &&
-    !text.includes("çantası")
+    includesAny(text, [
+      "cilt",
+      "bakim",
+      "serum",
+      "tonik",
+      "nemlendirici",
+      "maske",
+      "gunes kremi",
+      "vucut losyonu",
+    ])
+  ) {
+    return [
+      {
+        name: "The Purest Solutions",
+        url: searchUrl("The Purest Solutions", query),
+        reason: "Cilt bakım ürünleri için daha odaklı ve uygun bir mağaza.",
+      },
+      {
+        name: "Yves Rocher",
+        url: searchUrl("Yves Rocher", query),
+        reason: "Bakım setleri ve hediye paketleri için güçlü bir seçenek.",
+      },
+      {
+        name: "Dermoeczanem",
+        url: searchUrl("Dermoeczanem", query),
+        reason: "Dermokozmetik ürünleri karşılaştırmak için uygun.",
+      },
+    ];
+  }
+
+  if (
+    includesAny(text, [
+      "makyaj",
+      "ruj",
+      "rimel",
+      "maskara",
+      "allik",
+      "fondoten",
+      "parfum",
+      "kozmetik",
+    ])
   ) {
     return [
       {
         name: "Sephora",
-        url: `https://www.sephora.com.tr/search?q=${q(query)}`,
-        reason: "Makyaj ve premium güzellik ürünleri için güçlü seçenek.",
+        url: searchUrl("Sephora", query),
+        reason: "Makyaj ve parfüm hediyeleri için daha premium bir seçenek.",
       },
       {
         name: "Gratis",
-        url: `https://www.gratis.com/arama?q=${q(query)}`,
-        reason: "Uygun fiyatlı makyaj ürünleri için bakılabilir.",
+        url: searchUrl("Gratis", query),
+        reason: "Daha ulaşılabilir kozmetik ve bakım hediyeleri için uygun.",
       },
       {
         name: "Watsons",
-        url: `https://www.watsons.com.tr/search?text=${q(query)}`,
-        reason: "Makyaj ve kişisel bakım ürünleri için alternatif.",
+        url: searchUrl("Watsons", query),
+        reason: "Kozmetik ve bakım alternatiflerini karşılaştırmak için uygun.",
       },
     ];
   }
 
   if (
-    text.includes("organizer") ||
-    text.includes("takı kutusu") ||
-    text.includes("düzenleyici") ||
-    text.includes("saklama")
+    includesAny(text, [
+      "organizer",
+      "duzenleyici",
+      "saklama",
+      "canta ici",
+      "taki kutusu",
+      "makyaj organizeri",
+      "masa duzenleyici",
+    ])
   ) {
     return [
       {
         name: "Trendyol",
-        url: `https://www.trendyol.com/sr?q=${q(query)}`,
-        reason: "Organizer ve düzenleyici ürünlerde çok seçenek çıkar.",
+        url: searchUrl("Trendyol", query),
+        reason: "Organizer ve düzenleyici ürünlerde çok seçenek sunduğu için uygun.",
       },
       {
         name: "Hepsiburada",
-        url: `https://www.hepsiburada.com/ara?q=${q(query)}`,
-        reason: "Fiyat ve yorum karşılaştırması için iyi.",
+        url: searchUrl("Hepsiburada", query),
+        reason: "Ev düzenleme ürünlerinde fiyat ve yorum karşılaştırması için iyi.",
       },
       {
         name: "Amazon",
-        url: `https://www.amazon.com.tr/s?k=${q(query)}`,
-        reason: "Organizer ve pratik ürünlerde alternatif bulmak kolay.",
+        url: searchUrl("Amazon Türkiye", query),
+        reason: "Organizer ve saklama ürünlerinde alternatif bulmak için uygun.",
       },
     ];
   }
 
   if (
-    text.includes("takı") ||
-    text.includes("kolye") ||
-    text.includes("bileklik") ||
-    text.includes("küpe") ||
-    text.includes("yüzük")
+    includesAny(text, [
+      "kolye",
+      "bileklik",
+      "kupe",
+      "yuzuk",
+      "sahmeran",
+      "charm",
+      "gumus",
+      "altin kaplama",
+    ])
   ) {
     return [
       {
         name: "So Chic",
-        url: `https://www.sochic.com.tr/arama-sonuc?search=${q(query)}`,
+        url: searchUrl("So Chic", query),
         reason: "Takı hediyeleri için daha doğrudan bir mağaza.",
       },
       {
         name: "Atasay",
-        url: `https://www.atasay.com/search?q=${q(query)}`,
-        reason: "Daha klasik ve özel takı seçenekleri için uygun.",
+        url: searchUrl("Atasay", query),
+        reason: "Daha klasik ve değerli takı hediyeleri için uygun.",
       },
       {
         name: "Trendyol",
-        url: `https://www.trendyol.com/sr?q=${q(query)}`,
-        reason: "Farklı fiyat aralıklarını görmek için iyi.",
+        url: searchUrl("Trendyol", query),
+        reason: "Farklı bütçelerde takı alternatifi bulmak için uygun.",
       },
     ];
   }
 
   if (
-    text.includes("teknoloji") ||
-    text.includes("şarj") ||
-    text.includes("kulaklık") ||
-    text.includes("hoparlör") ||
-    text.includes("powerbank")
+    includesAny(text, [
+      "kulaklik",
+      "powerbank",
+      "sarj",
+      "hoparlor",
+      "teknoloji",
+      "klavye",
+      "mouse",
+      "akilli",
+      "telefon",
+    ])
   ) {
     return [
       {
         name: "MediaMarkt",
-        url: `https://www.mediamarkt.com.tr/tr/search.html?query=${q(query)}`,
-        reason: "Elektronik ürünlerde güvenilir mağaza seçeneği.",
+        url: searchUrl("MediaMarkt", query),
+        reason: "Teknolojik hediyeler için daha doğru bir mağaza.",
       },
       {
         name: "Amazon",
-        url: `https://www.amazon.com.tr/s?k=${q(query)}`,
-        reason: "Teknoloji ürünlerinde yorum ve fiyat karşılaştırması kolay.",
+        url: searchUrl("Amazon Türkiye", query),
+        reason: "Teknoloji ürünlerinde yorum ve fiyat karşılaştırması için uygun.",
       },
       {
         name: "Hepsiburada",
-        url: `https://www.hepsiburada.com/ara?q=${q(query)}`,
-        reason: "Elektronik hediyelerde geniş ürün havuzu var.",
-      },
-    ];
-  }
-
-  if (text.includes("kahve") || text.includes("fincan") || text.includes("termos")) {
-    return [
-      {
-        name: "Kahve Dünyası",
-        url: `https://www.kahvedunyasi.com/arama?q=${q(query)}`,
-        reason: "Kahve ve hediye paketleri için doğrudan uygun.",
-      },
-      {
-        name: "Tchibo",
-        url: `https://www.tchibo.com.tr/search?query=${q(query)}`,
-        reason: "Kahve ekipmanı ve kupa/termos ürünleri için iyi.",
-      },
-      {
-        name: "Amazon",
-        url: `https://www.amazon.com.tr/s?k=${q(query)}`,
-        reason: "French press, termos ve kahve ekipmanında bol seçenek var.",
-      },
-    ];
-  }
-
-  if (text.includes("kitap") || text.includes("defter") || text.includes("kalem")) {
-    return [
-      {
-        name: "D&R",
-        url: `https://www.dr.com.tr/search?q=${q(query)}`,
-        reason: "Kitap ve kırtasiye hediyeleri için en uygun yerlerden biri.",
-      },
-      {
-        name: "Amazon",
-        url: `https://www.amazon.com.tr/s?k=${q(query)}`,
-        reason: "Kitap ve aksesuar fiyatlarını karşılaştırmak için iyi.",
-      },
-      {
-        name: "Trendyol",
-        url: `https://www.trendyol.com/sr?q=${q(query)}`,
-        reason: "Defter, kalem ve hediye setlerinde çok seçenek çıkar.",
+        url: searchUrl("Hepsiburada", query),
+        reason: "Elektronik ürünlerde kampanya ve alternatif bulmak için uygun.",
       },
     ];
   }
 
   if (
-    text.includes("konser") ||
-    text.includes("etkinlik") ||
-    text.includes("workshop") ||
-    text.includes("deneyim")
+    includesAny(text, [
+      "kitap",
+      "defter",
+      "kalem",
+      "ajanda",
+      "planner",
+      "kirtasiye",
+    ])
+  ) {
+    return [
+      {
+        name: "D&R",
+        url: searchUrl("D&R", query),
+        reason: "Kitap, defter ve kırtasiye hediyeleri için daha doğru bir seçenek.",
+      },
+      {
+        name: "Amazon",
+        url: searchUrl("Amazon Türkiye", query),
+        reason: "Kitap ve kırtasiye ürünlerinde alternatif bulmak için uygun.",
+      },
+      {
+        name: "Trendyol",
+        url: searchUrl("Trendyol", query),
+        reason: "Farklı fiyatlarda defter, kalem ve setler için uygun.",
+      },
+    ];
+  }
+
+  if (
+    includesAny(text, [
+      "konser",
+      "etkinlik",
+      "workshop",
+      "deneyim",
+      "tiyatro",
+      "sinema",
+      "bilet",
+    ])
   ) {
     return [
       {
         name: "Biletinial",
-        url: `https://www.biletinial.com/tr-tr/arama?query=${q(query)}`,
-        reason: "Konser, tiyatro ve etkinlik hediyeleri için uygun.",
+        url: searchUrl("Biletinial", query),
+        reason: "Etkinlik, tiyatro ve konser hediyeleri için uygun.",
       },
       {
         name: "Passo",
-        url: `https://www.passo.com.tr/tr/arama?q=${q(query)}`,
-        reason: "Konser ve etkinlik bileti aramak için bakılabilir.",
+        url: searchUrl("Passo", query),
+        reason: "Konser ve etkinlik biletleri için iyi bir alternatif.",
       },
       {
         name: "Google",
-        url: `https://www.google.com/search?q=${q(query)}`,
-        reason: "Şehre ve tarihe göre deneyim seçeneklerini bulmak için iyi.",
+        url: searchUrl("Google", query),
+        reason: "Yakındaki etkinlikleri hızlıca araştırmak için uygun.",
       },
     ];
   }
@@ -215,28 +302,23 @@ export function getStoreSuggestions(gift: {
   return [
     {
       name: "Trendyol",
-      url: `https://www.trendyol.com/sr?q=${q(query)}`,
-      reason: "Genel hediye aramaları için geniş ürün seçeneği sunar.",
+      url: searchUrl("Trendyol", query),
+      reason: "Genel hediye seçenekleri ve fiyat karşılaştırması için uygun.",
     },
     {
       name: "Hepsiburada",
-      url: `https://www.hepsiburada.com/ara?q=${q(query)}`,
-      reason: "Fiyat ve yorum karşılaştırması için iyi bir alternatif.",
+      url: searchUrl("Hepsiburada", query),
+      reason: "Ürün yorumları ve alternatifleri görmek için uygun.",
     },
     {
       name: "Amazon",
-      url: `https://www.amazon.com.tr/s?k=${q(query)}`,
-      reason: "Hızlı teslimat ve farklı satıcı seçenekleri için bakılabilir.",
+      url: searchUrl("Amazon Türkiye", query),
+      reason: "Farklı ürün seçeneklerini karşılaştırmak için uygun.",
     },
   ];
 }
 
-export function getStoreLinksForGift(gift: {
-  title: string;
-  category: string;
-  subCategory?: string;
-  searchQuery?: string;
-}) {
+export function getStoreLinksForGift(gift: Partial<Gift>) {
   return getStoreSuggestions(gift).map((store, index) => ({
     label: store.name,
     href: store.url,
