@@ -241,6 +241,32 @@ function GiftResultCard({
   );
 }
 
+
+
+function getProfileSuggestionText(profile: ProfileHint | null): string {
+  if (!profile) return "";
+
+  const parts: string[] = [];
+
+  if (profile.default_budget) {
+    parts.push(`Bütçe sorusunda "${profile.default_budget}" aralığına en yakın seçeneği seç.`);
+  }
+
+  if (profile.favorite_interests) {
+    parts.push(`İlgi alanlarında "${profile.favorite_interests}" seçeneklerine yakın alanları işaretle.`);
+  }
+
+  if (profile.gift_style) {
+    parts.push(`Hediye tarzında "${profile.gift_style}" tercihine en yakın seçeneği seç.`);
+  }
+
+  if (parts.length === 0) {
+    return "Profilinde henüz yeterli tercih yok. Hesabım sayfasından bütçe, ilgi alanı ve tarz ekleyebilirsin.";
+  }
+
+  return parts.join(" ");
+}
+
 export default function HediyeBulPage() {
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [step, setStep] = useState(0);
