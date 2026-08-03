@@ -2,6 +2,7 @@
 
 import ShareGiftButton from "@/components/ShareGiftButton";
 import SaveGiftResultButton from "@/components/SaveGiftResultButton";
+import FavoriteGiftButton from "@/components/FavoriteGiftButton";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -238,6 +239,8 @@ function GiftResultCard({
                             />
 
                             <SaveGiftResultButton gift={gift} />
+
+                            <FavoriteGiftButton gift={gift} />
                           </div>
                         </div>
                       </div>

@@ -163,6 +163,13 @@ export default function AccountPage() {
                 Geçmiş Önerilerim
               </Link>
 
+              <Link
+                href="/hesabim/favoriler"
+                className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+              >
+                Favorilerim
+              </Link>
+
               <button
                 type="button"
                 onClick={logout}
