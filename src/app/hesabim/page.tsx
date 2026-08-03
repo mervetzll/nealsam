@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { getCurrentUserPlan, isPremiumPlan, type UserPlan } from "@/lib/subscription";
 
 type UserProfile = {
   name: string;
@@ -28,6 +29,7 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [currentPlan, setCurrentPlan] = useState<UserPlan>("free");
 
   useEffect(() => {
     loadAccount();
@@ -43,6 +45,8 @@ export default function AccountPage() {
     setUser(user);
 
     if (user) {
+      const plan = await getCurrentUserPlan();
+      setCurrentPlan(plan);
       const { data } = await supabase
         .from("profiles")
         .select("name, default_budget, favorite_interests, gift_style")
@@ -147,6 +151,40 @@ export default function AccountPage() {
                 {user.email}
               </p>
             </div>
+
+            <div className="mt-6 rounded-2xl border border-pink-100 bg-[#fff0f7] p-5">
+              <p className="text-sm font-black text-[#2b1b1b]">
+                Paket Durumu
+              </p>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700 shadow-sm">
+                  {currentPlan.toUpperCase()}
+                </span>
+
+                <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm">
+                  {isPremiumPlan(currentPlan)
+                    ? "Premium özellikler açık"
+                    : "Ücretsiz hesap"}
+                </span>
+              </div>
+
+              <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
+                {isPremiumPlan(currentPlan)
+                  ? "QR not, özel mektup ve premium deneyim özelliklerini kullanabilirsin."
+                  : "Premium özellikler için Plus, Deneyim veya Premium paketlerinden birini seçebilirsin."}
+              </p>
+
+              {!isPremiumPlan(currentPlan) && (
+                <Link
+                  href="/paketler"
+                  className="mt-4 inline-flex rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700"
+                >
+                  Paketleri İncele
+                </Link>
+              )}
+            </div>
+
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
