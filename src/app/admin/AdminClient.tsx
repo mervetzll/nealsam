@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import GiftManager from "@/components/admin/GiftManager";
 
 type AdminTab = "dashboard" | "gifts" | "seo" | "packages" | "tasks";
@@ -25,7 +26,39 @@ type HealthStatus = {
 
 const SITE_URL = "https://nealsamhediye.com";
 
+
+type AdminStats = {
+  profiles: number;
+  savedGiftResults: number;
+  subscriptions: number;
+  premiumUsers: number;
+  activeGifts: number;
+};
+
 export default function AdminClient() {
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
+
+  useEffect(() => {
+    async function loadAdminStats() {
+      try {
+        const response = await fetch("/api/admin-stats", {
+          cache: "no-store",
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          setAdminStats(data.stats);
+        }
+      } catch (error) {
+        console.error("Admin stats could not be loaded", error);
+      }
+    }
+
+    loadAdminStats();
+  }, []);
+
+
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [health, setHealth] = useState<HealthStatus | null>(null);
@@ -107,6 +140,56 @@ export default function AdminClient() {
 
   return (
     <main className="min-h-screen bg-slate-50">
+
+      {adminStats && (
+        <section className="grid gap-4 md:grid-cols-5">
+          <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+              Aktif Hediye
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#2b1b1b]">
+              {adminStats.activeGifts}
+            </p>
+          </div>
+
+          <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+              Profil
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#2b1b1b]">
+              {adminStats.profiles}
+            </p>
+          </div>
+
+          <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+              Kayıtlı Öneri
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#2b1b1b]">
+              {adminStats.savedGiftResults}
+            </p>
+          </div>
+
+          <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+              Paket Kaydı
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#2b1b1b]">
+              {adminStats.subscriptions}
+            </p>
+          </div>
+
+          <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+              Premium
+            </p>
+            <p className="mt-2 text-3xl font-black text-[#2b1b1b]">
+              {adminStats.premiumUsers}
+            </p>
+          </div>
+        </section>
+      )}
+
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-6 md:flex-row md:items-center md:justify-between">
           <div>
