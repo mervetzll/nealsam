@@ -3,153 +3,203 @@ import Link from "next/link";
 export const metadata = {
   title: "Paketler | NeAlsam Hediye",
   description:
-    "NeAlsam ücretsiz ve premium hediye önerisi paketlerini karşılaştır. Hediye notu, QR mesaj ve deneyim fikirleriyle daha özel hediye hazırla.",
+    "NeAlsam Hediye paketlerini karşılaştırın. Ücretsiz hediye önerileri, premium QR not, özel mektup ve deneyim paketleri.",
 };
 
 const packages = [
   {
+    id: "free",
     name: "Ücretsiz",
     price: "0 TL",
+    tag: "Başlangıç",
     description: "Hızlıca hediye fikri bulmak isteyenler için.",
+    features: [
+      "Temel hediye önerileri",
+      "Bütçe ve kişi seçimi",
+      "Mağaza yönlendirmeleri",
+      "Paylaşma seçeneği",
+    ],
+    locked: [
+      "QR hediye notu",
+      "Özel mektup",
+      "Premium deneyim akışı",
+      "Gelişmiş profil önerileri",
+    ],
     cta: "Ücretsiz Başla",
     href: "/hediye-bul",
-    highlighted: false,
-    items: [
-      "Temel hediye önerileri",
-      "Bütçeye göre fikirler",
-      "Basit mağaza yönlendirmesi",
-      "Risk seviyesi etiketi",
-    ],
+    popular: false,
   },
   {
+    id: "plus",
     name: "Plus",
     price: "49 TL",
-    description: "Daha düşünülmüş ve açıklamalı öneriler isteyenler için.",
-    cta: "Plus’ı Seç",
-    href: "/odeme?plan=plus",
-    highlighted: false,
-    items: [
-      "Daha fazla öneri alternatifi",
-      "Hediye notu fikri",
-      "Neden önerildi açıklaması",
-      "Daha uygun mağaza yönlendirmesi",
+    tag: "En Dengeli",
+    description: "Daha kişisel ve daha özenli hediye önerileri için.",
+    features: [
+      "Daha güçlü eşleşme önerileri",
+      "Kaydetme ve favori sistemi",
+      "Profil tercihlerini kullanma",
+      "Premium kilitli alanlara temel erişim",
     ],
+    locked: ["Tam QR deneyimi", "Tam özel mektup akışı"],
+    cta: "Plus Seç",
+    href: "/odeme?plan=plus",
+    popular: true,
   },
   {
+    id: "experience",
+    name: "Deneyim",
+    price: "79 TL",
+    tag: "Duygusal Hediye",
+    description: "Hediyeyi sadece ürün değil, özel bir deneyim haline getirmek için.",
+    features: [
+      "QR kodlu hediye notu",
+      "Özel mesaj sayfası",
+      "Romantik / komik / duygusal not akışı",
+      "Hediye deneyimi önizlemesi",
+    ],
+    locked: ["Premium paket içindeki tüm gelişmiş seçenekler"],
+    cta: "Deneyim Seç",
+    href: "/odeme?plan=experience",
+    popular: false,
+  },
+  {
+    id: "premium",
     name: "Premium",
     price: "99 TL",
-    description: "Hediyeyi küçük bir sürpriz deneyimine dönüştürmek isteyenler için.",
-    cta: "Premium’u Seç",
-    href: "/odeme?plan=premium",
-    highlighted: true,
-    items: [
-      "QR kodlu sürpriz mesaj",
-      "Kişiye özel hediye notu",
-      "Deneyim hediyesi fikirleri",
-      "İndirilebilir hediye kartı",
-      "Daha romantik ve duygusal öneriler",
+    tag: "Tam Paket",
+    description: "NeAlsam’ın tüm premium hediye deneyimi özellikleri.",
+    features: [
+      "Tüm Plus özellikleri",
+      "Tüm Deneyim özellikleri",
+      "QR not ve özel mektup",
+      "Gelişmiş hediye yönlendirmeleri",
+      "Premium rozetli öneriler",
     ],
+    locked: [],
+    cta: "Premium Seç",
+    href: "/odeme?plan=premium",
+    popular: false,
   },
 ];
 
-const premiumBenefits = [
-  {
-    title: "QR sürpriz mesaj",
-    text: "Hediyenin yanına açılabilir özel bir mesaj deneyimi ekleyebilirsin.",
-  },
-  {
-    title: "Hediye notu",
-    text: "Ne yazacağını bilemediğinde daha tatlı ve kişiye uygun not fikirleri alırsın.",
-  },
-  {
-    title: "Deneyim önerileri",
-    text: "Sadece ürün değil; konser, workshop, kahve planı veya anı odaklı fikirler çıkar.",
-  },
+const comparisonRows = [
+  ["Temel hediye önerileri", "✓", "✓", "✓", "✓"],
+  ["Profil tercihleri", "Kısıtlı", "✓", "✓", "✓"],
+  ["Kaydet / favori", "✓", "✓", "✓", "✓"],
+  ["QR hediye notu", "—", "Kısıtlı", "✓", "✓"],
+  ["Özel mektup", "—", "—", "✓", "✓"],
+  ["Premium deneyim", "—", "—", "✓", "✓"],
+  ["Tam erişim", "—", "—", "—", "✓"],
 ];
 
 export default function PackagesPage() {
   return (
     <main className="min-h-screen bg-[#fff4ef]">
-      <section className="mx-auto max-w-7xl px-5 py-16">
+      <section className="mx-auto max-w-7xl px-5 py-14">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold text-pink-600">
+          <p className="text-sm font-black uppercase tracking-wide text-pink-600">
             NeAlsam Paketleri
           </p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
-            Hediyeyi sadece fikir olmaktan çıkar, küçük bir deneyime dönüştür
+
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-6xl">
+            Hediyeyi daha özel hale getiren paketler
           </h1>
-          <p className="mt-5 text-base leading-7 text-[#6b4a4a]">
-            Ücretsiz paketle hızlıca öneri alabilir, premium deneyimlerle hediye
-            notu, QR mesaj ve daha özel öneriler hazırlayabilirsin.
+
+          <p className="mt-5 text-sm leading-7 text-[#6b4a4a] md:text-base">
+            Ücretsiz hediye önerileriyle başlayabilir, istersen QR not, özel
+            mektup ve premium deneyim özellikleriyle hediyeni daha kişisel hale
+            getirebilirsin.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+        <div className="mx-auto mt-8 max-w-4xl rounded-[2rem] border border-amber-200 bg-amber-50 p-5 text-center shadow-sm">
+          <p className="text-sm font-black text-amber-800">
+            Ödeme sistemi şu an hazırlık modunda
+          </p>
+          <p className="mt-2 text-sm leading-6 text-amber-800">
+            Bu sayfada paket akışı test ediliyor. Gerçek ödeme sağlayıcı
+            bağlanana kadar kart bilgisi alınmaz ve ödeme işlemi tamamlanmaz.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 lg:grid-cols-4">
           {packages.map((item) => (
             <article
-              key={item.name}
-              className={`rounded-[2rem] border p-6 shadow-sm ${
-                item.highlighted
-                  ? "border-pink-300 bg-[#2b1b1b] text-white shadow-xl shadow-pink-100"
-                  : "border-pink-100 bg-white text-[#2b1b1b]"
+              key={item.id}
+              className={`relative rounded-[2rem] border bg-white p-6 shadow-sm ${
+                item.popular
+                  ? "border-pink-300 ring-4 ring-pink-100"
+                  : "border-pink-100"
               }`}
             >
-              {item.highlighted && (
-                <span className="rounded-full bg-pink-500 px-3 py-1 text-xs font-black text-white">
-                  En özel seçenek
-                </span>
+              {item.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-pink-600 px-4 py-2 text-xs font-black text-white shadow-sm">
+                  En Popüler
+                </div>
               )}
 
-              <h2 className="mt-4 text-2xl font-black">{item.name}</h2>
-              <p
-                className={`mt-2 text-sm ${
-                  item.highlighted ? "text-white/70" : "text-[#6b4a4a]"
-                }`}
-              >
+              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+                {item.tag}
+              </p>
+
+              <h2 className="mt-3 text-2xl font-black text-[#2b1b1b]">
+                {item.name}
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
                 {item.description}
               </p>
 
-              <div
-                className={`mt-6 rounded-2xl px-5 py-4 ${
-                  item.highlighted ? "bg-white" : "bg-pink-50"
-                }`}
-              >
-                <p className="text-xs font-black uppercase tracking-wide text-pink-600">
-                  Paket Fiyatı
-                </p>
+              <div className="mt-5 rounded-2xl bg-[#fff0f7] p-4">
+                <p className="text-sm font-bold text-[#6b4a4a]">Paket Fiyatı</p>
                 <p className="mt-1 text-4xl font-black text-[#2b1b1b]">
                   {item.price}
                 </p>
               </div>
 
-              <ul className="mt-6 space-y-3">
-                {item.items.map((feature) => (
-                  <li
-                    key={feature}
-                    className={`flex gap-3 text-sm ${
-                      item.highlighted ? "text-white/85" : "text-[#6b4a4a]"
-                    }`}
-                  >
-                    <span
-                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-black ${
-                        item.highlighted
-                          ? "bg-white text-[#2b1b1b]"
-                          : "bg-pink-100 text-pink-700"
-                      }`}
+              <div className="mt-5">
+                <p className="text-sm font-black text-[#2b1b1b]">
+                  Pakete dahil:
+                </p>
+
+                <ul className="mt-3 space-y-2">
+                  {item.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="text-sm font-semibold leading-6 text-[#6b4a4a]"
                     >
-                      ✓
-                    </span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+                      ✓ {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {item.locked.length > 0 && (
+                <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff4ef] p-4">
+                  <p className="text-sm font-black text-[#2b1b1b]">
+                    Bu pakette sınırlı:
+                  </p>
+
+                  <ul className="mt-3 space-y-2">
+                    {item.locked.map((feature) => (
+                      <li
+                        key={feature}
+                        className="text-sm font-semibold leading-6 text-[#6b4a4a]"
+                      >
+                        ○ {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <Link
                 href={item.href}
-                className={`mt-7 inline-flex w-full justify-center rounded-full px-5 py-3 text-sm font-black transition ${
-                  item.highlighted
-                    ? "bg-white text-[#2b1b1b] hover:bg-pink-50"
-                    : "bg-pink-600 text-white hover:bg-pink-700"
+                className={`mt-6 inline-flex w-full justify-center rounded-full px-5 py-4 text-sm font-black transition ${
+                  item.popular
+                    ? "bg-pink-600 text-white hover:bg-pink-700"
+                    : "bg-[#2b1b1b] text-white hover:opacity-90"
                 }`}
               >
                 {item.cta}
@@ -157,47 +207,97 @@ export default function PackagesPage() {
             </article>
           ))}
         </div>
-      </section>
 
-      <section className="mx-auto max-w-7xl px-5 pb-16">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-8">
-          <p className="text-sm font-bold text-pink-600">
-            Premium neden var?
-          </p>
-          <h2 className="mt-2 text-3xl font-black text-[#2b1b1b]">
-            Hediye önerisini daha kişisel hissettirmek için
-          </h2>
+        <section className="mt-14 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-sm font-black text-pink-600">
+                Paket Karşılaştırması
+              </p>
 
-          <div className="mt-7 grid gap-5 md:grid-cols-3">
-            {premiumBenefits.map((benefit) => (
-              <div
-                key={benefit.title}
-                className="rounded-[1.5rem] bg-[#fff0f7] p-5"
-              >
-                <h3 className="font-black text-[#2b1b1b]">{benefit.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
-                  {benefit.text}
-                </p>
-              </div>
-            ))}
-          </div>
+              <h2 className="mt-2 text-3xl font-black text-[#2b1b1b]">
+                Hangi pakette ne var?
+              </h2>
+            </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/hediye-bul"
-              className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white transition hover:opacity-90"
+              className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
             >
               Önce Ücretsiz Dene
             </Link>
+          </div>
+
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full min-w-[760px] border-separate border-spacing-y-2 text-left">
+              <thead>
+                <tr>
+                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
+                    Özellik
+                  </th>
+                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
+                    Free
+                  </th>
+                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
+                    Plus
+                  </th>
+                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
+                    Deneyim
+                  </th>
+                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
+                    Premium
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {comparisonRows.map((row) => (
+                  <tr key={row[0]} className="rounded-2xl bg-[#fff4ef]">
+                    {row.map((cell, index) => (
+                      <td
+                        key={`${row[0]}-${index}`}
+                        className={`px-4 py-4 text-sm ${
+                          index === 0
+                            ? "font-black text-[#2b1b1b]"
+                            : "font-bold text-[#6b4a4a]"
+                        }`}
+                      >
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-[2rem] border border-pink-100 bg-[#2b1b1b] p-8 text-center shadow-sm">
+          <h2 className="text-3xl font-black text-white">
+            Kararsız kaldıysan ücretsiz başla
+          </h2>
+
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-pink-100">
+            Önce hediye önerilerini dene. Sonra hediyeyi daha özel hale getirmek
+            istersen Plus, Deneyim veya Premium pakete geçebilirsin.
+          </p>
+
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/hediye-bul"
+              className="rounded-full bg-white px-6 py-4 text-sm font-black text-[#2b1b1b] transition hover:bg-pink-50"
+            >
+              Hediye Bul
+            </Link>
 
             <Link
-              href="/deneyim?plan=premium"
-              className="rounded-full border border-pink-200 px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+              href="/deneyim"
+              className="rounded-full border border-white/30 px-6 py-4 text-sm font-black text-white transition hover:bg-white/10"
             >
-              Premium Deneyimi Gör
+              Deneyimi Gör
             </Link>
           </div>
-        </div>
+        </section>
       </section>
     </main>
   );
