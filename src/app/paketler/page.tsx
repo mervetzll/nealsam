@@ -102,7 +102,7 @@ export default function PackagesPage() {
             NeAlsam Paketleri
           </p>
 
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-6xl">
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-4xl md:text-6xl">
             Hediyeyi daha özel hale getiren paketler
           </h1>
 
@@ -113,7 +113,7 @@ export default function PackagesPage() {
           </p>
         </div>
 
-        <div className="mx-auto mt-8 max-w-4xl rounded-[2rem] border border-amber-200 bg-amber-50 p-5 text-center shadow-sm">
+        <div className="mx-auto mt-8 max-w-4xl rounded-[1.5rem] md:rounded-[2rem] border border-amber-200 bg-amber-50 p-5 text-center shadow-sm">
           <p className="text-sm font-black text-amber-800">
             Ödeme sistemi şu an hazırlık modunda
           </p>
@@ -127,7 +127,7 @@ export default function PackagesPage() {
           {packages.map((item) => (
             <article
               key={item.id}
-              className={`relative rounded-[2rem] border bg-white p-6 shadow-sm ${
+              className={`relative rounded-[1.5rem] md:rounded-[2rem] border bg-white p-6 shadow-sm ${
                 item.popular
                   ? "border-pink-300 ring-4 ring-pink-100"
                   : "border-pink-100"
@@ -208,7 +208,7 @@ export default function PackagesPage() {
           ))}
         </div>
 
-        <section className="mt-14 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
+        <section className="mt-14 rounded-[1.5rem] md:rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-black text-pink-600">
@@ -272,7 +272,7 @@ export default function PackagesPage() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-[2rem] border border-pink-100 bg-[#2b1b1b] p-8 text-center shadow-sm">
+        <section className="mt-10 rounded-[1.5rem] md:rounded-[2rem] border border-pink-100 bg-[#2b1b1b] p-8 text-center shadow-sm">
           <h2 className="text-3xl font-black text-white">
             Kararsız kaldıysan ücretsiz başla
           </h2>

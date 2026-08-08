@@ -93,7 +93,7 @@ function GiftResultCard({
   const bestNote = storeLinks.find((item) => item.note)?.note;
 
   return (
-    <article className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <article className="rounded-[1.5rem] md:rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -125,7 +125,7 @@ function GiftResultCard({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-5 grid gap-4 md:grid-cols-1 md:grid-cols-2">
         <div className="rounded-3xl bg-[#fff4ef] p-5">
           <p className="text-sm font-bold text-pink-600">Neden uygun?</p>
           <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">{gift.reason}</p>
@@ -160,7 +160,7 @@ function GiftResultCard({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {storeLinks.slice(0, 3).map((link) => (
             <a
               key={`${gift.title}-${link.label}`}
@@ -377,14 +377,14 @@ export default function HediyeBulPage() {
     return (
       <main className="min-h-screen bg-[#fff7f3] px-6 py-14 text-[#2b1b1b]">
         <section className="mx-auto max-w-7xl">
-          <div className="rounded-[2rem] bg-white p-7 shadow-sm md:p-10">
+          <div className="rounded-[1.5rem] md:rounded-[2rem] bg-white p-7 shadow-sm md:p-5 md:p-10">
             <p className="text-sm font-bold uppercase tracking-[0.3em] text-pink-600">
               NeAlsam Hediye Bul
             </p>
 
             <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
               <div>
-                <h1 className="text-4xl font-extrabold md:text-5xl">
+                <h1 className="text-4xl font-extrabold md:text-4xl md:text-5xl">
                   Sana en uygun hediye fikirleri
                 </h1>
                 <p className="mt-5 max-w-3xl text-lg leading-8 text-[#6b4b4b]">
@@ -450,7 +450,7 @@ export default function HediyeBulPage() {
                 />
               ))
             ) : (
-              <div className="rounded-[2rem] bg-white p-8 text-center shadow-sm">
+              <div className="rounded-[1.5rem] md:rounded-[2rem] bg-white p-8 text-center shadow-sm">
                 <h2 className="text-2xl font-extrabold text-[#2b1b1b]">
                   Bu filtrelerle öneri kalmadı
                 </h2>
@@ -473,7 +473,7 @@ export default function HediyeBulPage() {
 
   return (
     <main className="min-h-screen bg-[#fff7f3] px-6 py-14 text-[#2b1b1b]">
-      <section className="mx-auto max-w-5xl rounded-[2rem] bg-white p-7 shadow-sm md:p-10">
+      <section className="mx-auto max-w-5xl rounded-[1.5rem] md:rounded-[2rem] bg-white p-7 shadow-sm md:p-5 md:p-10">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm font-bold uppercase tracking-[0.3em] text-pink-600">
             Hediye Bul
@@ -489,7 +489,7 @@ export default function HediyeBulPage() {
 
         <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-4xl font-extrabold md:text-5xl">
+            <h1 className="text-4xl font-extrabold md:text-4xl md:text-5xl">
               Kime ne hediye alınır?
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-[#6b4b4b]">
@@ -518,7 +518,7 @@ export default function HediyeBulPage() {
 
           <h2 className="mt-3 text-3xl font-extrabold">{currentQuestion.title}</h2>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="mt-6 grid gap-3 sm:grid-cols-1 md:grid-cols-2">
             {currentQuestion.options.map((option) => {
               const selected = isSelected(answers, step, option);
 

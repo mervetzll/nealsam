@@ -29,7 +29,7 @@ export default function DeneyimPage() {
           Deneyim Modları
         </p>
 
-        <h1 className="text-5xl font-extrabold leading-tight md:text-6xl">
+        <h1 className="text-4xl md:text-5xl font-extrabold leading-tight md:text-4xl md:text-6xl">
           Hediyenin ürün kısmı sende, hikâyesi bizde.
         </h1>
 
