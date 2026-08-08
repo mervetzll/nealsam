@@ -390,10 +390,6 @@ export default function HediyeBulPage() {
                 <p className="mt-5 max-w-3xl text-lg leading-8 text-[#6b4b4b]">
                   {makeResultSummary(answers)}
                 </p>
-
-                <p className="mt-3 text-xs font-bold text-pink-600">
-                  Hediye havuzu: {giftSource === "supabase" ? "Admin panel / Supabase" : giftSource === "loading" ? "Yükleniyor" : "Yedek liste"}
-                </p>
               </div>
 
               <div className="flex flex-wrap gap-3">
