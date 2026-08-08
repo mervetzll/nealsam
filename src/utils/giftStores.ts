@@ -319,11 +319,18 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
 }
 
 export function getStoreLinksForGift(gift: Partial<Gift>) {
-  return getStoreSuggestions(gift).map((store, index) => ({
-    label: store.name,
-    href: store.url,
-    reason: store.reason,
-    note: store.reason,
-    priority: index === 0 ? "best" : "normal",
-  }));
+  return getStoreSuggestions(gift).map((store, index) => {
+    const giftTitle = gift.title || "Hediye";
+    const trackingUrl = `/go?store=${encodeURIComponent(store.name)}&gift=${encodeURIComponent(
+      giftTitle
+    )}&url=${encodeURIComponent(store.url)}&source=gift-result`;
+
+    return {
+      label: store.name,
+      href: trackingUrl,
+      reason: store.reason,
+      note: store.reason,
+      priority: index === 0 ? "best" : "normal",
+    };
+  });
 }
