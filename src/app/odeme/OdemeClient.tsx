@@ -241,7 +241,7 @@ export default function OdemeClient() {
               disabled
               className="mt-6 w-full rounded-full bg-slate-300 px-5 py-4 text-sm font-black text-white"
             >
-              Güvenli Ödeme Yakında Aktif
+              Online Ödeme Yakında Aktif
             </button>
 
             <Link
@@ -286,6 +286,22 @@ export default function OdemeClient() {
               </div>
             </div>
 
+
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <p className="text-xs font-black uppercase tracking-wide text-amber-700">
+                Erken erişim modu
+              </p>
+
+              <h3 className="mt-2 text-xl font-black text-[#2b1b1b]">
+                Manuel premium aktivasyon
+              </h3>
+
+              <p className="mt-2 text-sm font-semibold leading-6 text-amber-800">
+                Online ödeme altyapısı hazırlık aşamasındadır. Bu süreçte kart
+                bilgisi alınmaz. Test veya erken erişim kullanıcıları için paket
+                erişimi admin panelden manuel olarak tanımlanır.
+              </p>
+            </div>
 </section>
     </main>
   );
