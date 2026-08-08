@@ -141,6 +141,25 @@ export default function AdminClient() {
   return (
     <main className="min-h-screen bg-slate-50">
 
+      <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
+        <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          Kullanıcı Yönetimi
+        </p>
+        <h2 className="mt-2 text-xl font-black text-[#2b1b1b]">
+          Kullanıcılar ve Paketler
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
+          Kullanıcıları görüntüle, paket durumlarını değiştir ve premium erişim ver.
+        </p>
+        <a
+          href="/admin/users"
+          className="mt-4 inline-flex rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
+        >
+          Kullanıcıları Yönet
+        </a>
+      </div>
+
+
       {adminStats && (
         <section className="grid gap-4 md:grid-cols-5">
           <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
