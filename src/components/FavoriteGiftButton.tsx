@@ -48,18 +48,27 @@ export default function FavoriteGiftButton({ gift }: FavoriteGiftButtonProps) {
     setStatus("saved");
   }
 
+  const label = {
+    idle: "Favori",
+    saving: "Ekleniyor...",
+    saved: "Favoride ✓",
+    login: "Giriş gerekli",
+    error: "Tekrar dene",
+  }[status];
+
   return (
     <button
       type="button"
       onClick={addFavorite}
       disabled={status === "saving" || status === "saved"}
-      className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50 disabled:opacity-60"
+      className={`inline-flex items-center justify-center rounded-full px-4 py-3 text-sm font-black transition disabled:opacity-70 ${
+        status === "saved"
+          ? "border border-pink-200 bg-pink-50 text-pink-700"
+          : "border border-pink-200 bg-white text-pink-700 hover:bg-pink-50"
+      }`}
     >
-      {status === "idle" && "♡ Favoriye Ekle"}
-      {status === "saving" && "Ekleniyor..."}
-      {status === "saved" && "Favorilere eklendi ✓"}
-      {status === "login" && "Giriş yapmalısın"}
-      {status === "error" && "Tekrar dene"}
+      <span className="mr-1">♡</span>
+      {label}
     </button>
   );
 }

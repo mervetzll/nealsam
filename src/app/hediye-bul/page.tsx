@@ -137,7 +137,7 @@ function GiftResultCard({
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap items-center gap-2">
         {gift.interests.slice(0, 5).map((interest) => (
           <span
             key={interest}
@@ -232,7 +232,13 @@ function GiftResultCard({
                             </p>
                           </div>
 
-                          <div className="flex flex-wrap gap-2">
+                          
+                          <p className="mt-3 text-xs font-semibold leading-5 text-[#8a6a6a]">
+                            Bu öneriyi hesabına kaydedebilir, favorilerine ekleyebilir
+                            veya arkadaşınla paylaşabilirsin.
+                          </p>
+
+<div className="mt-4 flex flex-wrap items-center gap-2">
                             <ShareGiftButton
                               title={gift.title}
                               text={`${gift.title} — ${gift.reason}`}

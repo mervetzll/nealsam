@@ -14,7 +14,9 @@ type SaveGiftResultButtonProps = {
 };
 
 export default function SaveGiftResultButton({ gift }: SaveGiftResultButtonProps) {
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "login" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "saving" | "saved" | "login" | "error"
+  >("idle");
 
   async function saveGift() {
     setStatus("saving");
@@ -46,18 +48,27 @@ export default function SaveGiftResultButton({ gift }: SaveGiftResultButtonProps
     setStatus("saved");
   }
 
+  const label = {
+    idle: "Kaydet",
+    saving: "Kaydediliyor...",
+    saved: "Kaydedildi ✓",
+    login: "Giriş gerekli",
+    error: "Tekrar dene",
+  }[status];
+
   return (
     <button
       type="button"
       onClick={saveGift}
       disabled={status === "saving" || status === "saved"}
-      className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50 disabled:opacity-60"
+      className={`inline-flex items-center justify-center rounded-full px-4 py-3 text-sm font-black transition disabled:opacity-70 ${
+        status === "saved"
+          ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+          : "border border-pink-200 bg-white text-pink-700 hover:bg-pink-50"
+      }`}
     >
-      {status === "idle" && "Hesabıma Kaydet"}
-      {status === "saving" && "Kaydediliyor..."}
-      {status === "saved" && "Kaydedildi ✓"}
-      {status === "login" && "Giriş yapmalısın"}
-      {status === "error" && "Tekrar dene"}
+      <span className="mr-1">＋</span>
+      {label}
     </button>
   );
 }
