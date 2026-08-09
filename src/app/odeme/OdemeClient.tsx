@@ -244,6 +244,14 @@ export default function OdemeClient() {
               Online Ödeme Yakında Aktif
             </button>
 
+            <a
+              href={`/api/create-checkout?plan=${searchParams.get("plan") || "premium"}`}
+              className="mt-4 inline-flex w-full justify-center rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white transition hover:opacity-90"
+            >
+              iyzico Sandbox Ödemesini Başlat
+            </a>
+
+
             <Link
               href="/paketler"
               className="mt-3 inline-flex w-full justify-center rounded-full border border-pink-200 px-5 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
