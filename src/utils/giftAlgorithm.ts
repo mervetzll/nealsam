@@ -1,5 +1,18 @@
 import type { Gift, RiskLevel, ScoredGift } from "@/types/gift";
 
+function normalizeText(value: string): string {
+  return value
+    .toLocaleLowerCase("tr-TR")
+    .replaceAll("ı", "i")
+    .replaceAll("ğ", "g")
+    .replaceAll("ü", "u")
+    .replaceAll("ş", "s")
+    .replaceAll("ö", "o")
+    .replaceAll("ç", "c");
+}
+
+
+
 type AnswerMap = Record<number, string[]>;
 
 type BudgetRange = {
@@ -208,6 +221,75 @@ function getAnswers(answers: AnswerMap, index: number) {
   return answers[index] || [];
 }
 
+
+function getGenderPenalty(gift: Gift, genderAnswer?: string): number {
+  const normalizedGender = normalizeText(genderAnswer || "");
+  const fullText = normalizeText(
+    [
+      gift.title,
+      gift.category,
+      gift.subCategory,
+      gift.reason,
+      gift.note,
+      gift.searchQuery,
+      gift.recipients?.join(" "),
+      gift.interests?.join(" "),
+      gift.styles?.join(" "),
+    ]
+      .filter(Boolean)
+      .join(" ")
+  );
+
+  const femaleOnlyWords = [
+    "kadin",
+    "kadın",
+    "makyaj",
+    "ruj",
+    "rimel",
+    "maskara",
+    "allik",
+    "allık",
+    "fondoten",
+    "makyaj fircasi",
+    "makyaj fırçası",
+    "cilt bakim",
+    "cilt bakım",
+  ];
+
+  const maleWords = [
+    "erkek",
+    "tisort",
+    "tişört",
+    "polo",
+    "sweatshirt",
+    "cuzdan",
+    "cüzdan",
+    "kartlik",
+    "kartlık",
+    "erkek parfum",
+    "erkek parfüm",
+  ];
+
+  if (normalizedGender.includes("erkek")) {
+    if (femaleOnlyWords.some((word) => fullText.includes(normalizeText(word)))) {
+      return -80;
+    }
+
+    if (maleWords.some((word) => fullText.includes(normalizeText(word)))) {
+      return 25;
+    }
+  }
+
+  if (normalizedGender.includes("kadin") || normalizedGender.includes("kadın")) {
+    if (fullText.includes("erkek parfum") || fullText.includes("erkek parfüm")) {
+      return -50;
+    }
+  }
+
+  return 0;
+}
+
+
 export function getPriceText(gift: Pick<Gift, "priceMin" | "priceMax">) {
   if (gift.priceMin === gift.priceMax) return `${gift.priceMin} TL`;
   return `${gift.priceMin}–${gift.priceMax} TL`;
@@ -244,6 +326,7 @@ export function getGiftResults(gifts: Gift[], answers: AnswerMap): ScoredGift[] 
 
   const scored = gifts.map((gift) => {
     let score = 0;
+    score += getGenderPenalty(gift, gender);
 
     if (recipient && gift.recipients.includes(recipient)) score += 32;
     if (recipient === "Diğer") score += 8;
@@ -417,4 +500,3 @@ export function getMatchQualityText(score?: number): string {
 
   return "Bu hediye daha geniş alternatif olarak listelendi. Filtreleri değiştirerek daha güçlü öneriler görebilirsin.";
 }
-

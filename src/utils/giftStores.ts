@@ -52,6 +52,42 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
   // "takım / takımı" kelimesi "takı" gibi algılanmasın diye
   // kahve, fincan, ev ürünü gibi kategoriler takıdan önce kontrol edilir.
 
+
+  if (
+    includesAny(text, [
+      "tisort",
+      "t-shirt",
+      "tişört",
+      "oversize",
+      "polo",
+      "sweatshirt",
+      "hoodie",
+      "gomlek",
+      "gömlek",
+      "giyim",
+      "kazak",
+      "pantolon",
+    ])
+  ) {
+    return [
+      {
+        name: "Mavi",
+        url: searchUrl("Mavi", query),
+        reason: "Erkek tişört, sweatshirt ve günlük giyim için güçlü ve ulaşılabilir bir marka.",
+      },
+      {
+        name: "Zara",
+        url: searchUrl("Zara erkek", query),
+        reason: "Daha modern ve şık erkek giyim alternatifleri için uygun.",
+      },
+      {
+        name: "LC Waikiki",
+        url: searchUrl("LC Waikiki erkek", query),
+        reason: "Daha uygun fiyatlı tişört ve günlük giyim alternatifleri için doğru seçenek.",
+      },
+    ];
+  }
+
   if (
     includesAny(text, [
       "kahve",
