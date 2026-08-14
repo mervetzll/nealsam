@@ -18,6 +18,7 @@ import {
   makeNotePrompt,
   makeResultSummary,
 } from "@/utils/giftAlgorithm";
+import { getPremiumConceptMatch } from "@/utils/premiumConceptMatcher";
 
 type ProfileHint = {
   name: string;
@@ -195,7 +196,47 @@ function GiftResultCard({
         </button>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md p-5">
+      
+                        {(() => {
+                          const concept = getPremiumConceptMatch(gift, answers);
+
+                          return (
+                            <div className="mt-6 rounded-[1.5rem] border border-pink-100 bg-[#fff0f7] p-5">
+                              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                <div>
+                                  <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+                                    Bu hediye için önerilen özel konsept
+                                  </p>
+
+                                  <h3 className="mt-2 text-2xl font-black text-[#2b1b1b]">
+                                    {concept.title}
+                                  </h3>
+
+                                  <p className="mt-2 inline-flex rounded-full bg-white px-3 py-2 text-xs font-black text-pink-700 shadow-sm">
+                                    {concept.badge}
+                                  </p>
+                                </div>
+
+                                <a
+                                  href="/deneyim"
+                                  className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
+                                >
+                                  {concept.cta}
+                                </a>
+                              </div>
+
+                              <p className="mt-4 text-sm font-semibold leading-6 text-[#6b4a4a]">
+                                {concept.reason}
+                              </p>
+
+                              <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
+                                {concept.description}
+                              </p>
+                            </div>
+                          );
+                        })()}
+
+<div className="mt-5 rounded-3xl border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md p-5">
         <p className="text-sm font-bold text-pink-600">
           Bu hediyeyi özel bir deneyime dönüştürmek ister misin?
         </p>
