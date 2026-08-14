@@ -112,18 +112,23 @@ export default function AdminUsersClient() {
                 <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
                   <div>
                     <p className="text-xs font-black uppercase tracking-wide text-pink-600">
-                      Kullanıcı
+                      Kullanıcı Hesabı
                     </p>
 
-                    <h2 className="mt-2 break-all text-2xl font-black text-[#2b1b1b]">
-                      {user.email}
-                    </h2>
+                    <div className="mt-2 rounded-2xl bg-[#fff0f7] p-4">
+                      <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+                        E-posta
+                      </p>
+                      <h2 className="mt-1 break-all text-2xl font-black text-[#2b1b1b]">
+                        {user.email}
+                      </h2>
+                    </div>
 
                     <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      <Info label="Ad" value={user.name || "Belirtilmedi"} />
-                      <Info label="Varsayılan Bütçe" value={user.defaultBudget || "Belirtilmedi"} />
-                      <Info label="İlgi Alanları" value={user.favoriteInterests || "Belirtilmedi"} />
-                      <Info label="Hediye Tarzı" value={user.giftStyle || "Belirtilmedi"} />
+                      <Info label="Profil Adı" value={user.name || "Henüz profil doldurmadı"} />
+                      <Info label="Varsayılan Bütçe" value={user.defaultBudget || "Henüz belirtilmedi"} />
+                      <Info label="İlgi Alanları" value={user.favoriteInterests || "Henüz belirtilmedi"} />
+                      <Info label="Hediye Tarzı" value={user.giftStyle || "Henüz belirtilmedi"} />
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-2">
