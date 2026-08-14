@@ -45,7 +45,7 @@ function searchUrl(site: string, query: string) {
 }
 
 function getBudgetLevel(gift: Partial<Gift>) {
-  const max = gift.priceMax || gift.price_max || 0;
+  const max = gift.priceMax || 0;
 
   if (max >= 3000) return "luxury";
   if (max >= 1500) return "premium";
