@@ -1,7 +1,6 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-
-const Iyzipay = require("iyzipay");
 
 export const dynamic = "force-dynamic";
 
@@ -21,39 +20,63 @@ function getSupabaseAdmin() {
   });
 }
 
-function getIyzicoClient() {
+function createAuthorizationHeader({
+  uri,
+  body,
+  randomString,
+}: {
+  uri: string;
+  body: string;
+  randomString: string;
+}) {
   const apiKey = process.env.IYZICO_API_KEY;
   const secretKey = process.env.IYZICO_SECRET_KEY;
-  const baseUrl = process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com";
 
   if (!apiKey || !secretKey) {
     throw new Error("Iyzico environment variables are missing");
   }
 
-  return new Iyzipay({
-    apiKey,
-    secretKey,
-    uri: baseUrl,
-  });
+  const payload = randomString + uri + body;
+  const encryptedData = crypto
+    .createHmac("sha256", secretKey)
+    .update(payload)
+    .digest("hex");
+
+  const authorizationString = `apiKey:${apiKey}&randomKey:${randomString}&signature:${encryptedData}`;
+
+  return `IYZWSv2 ${Buffer.from(authorizationString).toString("base64")}`;
 }
 
-function retrieveCheckoutForm(iyzipay: any, token: string) {
-  return new Promise<any>((resolve, reject) => {
-    iyzipay.checkoutForm.retrieve(
-      {
-        locale: Iyzipay.LOCALE.TR,
-        token,
-      },
-      (error: any, result: any) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+async function retrieveCheckoutForm(token: string) {
+  const baseUrl =
+    process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com";
 
-        resolve(result);
-      }
-    );
+  const endpointPath = "/payment/iyzipos/checkoutform/auth/ecom/detail";
+  const endpointUrl = `${baseUrl}${endpointPath}`;
+
+  const requestBody = {
+    locale: "tr",
+    token,
+  };
+
+  const rawBody = JSON.stringify(requestBody);
+  const randomString = `${Date.now()}${Math.random()}`;
+
+  const response = await fetch(endpointUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-iyzi-rnd": randomString,
+      Authorization: createAuthorizationHeader({
+        uri: endpointPath,
+        body: rawBody,
+        randomString,
+      }),
+    },
+    body: rawBody,
   });
+
+  return response.json();
 }
 
 async function handleCallback(request: Request) {
@@ -69,9 +92,7 @@ async function handleCallback(request: Request) {
     }
 
     const supabaseAdmin = getSupabaseAdmin();
-    const iyzipay = getIyzicoClient();
-
-    const result = await retrieveCheckoutForm(iyzipay, token);
+    const result = await retrieveCheckoutForm(token);
 
     const { data: attempt } = await supabaseAdmin
       .from("payment_attempts")

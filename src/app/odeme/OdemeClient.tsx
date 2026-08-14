@@ -120,7 +120,7 @@ export default function OdemeClient() {
               </p>
               <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
                 Kart bilgileri NeAlsam Hediye üzerinde alınmaz ve saklanmaz.
-                Online ödeme altyapısı hazırlanıyor. Şimdilik premium erişim admin panelden manuel tanımlanır.
+                Ödeme, iyzico güvenli ödeme sayfası üzerinden tamamlanır.
               </p>
             </div>
 
@@ -145,7 +145,7 @@ export default function OdemeClient() {
                   disabled={loading}
                   className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white transition hover:bg-pink-700 disabled:opacity-60"
                 >
-                  {loading ? "Ödeme başlatılıyor..." : "Online Ödeme Yakında"}
+                  {loading ? "Ödeme başlatılıyor..." : "iyzico ile Güvenli Öde"}
                 </button>
               )}
 
