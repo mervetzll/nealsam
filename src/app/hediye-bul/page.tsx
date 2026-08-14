@@ -93,17 +93,17 @@ function GiftResultCard({
   const bestNote = storeLinks.find((item) => item.note)?.note;
 
   return (
-    <article className="rounded-[1.5rem] md:rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <article className="rounded-[1.5rem] md:rounded-[2rem] border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-pink-600">
+            <span className="rounded-[1.25rem] bg-[#fff0f7] px-3 py-1 text-xs font-bold text-pink-600">
               %{gift.matchPercent} eşleşme
             </span>
-            <span className="rounded-full bg-[#fff4ef] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
+            <span className="rounded-[1.25rem] bg-[#fff4ef] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
               {getRecommendationLabel(gift.matchPercent)}
             </span>
-            <span className="rounded-full bg-[#fff4ef] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
+            <span className="rounded-[1.25rem] bg-[#fff4ef] px-3 py-1 text-xs font-bold text-[#6b4b4b]">
               {getRiskLabel(gift.riskLevel)}
             </span>
           </div>
@@ -141,14 +141,14 @@ function GiftResultCard({
         {gift.interests.slice(0, 5).map((interest) => (
           <span
             key={interest}
-            className="rounded-full border border-pink-100 px-3 py-1 text-xs font-bold text-[#6b4b4b]"
+            className="rounded-[1.25rem] border border-pink-100 px-3 py-1 text-xs font-bold text-[#6b4b4b]"
           >
             {interest}
           </span>
         ))}
       </div>
 
-      <div className="mt-6 rounded-3xl border border-pink-100 bg-[#fff4ef] p-5">
+      <div className="mt-6 rounded-3xl border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md p-5">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-bold text-pink-600">
@@ -167,7 +167,7 @@ function GiftResultCard({
               href={link.href}
               target="_blank"
               rel="noreferrer"
-              className={`rounded-full px-4 py-3 text-center text-sm font-bold transition ${
+              className={`rounded-[1.25rem] px-4 py-3 text-center text-sm font-bold transition-all duration-200 ${
                 link.priority === "best"
                   ? "bg-[#2b1b1b] text-white hover:opacity-90"
                   : "bg-[#fff0f7] text-pink-600 hover:bg-[#fff0f7]"
@@ -182,20 +182,20 @@ function GiftResultCard({
       <div className="mt-5 flex flex-wrap gap-3">
         <button
           onClick={() => onBlockTitle(gift.title)}
-          className="rounded-full border border-pink-100 bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
+          className="rounded-[1.25rem] border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
         >
           Bunu istemiyorum
         </button>
 
         <button
           onClick={() => onBlockCategory(gift.category)}
-          className="rounded-full border border-pink-100 bg-white px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
+          className="rounded-[1.25rem] border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md px-5 py-3 text-sm font-bold text-[#6b4b4b] hover:bg-[#fff0f7]"
         >
           Benzerlerini gösterme
         </button>
       </div>
 
-      <div className="mt-5 rounded-3xl border border-pink-100 bg-[#fff4ef] p-5">
+      <div className="mt-5 rounded-3xl border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md p-5">
         <p className="text-sm font-bold text-pink-600">
           Hediyeyi daha özel yapmak ister misin?
         </p>
@@ -207,21 +207,21 @@ function GiftResultCard({
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href={`/deneyim?plan=premium&gift=${encodeURIComponent(notePrompt)}`}
-            className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white"
+            className="rounded-[1.25rem] bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white"
           >
             Not / Hikaye / QR hazırla
           </Link>
 
           <Link
             href="/demo"
-            className="rounded-full bg-white px-5 py-3 text-sm font-bold text-pink-600"
+            className="rounded-[1.25rem] bg-white px-5 py-3 text-sm font-bold text-pink-600"
           >
             Demo ile dene
           </Link>
         </div>
       </div>
     
-                      <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff4ef] p-4">
+                      <div className="mt-5 rounded-2xl border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md p-4">
                         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <div>
                             <p className="text-sm font-black text-[#2b1b1b]">
@@ -396,7 +396,7 @@ export default function HediyeBulPage() {
                 {(blockedTitles.length > 0 || blockedCategories.length > 0) && (
                   <button
                     onClick={undoFilters}
-                    className="rounded-full border border-pink-100 bg-[#fff4ef] px-6 py-3 text-sm font-bold text-pink-600"
+                    className="rounded-[1.25rem] border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md px-6 py-3 text-sm font-bold text-pink-600"
                   >
                     Filtreleri sıfırla
                   </button>
@@ -404,7 +404,7 @@ export default function HediyeBulPage() {
 
                 <button
                   onClick={restart}
-                  className="rounded-full border border-pink-100 bg-[#fff4ef] px-6 py-3 text-sm font-bold text-pink-600"
+                  className="rounded-[1.25rem] border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md px-6 py-3 text-sm font-bold text-pink-600"
                 >
                   Baştan başla
                 </button>
@@ -420,7 +420,7 @@ export default function HediyeBulPage() {
                   {blockedTitles.map((item) => (
                     <span
                       key={item}
-                      className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#6b4b4b]"
+                      className="rounded-[1.25rem] bg-white px-3 py-1 text-xs font-bold text-[#6b4b4b]"
                     >
                       İstenmeyen: {item}
                     </span>
@@ -428,7 +428,7 @@ export default function HediyeBulPage() {
                   {blockedCategories.map((item) => (
                     <span
                       key={item}
-                      className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#6b4b4b]"
+                      className="rounded-[1.25rem] bg-white px-3 py-1 text-xs font-bold text-[#6b4b4b]"
                     >
                       Kategori kapalı: {item}
                     </span>
@@ -454,12 +454,17 @@ export default function HediyeBulPage() {
                 <h2 className="text-2xl font-extrabold text-[#2b1b1b]">
                   Bu filtrelerle öneri kalmadı
                 </h2>
+
+              <p className="mt-2 text-sm font-semibold leading-6 text-[#8a6a6a]">
+                Çok düşünme; aklına en yakın gelen seçeneği işaretle. Emin değilsen “Fark etmez” seçebilirsin.
+              </p>
+
                 <p className="mt-3 text-[#6b4b4b]">
                   Birkaç filtreyi sıfırlarsan sana tekrar öneri çıkarabilirim.
                 </p>
                 <button
                   onClick={undoFilters}
-                  className="mt-5 rounded-full bg-pink-600 px-6 py-3 text-sm font-bold text-white"
+                  className="mt-5 rounded-[1.25rem] bg-pink-600 px-6 py-3 text-sm font-bold text-white"
                 >
                   Filtreleri sıfırla
                 </button>
@@ -481,7 +486,7 @@ export default function HediyeBulPage() {
 
           <Link
             href="/"
-            className="rounded-full border border-pink-100 bg-[#fff4ef] px-5 py-3 text-sm font-bold text-pink-600 transition hover:bg-[#fff0f7]"
+            className="rounded-[1.25rem] border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md px-5 py-3 text-sm font-bold text-pink-600 transition-all duration-200 hover:bg-[#fff0f7]"
           >
             Ana Sayfa
           </Link>
@@ -504,9 +509,9 @@ export default function HediyeBulPage() {
           </div>
         </div>
 
-        <div className="mt-8 h-3 overflow-hidden rounded-full bg-[#fff0f7]">
+        <div className="mt-8 h-3 overflow-hidden rounded-[1.25rem] bg-[#fff0f7]">
           <div
-            className="h-full rounded-full bg-pink-600 transition-all"
+            className="h-full rounded-[1.25rem] bg-pink-600 transition-all duration-200-all"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -524,19 +529,19 @@ export default function HediyeBulPage() {
 
               return (
                 <button
-                  key={option}
+                  key={option === "Fark etmez" ? "✨ Fark etmez" : option}
                   onClick={() =>
                     setAnswers((current) =>
                       toggleAnswer(current, step, option, currentQuestion.multiple)
                     )
                   }
-                  className={`rounded-3xl border px-5 py-4 text-left text-sm font-bold transition ${
+                  className={`rounded-3xl border px-5 py-4 text-left text-sm font-bold transition-all duration-200 ${
                     selected
                       ? "border-[#b83280] bg-[#fff0f7] text-pink-600"
                       : "border-pink-100 bg-[#fff4ef] text-[#2b1b1b] hover:border-[#b83280]"
                   }`}
                 >
-                  {option}
+                  {option === "Fark etmez" ? "✨ Fark etmez" : option}
                 </button>
               );
             })}
@@ -547,7 +552,7 @@ export default function HediyeBulPage() {
           <button
             onClick={() => setStep((value) => Math.max(0, value - 1))}
             disabled={step === 0}
-            className="rounded-full border border-pink-100 bg-white px-6 py-3 text-sm font-bold text-pink-600 disabled:opacity-40"
+            className="rounded-[1.25rem] border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md px-6 py-3 text-sm font-bold text-pink-600 disabled:opacity-40"
           >
             Geri
           </button>
@@ -555,9 +560,9 @@ export default function HediyeBulPage() {
           <button
             onClick={goNext}
             disabled={!answeredCurrent || (step === questions.length - 1 && !canShowResults)}
-            className="rounded-full bg-[#2b1b1b] px-7 py-4 text-sm font-bold text-white disabled:opacity-40"
+            className="rounded-[1.25rem] bg-[#2b1b1b] px-7 py-4 text-sm font-bold text-white disabled:opacity-40"
           >
-            {step === questions.length - 1 ? "Hediyeleri göster" : "Devam et"}
+            {step === questions.length - 1 ? "Hediyeleri göster" : "Devam et →"}
           </button>
         </div>
       </section>
