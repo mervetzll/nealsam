@@ -39,10 +39,12 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: "/gift-icon.svg" },
-      { url: "/gift-icon.svg", sizes: "512x512", type: "image/png" },
+      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/apple-gift-icon.svg", sizes: "512x512", type: "image/png" }],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
   openGraph: {
     title: "NeAlsam Hediye | Kime Ne Hediye Alınır?",
