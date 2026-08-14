@@ -143,6 +143,25 @@ export default function AdminClient() {
 
       <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
         <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          Ödeme Takibi
+        </p>
+        <h2 className="mt-2 text-xl font-black text-[#2b1b1b]">
+          Ödeme Kayıtları
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
+          Paket satın alma denemelerini ve ödeme durumlarını takip et.
+        </p>
+        <a
+          href="/admin/payments"
+          className="mt-4 inline-flex rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
+        >
+          Ödemeleri Gör
+        </a>
+      </div>
+
+
+      <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
+        <p className="text-xs font-black uppercase tracking-wide text-pink-600">
           Tıklama Takibi
         </p>
         <h2 className="mt-2 text-xl font-black text-[#2b1b1b]">
