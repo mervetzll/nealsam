@@ -116,6 +116,13 @@ export default function AdminOverview() {
 
         <div className="flex flex-wrap gap-3">
           <Link
+            href="/admin/gifts"
+            className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+          >
+            Hediye Yönetimi
+          </Link>
+
+          <Link
             href="/admin/users"
             className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
           >
