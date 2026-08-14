@@ -1,5 +1,6 @@
 "use client";
 
+import PremiumConceptCards from "@/components/PremiumConceptCards";
 import { Suspense } from "react";
 
 import { useEffect, useState } from "react";
@@ -59,6 +60,8 @@ export default function DeneyimPage() {
             <Suspense fallback={null}>
           <PremiumConceptLauncher />
         </Suspense>
+
+        <PremiumConceptCards />
       </main>
   );
 }
