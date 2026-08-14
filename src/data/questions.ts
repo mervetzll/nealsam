@@ -39,7 +39,7 @@ export const questions: Question[] = [
   {
     title: "İlgi alanları neler?",
     multiple: true,
-    options: ["Fark etmez", 
+    options: [
       "Kahve",
       "Kitap",
       "Makyaj",
@@ -52,11 +52,12 @@ export const questions: Question[] = [
       "Ev dekorasyonu",
       "Seyahat",
       "Müzik",
+      "Fark etmez"
     ],
   },
   {
     title: "Hediye tarzı nasıl olsun?",
-    options: ["Fark etmez", 
+    options: [
       "Romantik",
       "Komik",
       "Kullanışlı",
@@ -65,6 +66,7 @@ export const questions: Question[] = [
       "Minimal",
       "Kişiye özel",
       "Deneyim hediyesi",
+      "Fark etmez"
     ],
   },
   {
