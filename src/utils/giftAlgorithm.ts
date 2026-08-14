@@ -1,3 +1,12 @@
+
+function cleanAnswerValues(value: string | string[] | undefined): string[] {
+  if (!value) return [];
+
+  const values = Array.isArray(value) ? value : [value];
+
+  return values.filter((item) => item && item !== "Fark etmez");
+}
+
 import type { Gift, RiskLevel, ScoredGift } from "@/types/gift";
 
 function normalizeText(value: string): string {

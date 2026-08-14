@@ -213,6 +213,75 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
     ];
   }
 
+
+  if (
+    includesAny(text, [
+      "tisort",
+      "t-shirt",
+      "tshirt",
+      "shirt",
+      "gomlek",
+      "sweatshirt",
+      "hoodie",
+      "polo",
+      "giyim",
+      "moda",
+      "kiyafet",
+      "oversize",
+      "basic tisort",
+      "erkek giyim",
+      "kadin giyim",
+    ])
+  ) {
+    const luxury = includesAny(text, [
+      "luks",
+      "premium",
+      "calvin",
+      "calvin klein",
+      "boyner",
+      "lacoste",
+      "tommy",
+    ]);
+
+    if (luxury) {
+      return [
+        {
+          name: "Calvin Klein",
+          url: searchUrl("Calvin Klein Türkiye", query),
+          reason: "Premium tişört ve giyim hediyeleri için daha uygun bir marka.",
+        },
+        {
+          name: "Boyner",
+          url: searchUrl("Boyner", query),
+          reason: "Calvin Klein, Tommy Hilfiger ve benzeri markaları karşılaştırmak için uygun.",
+        },
+        {
+          name: "Zara",
+          url: searchUrl("Zara", query),
+          reason: "Şık ve modern giyim hediyeleri için iyi bir alternatif.",
+        },
+      ];
+    }
+
+    return [
+      {
+        name: "Mango",
+        url: searchUrl("Mango", query),
+        reason: "Şık, sade ve kaliteli tişört/giyim hediyesi için uygun.",
+      },
+      {
+        name: "Zara",
+        url: searchUrl("Zara", query),
+        reason: "Inditex grubu içinde trend ve modern giyim hediyeleri için iyi bir seçenek.",
+      },
+      {
+        name: "Trendyol",
+        url: searchUrl("Trendyol", query),
+        reason: "Farklı bütçelerde tişört ve giyim alternatifi bulmak için uygun.",
+      },
+    ];
+  }
+
   if (
     includesAny(text, [
       "kolye",
