@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import GiftManager from "@/components/admin/GiftManager";
 
+import AdminOverview from "@/components/admin/AdminOverview";
 type AdminTab = "dashboard" | "gifts" | "seo" | "packages" | "tasks";
 
 type Gift = {
@@ -140,6 +141,8 @@ export default function AdminClient() {
 
   return (
     <main className="min-h-screen bg-slate-50">
+      <AdminOverview />
+
 
       <div className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
         <p className="text-xs font-black uppercase tracking-wide text-pink-600">
