@@ -102,6 +102,7 @@ Bu yüzden bu küçük hediyenin, sana özel düşünülmüş gibi hissettirmesi
 export default function PremiumConceptLauncher() {
   const searchParams = useSearchParams();
   const selectedConceptId = searchParams.get("concept");
+  const initialGiftName = searchParams.get("gift") || "";
 
   const selectedConcept =
     premiumConcepts.find((concept) => concept.id === selectedConceptId) ||
@@ -109,7 +110,7 @@ export default function PremiumConceptLauncher() {
 
   const [personName, setPersonName] = useState("");
   const [relation, setRelation] = useState("");
-  const [giftName, setGiftName] = useState("");
+  const [giftName, setGiftName] = useState(initialGiftName);
   const [tone, setTone] = useState("Duygusal");
 
   const output = useMemo(() => {
@@ -230,14 +231,14 @@ export default function PremiumConceptLauncher() {
                 onClick={copyOutput}
                 className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700"
               >
-                Metni Kopyala
+                Konsept Metnini Kopyala
               </button>
 
               <Link
                 href="/paketler"
                 className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
               >
-                Pakete Geç
+                Bu Deneyimi Kullan
               </Link>
 
               <Link

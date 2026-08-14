@@ -218,7 +218,7 @@ function GiftResultCard({
                                 </div>
 
                                 <a
-                                  href={`/deneyim?concept=${concept.id}`}
+                                  href={`/deneyim?concept=${concept.id}&gift=${encodeURIComponent(gift.title || "hediye")}`}
                                   className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
                                 >
                                   {concept.cta}
