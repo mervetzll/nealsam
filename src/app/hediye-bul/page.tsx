@@ -218,7 +218,7 @@ function GiftResultCard({
                                 </div>
 
                                 <a
-                                  href="/deneyim"
+                                  href={`/deneyim?concept=${concept.id}`}
                                   className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
                                 >
                                   {concept.cta}

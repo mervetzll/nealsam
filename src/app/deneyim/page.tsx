@@ -1,10 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { useEffect, useState } from "react";
 import PremiumLock from "@/components/PremiumLock";
 import { getCurrentUserPlan, isPremiumPlan } from "@/lib/subscription";
 import ExperienceModes from "@/components/ExperienceModes";
 
+import PremiumConceptLauncher from "@/components/PremiumConceptLauncher";
 export default function DeneyimPage() {
   const [isPremium, setIsPremium] = useState(false);
   const [planLoaded, setPlanLoaded] = useState(false);
@@ -53,6 +56,9 @@ export default function DeneyimPage() {
 
 
       <ExperienceModes />
-    </main>
+            <Suspense fallback={null}>
+          <PremiumConceptLauncher />
+        </Suspense>
+      </main>
   );
 }
