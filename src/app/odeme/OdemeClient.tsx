@@ -2,89 +2,89 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-type PackageDetail = {
-  name: string;
-  price: number;
-  description: string;
-  items: string[];
-};
-
-const packageDetails: Record<string, PackageDetail> = {
+const packageDetails = {
   free: {
     name: "Ücretsiz",
     price: 0,
-    description: "Hızlıca temel hediye önerisi almak isteyenler için.",
-    items: [
-      "Temel hediye önerileri",
-      "Bütçeye göre fikirler",
-      "Basit mağaza yönlendirmesi",
-    ],
-  },
-  note: {
-    name: "Hediye Notu",
-    price: 19,
-    description: "Sadece hediye notu hazırlamak isteyenler için.",
-    items: [
-      "Kişiye uygun not fikri",
-      "Duygusal mesaj önerisi",
-      "Kopyalanabilir metin",
-    ],
+    description: "Temel hediye önerileriyle başlamak için.",
   },
   plus: {
     name: "Plus",
     price: 49,
-    description: "Daha detaylı ve açıklamalı hediye önerileri isteyenler için.",
-    items: [
-      "Daha fazla öneri",
-      "Hediye notu fikri",
-      "Neden önerildi açıklaması",
-      "Daha iyi mağaza yönlendirmesi",
-    ],
+    description: "Daha kişisel hediye önerileri için.",
   },
   experience: {
     name: "Deneyim",
     price: 79,
-    description: "Hediye fikrini bir anıya dönüştürmek isteyenler için.",
-    items: [
-      "Deneyim hediyesi önerileri",
-      "QR mesaj fikri",
-      "Özel sunum önerisi",
-    ],
+    description: "QR not ve özel hediye deneyimi için.",
   },
   premium: {
     name: "Premium",
     price: 99,
-    description:
-      "Hediyeyi küçük bir sürpriz deneyimine dönüştürmek isteyenler için.",
-    items: [
-      "QR kodlu sürpriz mesaj",
-      "Kişiye özel hediye notu",
-      "Deneyim hediyesi fikirleri",
-      "İndirilebilir hediye kartı",
-      "Daha özel ve duygusal öneriler",
-    ],
+    description: "Tüm premium özellikleri açmak için.",
   },
 };
 
-function formatPrice(value: number) {
-  return `${value.toLocaleString("tr-TR")} TL`;
-}
+type PlanId = keyof typeof packageDetails;
 
 export default function OdemeClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedPlan = searchParams.get("plan") || "premium";
+  const selectedPlan = (searchParams.get("plan") || "premium") as PlanId;
+
   const plan = packageDetails[selectedPlan] || packageDetails.premium;
 
-  const packagePrice = plan.price;
-  const serviceFee = 0;
-  const discount = 0;
-  const total = packagePrice + serviceFee - discount;
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  async function startPayment() {
+    setLoading(true);
+    setMessage("");
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      setMessage("Ödeme yapmak için önce giriş yapmalısın.");
+      setLoading(false);
+      return;
+    }
+
+    const response = await fetch("/api/create-checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        plan: selectedPlan,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.ok) {
+      setMessage(data.error || "Ödeme başlatılamadı.");
+      setLoading(false);
+      return;
+    }
+
+    if (data.paymentPageUrl) {
+      window.location.href = data.paymentPageUrl;
+      return;
+    }
+
+    setMessage("Ödeme sayfası alınamadı.");
+    setLoading(false);
+  }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef]">
-      <section className="mx-auto max-w-6xl px-5 py-10 md:py-16">
+    <main className="min-h-screen bg-[#fff4ef] px-5 py-14">
+      <section className="mx-auto max-w-5xl">
         <button
           type="button"
           onClick={() => router.back()}
@@ -93,188 +93,100 @@ export default function OdemeClient() {
           ← Geri Dön
         </button>
 
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold text-pink-600">Ödeme Özeti</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
-            Paketini kontrol et
-          </h1>
-          <p className="mt-5 text-base leading-7 text-[#6b4a4a]">
-            Devam etmeden önce seçilen paketi, toplam tutarı ve ödeme durumunu
-            açıkça görebilirsin. Bu sayfada kart bilgisi alınmaz.
-          </p>
-        </div>
+        <div className="grid gap-8 lg:grid-cols-[1fr_0.8fr]">
+          <div className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
+            <p className="text-sm font-black uppercase tracking-wide text-pink-600">
+              Güvenli Ödeme
+            </p>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[1fr_0.8fr]">
-          <section className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div>
-                <p className="text-sm font-bold text-pink-600">
-                  Seçilen Paket
-                </p>
-                <h2 className="mt-2 text-3xl font-black text-[#2b1b1b]">
-                  {plan.name}
-                </h2>
-                <p className="mt-3 max-w-xl text-sm leading-6 text-[#6b4a4a]">
-                  {plan.description}
-                </p>
-              </div>
+            <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
+              {plan.name} Paketi
+            </h1>
 
-              <div className="rounded-2xl bg-[#fff0f7] px-5 py-4 text-right">
-                <p className="text-xs font-bold uppercase tracking-wide text-pink-600">
-                  Paket Fiyatı
-                </p>
-                <p className="mt-1 text-3xl font-black text-[#2b1b1b]">
-                  {formatPrice(packagePrice)}
-                </p>
-              </div>
-            </div>
+            <p className="mt-4 text-sm leading-6 text-[#6b4a4a]">
+              {plan.description}
+            </p>
 
-            <div className="mt-8 rounded-[1.5rem] bg-[#fff4ef] p-5">
-              <h3 className="font-black text-[#2b1b1b]">
-                Bu pakette neler var?
-              </h3>
-
-              <ul className="mt-4 space-y-3">
-                {plan.items.map((item) => (
-                  <li
-                    key={item}
-                    className="flex gap-3 text-sm font-semibold text-[#6b4a4a]"
-                  >
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-pink-600 text-xs font-black text-white">
-                      ✓
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
-              <InfoCard
-                title="Kart bilgisi alınmaz"
-                text="Bu ekranda kart numarası, CVV veya banka bilgisi istenmez."
-              />
-              <InfoCard
-                title="Güvenli sağlayıcı"
-                text="Canlı ödeme için iyzico veya PayTR gibi ödeme sağlayıcısı bağlanmalıdır."
-              />
-              <InfoCard
-                title="Şeffaf toplam"
-                text="Kullanıcı paket fiyatını ve ödenecek toplamı ayrı ayrı görür."
-              />
-            </div>
-
-
-            <div className="mt-8 rounded-[1.5rem] border border-pink-100 bg-white p-5">
-              <h3 className="font-black text-[#2b1b1b]">
-                Ödeme akışı nasıl olacak?
-              </h3>
-
-              <div className="mt-5 grid gap-3">
-                {[
-                  "Paket seçimini ve toplam tutarı kontrol edersin.",
-                  "Gerçek ödeme altyapısı aktif olduğunda güvenli sağlayıcıya yönlendirilirsin.",
-                  "Ödeme tamamlanınca premium hediye deneyimi açılır.",
-                  "Hediye notu, QR mesaj ve özel önerileri kullanabilirsin.",
-                ].map((step, index) => (
-                  <div
-                    key={step}
-                    className="flex gap-3 rounded-2xl bg-[#fff4ef] p-4"
-                  >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-pink-600 text-xs font-black text-white">
-                      {index + 1}
-                    </span>
-                    <p className="text-sm font-semibold leading-6 text-[#6b4a4a]">
-                      {step}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-              <h3 className="font-black text-amber-900">
-                Ödeme altyapısı henüz test modunda
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-amber-800">
-                Bu sayfa şu anda ödeme akışını göstermek için hazırlandı.
-                Gerçek ödeme açılmadan kullanıcıdan kart bilgisi alınmaz ve
-                ödeme sağlayıcısı bağlanmadan tahsilat yapılmaz.
+            <div className="mt-8 rounded-2xl bg-[#fff0f7] p-6">
+              <p className="text-sm font-black text-[#6b4a4a]">Paket Fiyatı</p>
+              <p className="mt-2 text-5xl font-black text-[#2b1b1b]">
+                {plan.price} TL
               </p>
             </div>
-          </section>
 
-          <aside className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
+            <div className="mt-8 rounded-2xl border border-pink-100 bg-[#fff4ef] p-5">
+              <p className="text-sm font-black text-[#2b1b1b]">
+                Önemli güvenlik notu
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
+                Kart bilgileri NeAlsam Hediye üzerinde alınmaz ve saklanmaz.
+                Ödeme, iyzico güvenli ödeme sayfası üzerinden tamamlanır.
+              </p>
+            </div>
+
+            {message && (
+              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-black text-amber-800">
+                {message}
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              {selectedPlan === "free" ? (
+                <Link
+                  href="/hediye-bul"
+                  className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white transition hover:opacity-90"
+                >
+                  Ücretsiz Başla
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={startPayment}
+                  disabled={loading}
+                  className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white transition hover:bg-pink-700 disabled:opacity-60"
+                >
+                  {loading ? "Ödeme başlatılıyor..." : "iyzico ile Güvenli Öde"}
+                </button>
+              )}
+
+              <Link
+                href="/paketler"
+                className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+              >
+                Paketi Değiştir
+              </Link>
+            </div>
+          </div>
+
+          <aside className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-black text-[#2b1b1b]">
               Hesap Özeti
             </h2>
 
             <div className="mt-6 space-y-4">
-              <SummaryRow label="Paket" value={plan.name} />
-              <SummaryRow label="Paket bedeli" value={formatPrice(packagePrice)} />
-              <SummaryRow label="Hizmet bedeli" value={formatPrice(serviceFee)} />
-              <SummaryRow label="İndirim" value={`-${formatPrice(discount)}`} />
+              <Row label="Paket" value={plan.name} />
+              <Row label="Paket Bedeli" value={`${plan.price} TL`} />
+              <Row label="Hizmet Bedeli" value="0 TL" />
+              <Row label="İndirim" value="0 TL" />
             </div>
 
-            <div className="mt-6 rounded-2xl bg-[#2b1b1b] p-5 text-white">
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-bold text-white/75">
-                  Ödenecek Toplam
-                </span>
-                <span className="text-3xl font-black">{formatPrice(total)}</span>
-              </div>
+            <div className="mt-6 border-t border-pink-100 pt-6">
+              <Row label="Ödenecek Toplam" value={`${plan.price} TL`} strong />
             </div>
 
-            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4">
-              <p className="text-sm font-black text-red-800">
-                Bu sayfada kart bilgisi girilmez
+            <div className="mt-6 rounded-2xl bg-[#fff0f7] p-5">
+              <p className="text-sm font-black text-[#2b1b1b]">
+                Test / Sandbox modu
               </p>
-              <p className="mt-2 text-sm leading-6 text-red-700">
-                Ödeme butonu ancak gerçek ödeme altyapısı bağlandığında aktif
-                edilmelidir. Şu an kullanıcı sadece paket ve hesap özetini
-                görebilir.
+              <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
+                Şu anda iyzico sandbox bilgileriyle test ediyorsan gerçek ücret
+                tahsil edilmez.
               </p>
             </div>
 
-            <button
-              type="button"
-              disabled
-              className="mt-6 w-full rounded-full bg-slate-300 px-5 py-4 text-sm font-black text-white"
-            >
-              Online Ödeme Yakında Aktif
-            </button>
-
-            <a
-              href={`/api/create-checkout?plan=${searchParams.get("plan") || "premium"}`}
-              className="mt-4 inline-flex w-full justify-center rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white transition hover:opacity-90"
-            >
-              iyzico Sandbox Ödemesini Başlat
-            </a>
-
-
-            <Link
-              href="/paketler"
-              className="mt-3 inline-flex w-full justify-center rounded-full border border-pink-200 px-5 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-            >
-              Paketi Değiştir
-            </Link>
-
-            <Link
-              href="/hediye-bul"
-              className="mt-3 inline-flex w-full justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-black text-white transition hover:opacity-90"
-            >
-              Hediye Bul’a Dön
-            </Link>
-          </aside>
-        </div>
-      
-            <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff0f7] p-4">
+            <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff4ef] p-4">
               <p className="text-xs font-black uppercase tracking-wide text-pink-600">
                 Test ödeme akışı
-              </p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
-                Gerçek ödeme sağlayıcı bağlanana kadar bu bağlantılar ödeme
-                sonrası ekranları test etmek içindir.
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
@@ -282,53 +194,50 @@ export default function OdemeClient() {
                   href="/odeme/basarili"
                   className="rounded-full bg-[#2b1b1b] px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
                 >
-                  Başarılı Ödeme Testi
+                  Başarılı Test
                 </a>
 
                 <a
                   href="/odeme/basarisiz"
                   className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
                 >
-                  Başarısız Ödeme Testi
+                  Başarısız Test
                 </a>
               </div>
             </div>
-
-
-            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-              <p className="text-xs font-black uppercase tracking-wide text-amber-700">
-                Erken erişim modu
-              </p>
-
-              <h3 className="mt-2 text-xl font-black text-[#2b1b1b]">
-                Manuel premium aktivasyon
-              </h3>
-
-              <p className="mt-2 text-sm font-semibold leading-6 text-amber-800">
-                Online ödeme altyapısı hazırlık aşamasındadır. Bu süreçte kart
-                bilgisi alınmaz. Test veya erken erişim kullanıcıları için paket
-                erişimi admin panelden manuel olarak tanımlanır.
-              </p>
-            </div>
-</section>
+          </aside>
+        </div>
+      </section>
     </main>
   );
 }
 
-function InfoCard({ title, text }: { title: string; text: string }) {
+function Row({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
   return (
-    <div className="rounded-2xl border border-pink-100 bg-white p-4">
-      <h3 className="font-black text-[#2b1b1b]">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">{text}</p>
-    </div>
-  );
-}
+    <div className="flex items-center justify-between gap-4">
+      <span
+        className={`text-sm ${
+          strong ? "font-black text-[#2b1b1b]" : "font-semibold text-[#6b4a4a]"
+        }`}
+      >
+        {label}
+      </span>
 
-function SummaryRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between border-b border-pink-100 pb-3 text-sm">
-      <span className="font-semibold text-[#6b4a4a]">{label}</span>
-      <span className="font-black text-[#2b1b1b]">{value}</span>
+      <span
+        className={`text-sm ${
+          strong ? "font-black text-[#2b1b1b]" : "font-bold text-[#2b1b1b]"
+        }`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
