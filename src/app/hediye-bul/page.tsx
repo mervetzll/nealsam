@@ -197,7 +197,7 @@ function GiftResultCard({
 
       <div className="mt-5 rounded-3xl border border-pink-100 bg-white shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md shadow-sm hover:border-pink-300 hover:bg-[#fff0f7] hover:shadow-md p-5">
         <p className="text-sm font-bold text-pink-600">
-          Hediyeyi daha özel yapmak ister misin?
+          Bu hediyeyi özel bir deneyime dönüştürmek ister misin?
         </p>
         <p className="mt-2 text-sm leading-6 text-[#6b4b4b]">
           Bu fikrin yanına kişisel not, hikaye, bulmaca veya QR kodlu mesaj
@@ -209,14 +209,14 @@ function GiftResultCard({
             href={`/deneyim?plan=premium&gift=${encodeURIComponent(notePrompt)}`}
             className="rounded-[1.25rem] bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white"
           >
-            Not / Hikaye / QR hazırla
+            Özel Konsept Hazırla
           </Link>
 
           <Link
             href="/demo"
             className="rounded-[1.25rem] bg-white px-5 py-3 text-sm font-bold text-pink-600"
           >
-            Demo ile dene
+            Konseptleri Gör
           </Link>
         </div>
       </div>

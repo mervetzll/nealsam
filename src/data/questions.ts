@@ -52,6 +52,10 @@ export const questions: Question[] = [
       "Ev dekorasyonu",
       "Seyahat",
       "Müzik",
+      "Giyim",
+      "Parfüm",
+      "Aksesuar",
+      "Deneyim",
       "Fark etmez"
     ],
   },
@@ -66,6 +70,8 @@ export const questions: Question[] = [
       "Minimal",
       "Kişiye özel",
       "Deneyim hediyesi",
+      "Şık",
+      "Markalı",
       "Fark etmez"
     ],
   },
