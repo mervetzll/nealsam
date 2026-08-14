@@ -130,6 +130,13 @@ export default function AdminOverview() {
           </Link>
 
           <Link
+            href="/admin/stores"
+            className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
+          >
+            Mağaza Yönetimi
+          </Link>
+
+          <Link
             href="/admin/payments"
             className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
           >
