@@ -44,83 +44,184 @@ function searchUrl(site: string, query: string) {
   return `https://www.google.com/search?q=${encodeURIComponent(`${site} ${query}`)}`;
 }
 
+function getBudgetLevel(gift: Partial<Gift>) {
+  const max = gift.priceMax || gift.price_max || 0;
+
+  if (max >= 3000) return "luxury";
+  if (max >= 1500) return "premium";
+  if (max >= 750) return "mid";
+  return "budget";
+}
+
 export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
   const text = giftText(gift);
   const query = gift.searchQuery || gift.title || "hediye";
+  const budget = getBudgetLevel(gift);
 
-  // ÖNEMLİ:
-  // "takım / takımı" kelimesi "takı" gibi algılanmasın diye
-  // kahve, fincan, ev ürünü gibi kategoriler takıdan önce kontrol edilir.
+  // 1. PARFÜM / KOKU
+  // Cilt bakımından önce kontrol edilir. Böylece "Erkek Parfümü" The Purest'e gitmez.
+  if (
+    includesAny(text, [
+      "parfum",
+      "koku",
+      "edt",
+      "edp",
+      "erkek parfumu",
+      "kadin parfumu",
+      "vucut spreyi",
+    ])
+  ) {
+    if (budget === "luxury" || budget === "premium") {
+      return [
+        {
+          name: "Sevil",
+          url: searchUrl("Sevil Parfümeri", query),
+          reason: "Orijinal parfüm ve marka çeşitliliği için daha doğru bir mağaza.",
+        },
+        {
+          name: "Sephora",
+          url: searchUrl("Sephora", query),
+          reason: "Premium parfüm ve özel koku seçenekleri için uygun.",
+        },
+        {
+          name: "Boyner",
+          url: searchUrl("Boyner parfüm", query),
+          reason: "Erkek parfümü ve bilinen markaları karşılaştırmak için mantıklı.",
+        },
+      ];
+    }
 
+    return [
+      {
+        name: "Sevil",
+        url: searchUrl("Sevil Parfümeri", query),
+        reason: "Parfüm hediyeleri için doğrudan ve güvenilir bir seçenek.",
+      },
+      {
+        name: "Boyner",
+        url: searchUrl("Boyner parfüm", query),
+        reason: "Farklı bütçelerde erkek ve kadın parfümlerini karşılaştırmak için uygun.",
+      },
+      {
+        name: "Gratis",
+        url: searchUrl("Gratis parfüm", query),
+        reason: "Daha ulaşılabilir fiyatlı parfüm ve vücut kokuları için uygun.",
+      },
+    ];
+  }
 
+  // 2. GİYİM / TİŞÖRT / SWEATSHIRT
   if (
     includesAny(text, [
       "tisort",
       "t-shirt",
-      "tişört",
-      "oversize",
-      "polo",
+      "tshirt",
+      "sweat",
       "sweatshirt",
       "hoodie",
       "gomlek",
-      "gömlek",
-      "giyim",
+      "polo",
       "kazak",
-      "pantolon",
+      "giyim",
+      "kiyafet",
+      "oversize",
+      "basic",
+      "moda",
+      "erkek giyim",
+      "kadin giyim",
     ])
   ) {
+    if (budget === "luxury" || includesAny(text, ["luks", "premium", "gant", "lacoste", "tommy", "calvin"])) {
+      return [
+        {
+          name: "Boyner",
+          url: searchUrl("Boyner Calvin Klein Tommy Hilfiger Gant", query),
+          reason: "Calvin Klein, Tommy Hilfiger, Gant ve Lacoste gibi markaları karşılaştırmak için uygun.",
+        },
+        {
+          name: "Calvin Klein",
+          url: searchUrl("Calvin Klein Türkiye", query),
+          reason: "Premium basic tişört ve sweatshirt hediyesi için güçlü bir marka.",
+        },
+        {
+          name: "Gant",
+          url: searchUrl("Gant Türkiye", query),
+          reason: "Daha klasik ve kaliteli giyim hediyesi için uygun.",
+        },
+      ];
+    }
+
+    if (budget === "premium" || budget === "mid") {
+      return [
+        {
+          name: "Zara",
+          url: searchUrl("Zara", query),
+          reason: "Modern ve kolay kombinlenebilir giyim hediyeleri için iyi bir seçenek.",
+        },
+        {
+          name: "Mango",
+          url: searchUrl("Mango", query),
+          reason: "Şık, sade ve kaliteli tişört/sweatshirt hediyeleri için uygun.",
+        },
+        {
+          name: "Boyner",
+          url: searchUrl("Boyner", query),
+          reason: "Markalı giyim seçeneklerini karşılaştırmak için mantıklı.",
+        },
+      ];
+    }
+
     return [
       {
-        name: "Mavi",
-        url: searchUrl("Mavi", query),
-        reason: "Erkek tişört, sweatshirt ve günlük giyim için güçlü ve ulaşılabilir bir marka.",
+        name: "Trendyol",
+        url: searchUrl("Trendyol tişört sweatshirt", query),
+        reason: "Farklı bütçelerde çok fazla giyim alternatifi sunduğu için uygun.",
       },
       {
-        name: "Zara",
-        url: searchUrl("Zara erkek", query),
-        reason: "Daha modern ve şık erkek giyim alternatifleri için uygun.",
+        name: "Koton",
+        url: searchUrl("Koton", query),
+        reason: "Ulaşılabilir fiyatlı tişört, sweatshirt ve günlük giyim için uygun.",
       },
       {
         name: "LC Waikiki",
-        url: searchUrl("LC Waikiki erkek", query),
-        reason: "Daha uygun fiyatlı tişört ve günlük giyim alternatifleri için doğru seçenek.",
+        url: searchUrl("LC Waikiki", query),
+        reason: "Daha ekonomik giyim hediyeleri için uygun.",
       },
     ];
   }
 
+  // 3. AYAKKABI / ÇANTA / AKSESUAR
   if (
     includesAny(text, [
-      "kahve",
-      "fincan",
-      "kupa",
-      "termos",
-      "espresso",
-      "filtre kahve",
-      "kahve seti",
-      "fincan takimi",
-      "ev urunu",
-      "mutfak",
+      "ayakkabi",
+      "sneaker",
+      "spor ayakkabi",
+      "canta",
+      "cuzdan",
+      "kemer",
+      "aksesuar",
     ])
   ) {
     return [
       {
-        name: "Tchibo",
-        url: searchUrl("Tchibo", query),
-        reason: "Kahve, fincan, termos ve kahve ekipmanları için daha uygun bir mağaza.",
+        name: "Boyner",
+        url: searchUrl("Boyner", query),
+        reason: "Ayakkabı, çanta ve aksesuar kategorilerinde markalı seçenekler için uygun.",
       },
       {
-        name: "Kahve Dünyası",
-        url: searchUrl("Kahve Dünyası", query),
-        reason: "Kahve temalı hediyeler ve yanında tatlı alternatifleri için uygun.",
+        name: "Zara",
+        url: searchUrl("Zara", query),
+        reason: "Şık aksesuar ve çanta hediyeleri için iyi bir alternatif.",
       },
       {
-        name: "English Home",
-        url: searchUrl("English Home", query),
-        reason: "Fincan takımı, kupa ve ev sunum ürünleri için daha doğru bir seçenek.",
+        name: "Trendyol",
+        url: searchUrl("Trendyol", query),
+        reason: "Farklı bütçe ve marka alternatifleri için uygun.",
       },
     ];
   }
 
+  // 4. CİLT BAKIMI
   if (
     includesAny(text, [
       "cilt",
@@ -131,6 +232,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
       "maske",
       "gunes kremi",
       "vucut losyonu",
+      "dermokozmetik",
     ])
   ) {
     return [
@@ -152,6 +254,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
     ];
   }
 
+  // 5. MAKYAJ / KOZMETİK
   if (
     includesAny(text, [
       "makyaj",
@@ -160,7 +263,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
       "maskara",
       "allik",
       "fondoten",
-      "parfum",
+      "far paleti",
       "kozmetik",
     ])
   ) {
@@ -168,7 +271,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
       {
         name: "Sephora",
         url: searchUrl("Sephora", query),
-        reason: "Makyaj ve parfüm hediyeleri için daha premium bir seçenek.",
+        reason: "Makyaj ve premium kozmetik hediyeleri için uygun.",
       },
       {
         name: "Gratis",
@@ -183,105 +286,8 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
     ];
   }
 
-  if (
-    includesAny(text, [
-      "organizer",
-      "duzenleyici",
-      "saklama",
-      "canta ici",
-      "taki kutusu",
-      "makyaj organizeri",
-      "masa duzenleyici",
-    ])
-  ) {
-    return [
-      {
-        name: "Trendyol",
-        url: searchUrl("Trendyol", query),
-        reason: "Organizer ve düzenleyici ürünlerde çok seçenek sunduğu için uygun.",
-      },
-      {
-        name: "Hepsiburada",
-        url: searchUrl("Hepsiburada", query),
-        reason: "Ev düzenleme ürünlerinde fiyat ve yorum karşılaştırması için iyi.",
-      },
-      {
-        name: "Amazon",
-        url: searchUrl("Amazon Türkiye", query),
-        reason: "Organizer ve saklama ürünlerinde alternatif bulmak için uygun.",
-      },
-    ];
-  }
-
-
-  if (
-    includesAny(text, [
-      "tisort",
-      "t-shirt",
-      "tshirt",
-      "shirt",
-      "gomlek",
-      "sweatshirt",
-      "hoodie",
-      "polo",
-      "giyim",
-      "moda",
-      "kiyafet",
-      "oversize",
-      "basic tisort",
-      "erkek giyim",
-      "kadin giyim",
-    ])
-  ) {
-    const luxury = includesAny(text, [
-      "luks",
-      "premium",
-      "calvin",
-      "calvin klein",
-      "boyner",
-      "lacoste",
-      "tommy",
-    ]);
-
-    if (luxury) {
-      return [
-        {
-          name: "Calvin Klein",
-          url: searchUrl("Calvin Klein Türkiye", query),
-          reason: "Premium tişört ve giyim hediyeleri için daha uygun bir marka.",
-        },
-        {
-          name: "Boyner",
-          url: searchUrl("Boyner", query),
-          reason: "Calvin Klein, Tommy Hilfiger ve benzeri markaları karşılaştırmak için uygun.",
-        },
-        {
-          name: "Zara",
-          url: searchUrl("Zara", query),
-          reason: "Şık ve modern giyim hediyeleri için iyi bir alternatif.",
-        },
-      ];
-    }
-
-    return [
-      {
-        name: "Mango",
-        url: searchUrl("Mango", query),
-        reason: "Şık, sade ve kaliteli tişört/giyim hediyesi için uygun.",
-      },
-      {
-        name: "Zara",
-        url: searchUrl("Zara", query),
-        reason: "Inditex grubu içinde trend ve modern giyim hediyeleri için iyi bir seçenek.",
-      },
-      {
-        name: "Trendyol",
-        url: searchUrl("Trendyol", query),
-        reason: "Farklı bütçelerde tişört ve giyim alternatifi bulmak için uygun.",
-      },
-    ];
-  }
-
+  // 6. TAKI
+  // "fincan takımı" gibi kelimeler takı sanılmasın diye sadece gerçek takı kelimeleri.
   if (
     includesAny(text, [
       "kolye",
@@ -292,6 +298,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
       "charm",
       "gumus",
       "altin kaplama",
+      "taki kutusu",
     ])
   ) {
     return [
@@ -307,12 +314,80 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
       },
       {
         name: "Trendyol",
-        url: searchUrl("Trendyol", query),
+        url: searchUrl("Trendyol takı", query),
         reason: "Farklı bütçelerde takı alternatifi bulmak için uygun.",
       },
     ];
   }
 
+  // 7. KAHVE / FİNCAN / EV SUNUM
+  if (
+    includesAny(text, [
+      "kahve",
+      "fincan",
+      "kupa",
+      "termos",
+      "espresso",
+      "filtre kahve",
+      "kahve seti",
+      "fincan takimi",
+      "mutfak",
+      "sunum",
+    ])
+  ) {
+    return [
+      {
+        name: "Tchibo",
+        url: searchUrl("Tchibo", query),
+        reason: "Kahve, fincan, termos ve kahve ekipmanları için uygun.",
+      },
+      {
+        name: "Kahve Dünyası",
+        url: searchUrl("Kahve Dünyası", query),
+        reason: "Kahve temalı hediyeler ve yanında tatlı alternatifleri için uygun.",
+      },
+      {
+        name: "English Home",
+        url: searchUrl("English Home", query),
+        reason: "Fincan takımı, kupa ve ev sunum ürünleri için doğru bir seçenek.",
+      },
+    ];
+  }
+
+  // 8. EV DEKORASYONU / ORGANIZER
+  if (
+    includesAny(text, [
+      "organizer",
+      "duzenleyici",
+      "saklama",
+      "ev dekorasyonu",
+      "dekoratif",
+      "mum",
+      "vazo",
+      "cerceve",
+      "masa duzenleyici",
+    ])
+  ) {
+    return [
+      {
+        name: "English Home",
+        url: searchUrl("English Home", query),
+        reason: "Ev dekorasyonu ve küçük yaşam alanı hediyeleri için uygun.",
+      },
+      {
+        name: "Madame Coco",
+        url: searchUrl("Madame Coco", query),
+        reason: "Dekoratif ve ev hediyeleri için iyi bir alternatif.",
+      },
+      {
+        name: "Trendyol",
+        url: searchUrl("Trendyol ev dekorasyon", query),
+        reason: "Organizer ve dekoratif ürünlerde çok seçenek sunduğu için uygun.",
+      },
+    ];
+  }
+
+  // 9. TEKNOLOJİ
   if (
     includesAny(text, [
       "kulaklik",
@@ -345,6 +420,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
     ];
   }
 
+  // 10. KİTAP / KIRTASİYE
   if (
     includesAny(text, [
       "kitap",
@@ -359,7 +435,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
       {
         name: "D&R",
         url: searchUrl("D&R", query),
-        reason: "Kitap, defter ve kırtasiye hediyeleri için daha doğru bir seçenek.",
+        reason: "Kitap, defter ve kırtasiye hediyeleri için doğru bir seçenek.",
       },
       {
         name: "Amazon",
@@ -374,6 +450,7 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
     ];
   }
 
+  // 11. DENEYİM / ETKİNLİK
   if (
     includesAny(text, [
       "konser",
