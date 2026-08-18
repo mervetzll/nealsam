@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { premiumConcepts as fallbackConcepts } from "@/data/premiumConcepts";
+import { supabase } from "@/lib/supabase";
 
 function buildConceptOutput({
   conceptId,
@@ -157,6 +158,47 @@ export default function PremiumConceptLauncher() {
     }
   }
 
+  async function saveExperience() {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        alert("Kaydetmek için önce giriş yapmalısın.");
+        return;
+      }
+
+      const response = await fetch("/api/save-premium-experience", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          conceptKey: selectedConcept.id,
+          conceptTitle: selectedConcept.title,
+          personName,
+          relation,
+          giftName,
+          tone,
+          generatedText: output,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data?.ok) {
+        alert(data?.error || "Deneyim kaydedilemedi.");
+        return;
+      }
+
+      alert("Premium deneyim hesabına kaydedildi.");
+    } catch {
+      alert("Deneyim kaydedilemedi.");
+    }
+  }
+
   return (
     <section className="mx-auto mt-8 max-w-6xl px-5">
       <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
@@ -253,6 +295,13 @@ export default function PremiumConceptLauncher() {
                 className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700"
               >
                 Konsept Metnini Kopyala
+              </button>
+
+              <button
+                onClick={saveExperience}
+                className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
+              >
+                Hesabıma Kaydet
               </button>
 
               <Link
