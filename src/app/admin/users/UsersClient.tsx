@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+
 import { useEffect, useState } from "react";
 
 type AdminUser = {
@@ -75,7 +76,7 @@ export default function AdminUsersClient() {
       <section className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-bold text-pink-600">Admin Panel</p>
+<p className="text-sm font-bold text-pink-600">Admin Panel</p>
             <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
               Kullanıcılar ve Paketler
             </h1>
