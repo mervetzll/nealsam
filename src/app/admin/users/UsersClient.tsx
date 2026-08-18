@@ -161,6 +161,14 @@ export default function AdminUsersClient() {
                       </p>
                     </div>
 
+
+                    <Link
+                      href={`/admin/users/${user.id}`}
+                      className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#2b1b1b] px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
+                    >
+                      Kullanıcı Detayını Aç
+                    </Link>
+
                     <div className="mt-4 grid grid-cols-2 gap-2">
                       {plans.map((plan) => (
                         <button
