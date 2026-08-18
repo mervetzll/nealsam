@@ -27,6 +27,14 @@ type ProfileHint = {
   gift_style: string;
 };
 
+type StoreLink = {
+  label: string;
+  href: string;
+  reason?: string;
+  note?: string;
+  priority?: string;
+};
+
 
 type AnswerMap = Record<number, string[]>;
 
@@ -90,7 +98,43 @@ function GiftResultCard({
   onBlockCategory: (category: string) => void;
 }) {
   const notePrompt = makeNotePrompt(gift, answers);
-  const storeLinks = getStoreLinksForGift(gift);
+  const fallbackStoreLinks = useMemo(() => getStoreLinksForGift(gift), [gift]);
+  const [storeLinks, setStoreLinks] = useState<StoreLink[]>(fallbackStoreLinks);
+
+  useEffect(() => {
+    let isActive = true;
+
+    setStoreLinks(fallbackStoreLinks);
+
+    async function loadStoreLinks() {
+      try {
+        const response = await fetch("/api/store-suggestions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ gift }),
+        });
+
+        const data = await response.json();
+
+        if (isActive && data?.ok && Array.isArray(data.links) && data.links.length > 0) {
+          setStoreLinks(data.links);
+        }
+      } catch {
+        if (isActive) {
+          setStoreLinks(fallbackStoreLinks);
+        }
+      }
+    }
+
+    loadStoreLinks();
+
+    return () => {
+      isActive = false;
+    };
+  }, [gift, fallbackStoreLinks]);
+
   const bestNote = storeLinks.find((item) => item.note)?.note;
 
   return (
