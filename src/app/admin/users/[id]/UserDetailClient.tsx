@@ -30,17 +30,6 @@ function formatDate(value?: string) {
   }
 }
 
-function shortJson(value: any) {
-  if (!value) return "-";
-
-  if (typeof value === "string") return value;
-
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return "-";
-  }
-}
 
 export default function UserDetailClient({ userId }: { userId: string }) {
   const [detail, setDetail] = useState<UserDetail | null>(null);
@@ -301,6 +290,54 @@ export default function UserDetailClient({ userId }: { userId: string }) {
   );
 }
 
+function getItemTitle(item: Record<string, any>, fallback: string) {
+  return (
+    item.title ||
+    item.gift_title ||
+    item.giftTitle ||
+    item.store ||
+    item.store_name ||
+    item.plan ||
+    item.status ||
+    item.payment_status ||
+    fallback
+  );
+}
+
+function getItemSubtitle(item: Record<string, any>) {
+  if (item.price_min || item.price_max) {
+    return `${item.price_min || 0} TL - ${item.price_max || 0} TL`;
+  }
+
+  if (item.amount || item.price) {
+    return `Tutar: ${item.amount || item.price} TL`;
+  }
+
+  if (item.category || item.sub_category) {
+    return `${item.category || ""} ${item.sub_category || ""}`.trim();
+  }
+
+  if (item.url) {
+    return item.url;
+  }
+
+  if (item.gift_id) {
+    return `Hediye ID: ${item.gift_id}`;
+  }
+
+  return "";
+}
+
+function getItemStatus(item: Record<string, any>) {
+  return (
+    item.status ||
+    item.payment_status ||
+    item.plan ||
+    item.source ||
+    ""
+  );
+}
+
 function DataBox({
   title,
   count,
@@ -326,29 +363,54 @@ function DataBox({
             Kayıt yok.
           </p>
         ) : (
-          items.slice(0, 10).map((item, index) => (
-            <div
-              key={item.id || index}
-              className="rounded-2xl bg-[#fff4ef] p-4 text-sm font-semibold leading-6 text-[#6b4a4a]"
-            >
-              <p className="font-black text-[#2b1b1b]">
-                {item.title ||
-                  item.gift_title ||
-                  item.store ||
-                  item.plan ||
-                  item.status ||
-                  `Kayıt ${index + 1}`}
-              </p>
+          items.slice(0, 10).map((item, index) => {
+            const itemTitle = getItemTitle(item, `Kayıt ${index + 1}`);
+            const subtitle = getItemSubtitle(item);
+            const status = getItemStatus(item);
 
-              <p className="mt-1 text-xs">
-                Tarih: {formatDate(item.created_at)}
-              </p>
+            return (
+              <div
+                key={item.id || index}
+                className="rounded-2xl bg-[#fff4ef] p-4 text-sm font-semibold leading-6 text-[#6b4a4a]"
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="font-black text-[#2b1b1b]">
+                      {itemTitle}
+                    </p>
 
-              <p className="mt-2 line-clamp-2 break-all text-xs">
-                {shortJson(item)}
-              </p>
-            </div>
-          ))
+                    {subtitle && (
+                      <p className="mt-1 break-all text-xs text-[#8a6a6a]">
+                        {subtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {status && (
+                    <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-black text-pink-700">
+                      {status}
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-2 text-xs">
+                  Tarih: {formatDate(item.created_at)}
+                </p>
+
+                {item.note && (
+                  <p className="mt-2 rounded-xl bg-white p-3 text-xs">
+                    Not: {item.note}
+                  </p>
+                )}
+
+                {item.reason && (
+                  <p className="mt-2 rounded-xl bg-white p-3 text-xs">
+                    Neden: {item.reason}
+                  </p>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
     </div>
