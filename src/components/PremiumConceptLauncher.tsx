@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { premiumConcepts } from "@/data/premiumConcepts";
+import { premiumConcepts as fallbackConcepts } from "@/data/premiumConcepts";
 
 function buildConceptOutput({
   conceptId,
@@ -102,16 +102,37 @@ Bu yüzden bu küçük hediyenin, sana özel düşünülmüş gibi hissettirmesi
 export default function PremiumConceptLauncher() {
   const searchParams = useSearchParams();
   const selectedConceptId = searchParams.get("concept");
+  const [concepts, setConcepts] = useState(fallbackConcepts);
   const initialGiftName = searchParams.get("gift") || "";
 
   const selectedConcept =
-    premiumConcepts.find((concept) => concept.id === selectedConceptId) ||
-    premiumConcepts[0];
+    concepts.find((concept) => concept.id === selectedConceptId) ||
+    concepts[0];
 
   const [personName, setPersonName] = useState("");
   const [relation, setRelation] = useState("");
   const [giftName, setGiftName] = useState(initialGiftName);
   const [tone, setTone] = useState("Duygusal");
+
+  useEffect(() => {
+    async function loadConcepts() {
+      try {
+        const response = await fetch("/api/premium-concepts", {
+          cache: "no-store",
+        });
+
+        const data = await response.json();
+
+        if (data?.ok && Array.isArray(data.concepts) && data.concepts.length > 0) {
+          setConcepts(data.concepts);
+        }
+      } catch {
+        setConcepts(fallbackConcepts);
+      }
+    }
+
+    loadConcepts();
+  }, []);
 
   const output = useMemo(() => {
     return buildConceptOutput({

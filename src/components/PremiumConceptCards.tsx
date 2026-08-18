@@ -1,5 +1,18 @@
+"use client";
+
 import Link from "next/link";
-import { premiumConcepts } from "@/data/premiumConcepts";
+import { useEffect, useState } from "react";
+import { premiumConcepts as fallbackConcepts } from "@/data/premiumConcepts";
+
+type PremiumConcept = {
+  id: string;
+  title: string;
+  badge: string;
+  description: string;
+  bestFor: string[];
+  sample: string;
+  premiumLevel: "plus" | "experience" | "premium";
+};
 
 const conceptVisuals: Record<
   string,
@@ -43,6 +56,30 @@ const conceptVisuals: Record<
 };
 
 export default function PremiumConceptCards() {
+  const [concepts, setConcepts] = useState<PremiumConcept[]>(
+    fallbackConcepts as PremiumConcept[]
+  );
+
+  useEffect(() => {
+    async function loadConcepts() {
+      try {
+        const response = await fetch("/api/premium-concepts", {
+          cache: "no-store",
+        });
+
+        const data = await response.json();
+
+        if (data?.ok && Array.isArray(data.concepts) && data.concepts.length > 0) {
+          setConcepts(data.concepts);
+        }
+      } catch {
+        setConcepts(fallbackConcepts as PremiumConcept[]);
+      }
+    }
+
+    loadConcepts();
+  }, []);
+
   return (
     <section className="mx-auto mt-10 max-w-7xl px-5">
       <div className="rounded-[2.5rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
@@ -62,8 +99,9 @@ export default function PremiumConceptCards() {
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {premiumConcepts.map((concept) => {
-            const visual = conceptVisuals[concept.id] || conceptVisuals["karakterine-gore"];
+          {concepts.map((concept) => {
+            const visual =
+              conceptVisuals[concept.id] || conceptVisuals["karakterine-gore"];
 
             return (
               <article
@@ -147,7 +185,7 @@ export default function PremiumConceptCards() {
 
           <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-7 text-[#6b4a4a]">
             Hediye sonucuna göre sana otomatik olarak en uygun premium konsepti
-            öneriyoruz: Kader Bağı, Hediye Avı, Anı Kutusu veya Gizli Mesaj.
+            öneriyoruz.
           </p>
 
           <Link
