@@ -1,5 +1,9 @@
 "use client";
 
+import GiftStoreLinks from "@/components/GiftStoreLinks";
+
+import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
+
 import GiftInsightCard from "@/components/GiftInsightCard";
 
 import ShareGiftButton from "@/components/ShareGiftButton";
@@ -156,7 +160,7 @@ function GiftResultCard({
           </div>
 
           <h3 className="mt-4 text-2xl font-extrabold text-[#2b1b1b]">
-            {gift.title}
+            {cleanGiftTitle(getRawGiftTitle(gift))}
           </h3>
 
           <p className="mt-2 text-sm font-bold text-pink-600">
@@ -210,7 +214,7 @@ function GiftResultCard({
         <div className="mt-4 grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {storeLinks.slice(0, 3).map((link) => (
             <a
-              key={`${gift.title}-${link.label}`}
+              key={`${cleanGiftTitle(getRawGiftTitle(gift))}-${link.label}`}
               href={link.href}
               target="_blank"
               rel="noreferrer"
@@ -264,7 +268,7 @@ function GiftResultCard({
                                 </div>
 
                                 <a
-                                  href={`/deneyim?concept=${concept.id}&gift=${encodeURIComponent(gift.title || "hediye")}`}
+                                  href={`/deneyim?concept=${concept.id}&gift=${encodeURIComponent(cleanGiftTitle(getRawGiftTitle(gift)))}`}
                                   className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
                                 >
                                   {concept.cta}
@@ -327,7 +331,7 @@ function GiftResultCard({
 
 <div className="mt-4 flex flex-wrap items-center gap-2">
                             <Link
-            href={`/deneyim?gift=${encodeURIComponent(gift.title || "hediye")}`}
+            href={`/deneyim?gift=${encodeURIComponent(cleanGiftTitle(getRawGiftTitle(gift)))}`}
             className="mt-3 flex w-full items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
           >
             Bu Hediye İçin Özel Not Oluştur
@@ -335,9 +339,11 @@ function GiftResultCard({
 
                     <GiftInsightCard gift={gift} />
 
+          <GiftStoreLinks gift={gift} />
+
           <ShareGiftButton
-                              title={gift.title}
-                              text={`${gift.title} — ${gift.reason}`}
+                              title={cleanGiftTitle(getRawGiftTitle(gift))}
+                              text={`${cleanGiftTitle(getRawGiftTitle(gift))} — ${gift.reason}`}
                             />
 
                             <SaveGiftResultButton gift={gift} />
@@ -538,7 +544,7 @@ export default function HediyeBulPage() {
             {results.length > 0 ? (
               results.map((gift) => (
                 <GiftResultCard
-                  key={gift.title}
+                  key={cleanGiftTitle(getRawGiftTitle(gift))}
                   gift={gift}
                   answers={answers}
                   onBlockTitle={blockTitle}
