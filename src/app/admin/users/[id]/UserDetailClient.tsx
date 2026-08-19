@@ -292,6 +292,8 @@ export default function UserDetailClient({ userId }: { userId: string }) {
 
 function getItemTitle(item: Record<string, any>, fallback: string) {
   return (
+    item.concept_title ||
+    item.gift_name ||
     item.title ||
     item.gift_title ||
     item.giftTitle ||
@@ -315,6 +317,10 @@ function getItemSubtitle(item: Record<string, any>) {
 
   if (item.category || item.sub_category) {
     return `${item.category || ""} ${item.sub_category || ""}`.trim();
+  }
+
+  if (item.person_name || item.relation) {
+    return `${item.person_name || ""} ${item.relation ? "· " + item.relation : ""}`.trim();
   }
 
   if (item.url) {
@@ -406,6 +412,12 @@ function DataBox({
                 {item.reason && (
                   <p className="mt-2 rounded-xl bg-white p-3 text-xs">
                     Neden: {item.reason}
+                  </p>
+                )}
+
+                {item.generated_text && (
+                  <p className="mt-2 line-clamp-4 whitespace-pre-wrap rounded-xl bg-white p-3 text-xs">
+                    {item.generated_text}
                   </p>
                 )}
               </div>

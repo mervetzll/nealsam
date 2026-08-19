@@ -105,6 +105,12 @@ export async function GET(request: NextRequest) {
     );
     const payments = await safeSelect(supabase, "payment_attempts", userId, 50);
     const clicks = await safeSelect(supabase, "store_clicks", userId, 50);
+    const premiumExperiences = await safeSelect(
+      supabase,
+      "saved_premium_experiences",
+      userId,
+      50
+    );
 
     let adminNote = null;
 
@@ -135,6 +141,7 @@ export async function GET(request: NextRequest) {
       savedResults,
       payments,
       clicks,
+      premiumExperiences,
       adminNote,
     });
   } catch (error) {
