@@ -183,7 +183,7 @@ export default function KaydettiklerimClient() {
                       href={`/deneyim/paylas/${item.id}`}
                       className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
                     >
-                      QR Kod / Paylaş
+                      Kartı Aç / QR Oluştur
                     </Link>
 
                     <button

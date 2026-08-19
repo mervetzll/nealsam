@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
+import { useSearchParams } from "next/navigation";
+import { noteThemes } from "@/data/noteThemes";
 
 type Experience = {
   id: string;
@@ -16,28 +17,41 @@ type Experience = {
   created_at: string;
 };
 
-function formatDate(value: string) {
-  try {
-    return new Date(value).toLocaleString("tr-TR");
-  } catch {
-    return value;
-  }
-}
-
 export default function ShareExperienceClient({
   experienceId,
 }: {
   experienceId: string;
 }) {
+  const searchParams = useSearchParams();
+
   const [experience, setExperience] = useState<Experience | null>(null);
   const [qrUrl, setQrUrl] = useState("");
   const [shareUrl, setShareUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [themeId, setThemeId] = useState("pink-flowers");
+
+  useEffect(() => {
+    const bg = searchParams.get("bg");
+    if (bg && noteThemes.some((theme) => theme.id === bg)) {
+      setThemeId(bg);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadExperience();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [experienceId]);
+
+  useEffect(() => {
+    if (!experience) return;
+    generateQr();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [themeId, experience]);
+
+  const selectedTheme = useMemo(() => {
+    return noteThemes.find((theme) => theme.id === themeId) || noteThemes[0];
+  }, [themeId]);
 
   async function loadExperience() {
     setLoading(true);
@@ -56,20 +70,25 @@ export default function ShareExperienceClient({
       }
 
       setExperience(data.experience);
-
-      const currentUrl = window.location.href;
-      setShareUrl(currentUrl);
-
-      const qrDataUrl = await QRCode.toDataURL(currentUrl, {
-        width: 320,
-        margin: 2,
-      });
-
-      setQrUrl(qrDataUrl);
     } catch {
       setMessage("Deneyim yüklenemedi.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generateQr() {
+    const currentUrl = `${window.location.origin}/deneyim/paylas/${experienceId}?bg=${themeId}`;
+    setShareUrl(currentUrl);
+
+    try {
+      const qrDataUrl = await QRCode.toDataURL(currentUrl, {
+        width: 240,
+        margin: 2,
+      });
+      setQrUrl(qrDataUrl);
+    } catch {
+      setQrUrl("");
     }
   }
 
@@ -87,60 +106,126 @@ export default function ShareExperienceClient({
 
     try {
       await navigator.clipboard.writeText(experience.generated_text);
-      alert("Deneyim metni kopyalandı.");
+      alert("Not metni kopyalandı.");
     } catch {
       alert("Metin kopyalanamadı.");
     }
   }
 
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+        <section className="mx-auto max-w-5xl">
+          <div className="rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+            <p className="font-black">Kart yükleniyor...</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (message) {
+    return (
+      <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+        <section className="mx-auto max-w-5xl">
+          <div className="rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+            <p className="font-black">{message}</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!experience) return null;
+
   return (
     <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
-      <section className="mx-auto max-w-5xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-            NeAlsam Hediye Deneyimi
-          </p>
+      <section className="mx-auto max-w-6xl">
+        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <article
+            className={`rounded-[2.2rem] border border-white/60 p-6 shadow-xl md:p-10 ${selectedTheme.cardClass}`}
+          >
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full bg-white/80 px-4 py-2 text-xs font-black text-pink-700 shadow-sm">
+                {experience.concept_title}
+              </span>
 
-          <h1 className="mt-4 text-4xl font-black tracking-tight md:text-5xl">
-            QR Kodlu Özel Hediye Mesajı
-          </h1>
+              {experience.tone && (
+                <span className="rounded-full bg-white/80 px-4 py-2 text-xs font-black text-[#6b4a4a] shadow-sm">
+                  {experience.tone}
+                </span>
+              )}
+            </div>
 
-          <p className="mt-4 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a]">
-            Bu sayfa, kişiye özel hazırlanmış hediye deneyimini göstermek için oluşturuldu.
-            QR kodu hediyenin içine ekleyebilir veya linki paylaşabilirsin.
-          </p>
-        </div>
+            <div className="mt-8 text-center">
+              <p className={`text-sm font-black uppercase tracking-[0.25em] ${selectedTheme.accentClass}`}>
+                Özel Mesaj
+              </p>
 
-        {message && (
-          <div className="mt-6 rounded-2xl border border-pink-100 bg-white p-5 text-sm font-black text-[#6b4a4a] shadow-sm">
-            {message}
-          </div>
-        )}
+              <h1 className={`mt-4 text-3xl font-black md:text-5xl ${selectedTheme.accentClass}`}>
+                {experience.gift_name || "Sana Küçük Bir Sürprizim Var"}
+              </h1>
 
-        {loading ? (
-          <div className="mt-6 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
-            <p className="font-black">Deneyim yükleniyor...</p>
-          </div>
-        ) : experience ? (
-          <div className="mt-6 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-            <aside className="rounded-[2rem] border border-pink-100 bg-white p-6 text-center shadow-sm">
-              <p className="text-sm font-black text-pink-600">
-                Paylaşım QR Kodu
+              <p className="mt-4 text-sm font-semibold text-[#6b4a4a]">
+                {experience.person_name ? `İçin: ${experience.person_name}` : "Senin için"}
+                {experience.relation ? ` · ${experience.relation}` : ""}
+              </p>
+            </div>
+
+            <div className="mt-8 rounded-[1.8rem] bg-white/75 p-6 shadow-sm backdrop-blur">
+              <pre className="whitespace-pre-wrap text-base leading-8 text-[#2b1b1b] font-medium">
+                {experience.generated_text}
+              </pre>
+            </div>
+          </article>
+
+          <aside className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-black text-[#2b1b1b]">
+              Kart Tasarımı
+            </h2>
+
+            <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
+              İstediğin arka planı seç. Seçtiğin tasarım linke ve QR koda da işlenir.
+            </p>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              {noteThemes.map((theme) => (
+                <button
+                  key={theme.id}
+                  type="button"
+                  onClick={() => setThemeId(theme.id)}
+                  className={`rounded-2xl border p-3 text-left transition ${
+                    themeId === theme.id
+                      ? "border-[#2b1b1b] bg-[#fff0f7] shadow-sm"
+                      : "border-pink-100 bg-white hover:bg-pink-50"
+                  }`}
+                >
+                  <div className={`h-12 rounded-xl ${theme.cardClass}`} />
+                  <p className="mt-2 text-sm font-black text-[#2b1b1b]">
+                    {theme.name}
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6 rounded-[1.5rem] bg-[#fff4ef] p-5">
+              <p className="text-sm font-black text-pink-700">
+                QR Kod
               </p>
 
               {qrUrl && (
                 <img
                   src={qrUrl}
                   alt="QR kod"
-                  className="mx-auto mt-5 rounded-3xl border border-pink-100 bg-white p-3"
+                  className="mx-auto mt-4 rounded-2xl border border-pink-100 bg-white p-3"
                 />
               )}
 
-              <p className="mt-4 break-all rounded-2xl bg-[#fff4ef] p-4 text-xs font-semibold leading-6 text-[#6b4a4a]">
+              <p className="mt-4 break-all rounded-2xl bg-white p-3 text-xs font-semibold leading-6 text-[#6b4a4a]">
                 {shareUrl}
               </p>
 
-              <div className="mt-5 grid gap-3">
+              <div className="mt-4 grid gap-3">
                 <button
                   onClick={copyShareUrl}
                   className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
@@ -154,48 +239,10 @@ export default function ShareExperienceClient({
                 >
                   Metni Kopyala
                 </button>
-
-                <Link
-                  href="/hesabim/kaydettiklerim"
-                  className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
-                >
-                  Kaydettiklerime Dön
-                </Link>
               </div>
-            </aside>
-
-            <article className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-              <div className="flex flex-wrap gap-2">
-                <span className="rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-black text-pink-700">
-                  {experience.concept_title}
-                </span>
-
-                {experience.tone && (
-                  <span className="rounded-full bg-[#fff4ef] px-4 py-2 text-xs font-black text-[#6b4a4a]">
-                    {experience.tone}
-                  </span>
-                )}
-              </div>
-
-              <h2 className="mt-5 text-3xl font-black text-[#2b1b1b]">
-                {experience.gift_name || "Özel Hediye Deneyimi"}
-              </h2>
-
-              <p className="mt-3 text-sm font-semibold text-[#6b4a4a]">
-                {experience.person_name ? `Kişi: ${experience.person_name}` : "Kişi belirtilmedi"}
-                {experience.relation ? ` · ${experience.relation}` : ""}
-              </p>
-
-              <p className="mt-1 text-xs font-semibold text-[#8a6a6a]">
-                Oluşturulma tarihi: {formatDate(experience.created_at)}
-              </p>
-
-              <pre className="mt-6 whitespace-pre-wrap rounded-[1.5rem] bg-[#fff4ef] p-5 text-sm font-semibold leading-7 text-[#2b1b1b]">
-                {experience.generated_text}
-              </pre>
-            </article>
-          </div>
-        ) : null}
+            </div>
+          </aside>
+        </div>
       </section>
     </main>
   );
