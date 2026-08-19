@@ -11,7 +11,7 @@ const navItems = [
   { href: "/hediye-bul", label: "Hediye Bul" },
   { href: "/deneyim", label: "Deneyim" },
   { href: "/paketler", label: "Paketler" },
-  { href: "/blog", label: "Rehber" },
+  { href: "/blog", label: "Rehber / Blog" },
   { href: "/yardim", label: "Yardım" },
 ];
 
