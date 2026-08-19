@@ -1,171 +1,285 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { premiumConcepts as fallbackConcepts } from "@/data/premiumConcepts";
 import { supabase } from "@/lib/supabase";
 
+type PremiumConcept = {
+  id: string;
+  title: string;
+  badge: string;
+  description: string;
+  bestFor: string[];
+  sample: string;
+  premiumLevel: string;
+};
+
+function getFallbackConcepts(): PremiumConcept[] {
+  return [
+    {
+      id: "kader-bagi",
+      title: "Kader Bağı",
+      badge: "Duygusal",
+      description: "Hediyeyi anlamlı ve duygusal bir mesaja dönüştürür.",
+      bestFor: ["Sevgili", "Eş", "Yakın arkadaş", "Aile"],
+      sample: "Bu hediye sadece bir eşya değil, aramızdaki bağın küçük bir hatırası.",
+      premiumLevel: "plus",
+    },
+    {
+      id: "hediye-avi",
+      title: "Hediye Avı",
+      badge: "Eğlenceli",
+      description: "Hediyeyi küçük bir oyun ve sürpriz akışına dönüştürür.",
+      bestFor: ["Arkadaş", "Kardeş", "Eğlenceli ilişkiler"],
+      sample: "Bu hediyeye ulaşmak için küçük bir ipucun var.",
+      premiumLevel: "experience",
+    },
+    {
+      id: "ani-kutusu",
+      title: "Anı Kutusu",
+      badge: "Nostaljik",
+      description: "Hediyeyi ortak anılarla bağlayan özel bir not oluşturur.",
+      bestFor: ["Aile", "Yakın arkadaş", "Mezuniyet"],
+      sample: "Bu hediye bana birlikte yaşadığımız güzel anları hatırlattı.",
+      premiumLevel: "plus",
+    },
+    {
+      id: "gizli-mesaj",
+      title: "Gizli Mesaj",
+      badge: "Sürpriz",
+      description: "QR ile açılan daha gizemli ve özel bir mesaj hazırlar.",
+      bestFor: ["Sevgili", "Uzakta olan biri", "Sürpriz hediye"],
+      sample: "Bu mesajı sadece sen görebilesin istedim.",
+      premiumLevel: "premium",
+    },
+    {
+      id: "karakterine-gore",
+      title: "Karakterine Göre",
+      badge: "Kişisel",
+      description: "Kişinin tarzına göre özel ve samimi bir not yazar.",
+      bestFor: ["Herkes"],
+      sample: "Bunu seçtim çünkü tam senlik olduğunu düşündüm.",
+      premiumLevel: "plus",
+    },
+  ];
+}
+
+function getToneLabel(tone: string) {
+  if (tone === "romantic") return "romantik ve içten";
+  if (tone === "emotional") return "duygusal ve anlamlı";
+  if (tone === "funny") return "tatlı, eğlenceli ve samimi";
+  if (tone === "minimal") return "sade ve zarif";
+  if (tone === "premium") return "şık, özel ve etkileyici";
+  return "samimi ve sıcak";
+}
+
+function getLengthInstruction(noteLength: string) {
+  if (noteLength === "short") return "Kısa ve etkili tut.";
+  if (noteLength === "long") return "Biraz daha detaylı, duygulu ve hikayeli yaz.";
+  return "Orta uzunlukta, okunması kolay ve etkileyici yaz.";
+}
+
 function buildConceptOutput({
-  conceptId,
+  concept,
   personName,
+  senderName,
   relation,
   giftName,
   tone,
+  noteLength,
+  specialDetail,
 }: {
-  conceptId: string;
+  concept: PremiumConcept;
   personName: string;
+  senderName: string;
   relation: string;
   giftName: string;
   tone: string;
+  noteLength: string;
+  specialDetail: string;
 }) {
-  const name = personName.trim() || "sen";
-  const relationText = relation.trim() || "benim için özel biri";
+  const toName = personName.trim() || "sen";
+  const fromName = senderName.trim();
   const gift = giftName.trim() || "bu hediye";
-  const toneText = tone || "duygusal";
+  const relationText = relation.trim();
+  const detail = specialDetail.trim();
 
-  if (conceptId === "hediye-avi") {
-    return `🎁 HEDİYE AVI
+  const opening =
+    toName === "sen"
+      ? "Sevgili sen,"
+      : `Sevgili ${toName},`;
 
-Hazırlanan kişi: ${name}
-Hediye: ${gift}
-Ton: ${toneText}
+  const signature = fromName ? `\n\n${fromName}'den sevgilerle.` : "";
 
-1. İpucu:
-Bugün sana sıradan bir hediye vermek istemedim. Çünkü sen ${relationText} olarak benim için özel bir yerdesin.
+  const toneText = getToneLabel(tone);
+  const lengthText = getLengthInstruction(noteLength);
 
-2. İpucu:
-Bu hediye, seni düşündüğüm bir anın küçük bir sonucu. Yaklaştın ama hemen bulmanı istemiyorum.
+  if (concept.id === "hediye-avi") {
+    return `${opening}
 
-3. İpucu:
-Son ipucu: Bu hediye, hem seni mutlu etsin hem de “beni düşünmüş” dedirtsin diye seçildi.
+Bu sefer hediyene direkt ulaşmanı istemedim; çünkü bazı sürprizler küçük bir heyecanı hak eder.
 
-Son mesaj:
-Bu küçük hediye avının sonunda sana ulaşan şey sadece ${gift} değil. Asıl hediye, seni düşünerek hazırladığım bu küçük sürprizdi.`;
+Senin için hazırladığım bu küçük hediye avında ipucun şu:
+
+“Beni görünce aklına hem ${gift} hem de seni düşündüğüm o an gelsin.”
+
+${relationText ? `Bunu özellikle ${relationText} olduğun için daha özel hissetmeni istedim.` : ""}
+${detail ? `Aklımda özellikle şu vardı: ${detail}` : ""}
+
+Bu notun tonu ${toneText} olsun istedim. ${lengthText}
+
+Şimdi hediyeni açma zamanı.${signature}`;
   }
 
-  if (conceptId === "kader-bagi") {
-    return `💞 KADER BAĞI
+  if (concept.id === "ani-kutusu") {
+    return `${opening}
 
-Sevgili ${name},
+Bazı hediyeler sadece bugünü değil, geçmişte kalan güzel anları da yanında getirir.
 
-Bazı hediyeler sadece alınmaz, bir anlamın içine yerleştirilir. 
-Ben de ${gift} seçerken sadece güzel bir şey olsun istemedim; seni düşündüğüm anla aramızdaki bağı birleştiren küçük bir hatıra olsun istedim.
+Ben ${gift} seçerken sadece güzel bir şey almak istemedim. Bir anıyı, bir gülümsemeyi ve aklıma gelen küçük bir detayı da içine koymak istedim.
 
-Sen benim için ${relationText}. 
-Bu yüzden bu hediye, sana “aklımdasın” demenin küçük ama içten bir yolu.
+${relationText ? `Sen benim için ${relationText} olarak çok ayrı bir yerdesin.` : ""}
+${detail ? `Bu hediyeyi seçerken özellikle şunu düşündüm: ${detail}` : ""}
 
-Bu hediyenin anlamı:
-Bazen bir insanın hayatımızdaki yeri büyük cümlelerle değil, küçük seçimlerle belli olur. Bu da benim küçük seçimim.`;
+Umarım bu küçük hediye sana sadece mutlu bir an değil, güzel bir hatıra da bırakır.${signature}`;
   }
 
-  if (conceptId === "ani-kutusu") {
-    return `📦 ANI KUTUSU
+  if (concept.id === "gizli-mesaj") {
+    return `${opening}
 
-${name} için hazırlanan anı notu
+Bu mesajı herkes görsün istemedim. Sadece sen aç, sadece sen oku istedim.
 
-Bu kutunun içinde sadece ${gift} yok.
-İçinde biraz hatıra, biraz düşünce ve biraz da “iyi ki varsın” hissi var.
+Çünkü ${gift} benim için sıradan bir hediye değil; seni düşündüğümü anlatan küçük ve özel bir işaret.
 
-Sen benim için ${relationText}.
-Bu yüzden bu hediyenin sadece kullanılmasını değil, hatırlanmasını da istedim.
+${relationText ? `Seninle olan bağım ${relationText} kelimesinden çok daha fazlasını hissettiriyor.` : ""}
+${detail ? `Bu notun içinde saklamak istediğim küçük detay şu: ${detail}` : ""}
 
-Küçük not:
-Bir gün bu hediyeyi gördüğünde, sadece ne olduğunu değil, kimin seni düşünerek seçtiğini de hatırla.`;
+Bunu okuduğunda yüzünde küçük bir gülümseme olsun istedim.${signature}`;
   }
 
-  if (conceptId === "gizli-mesaj") {
-    return `🔐 GİZLİ MESAJ
+  if (concept.id === "karakterine-gore") {
+    return `${opening}
 
-Bu mesajı hediyeden sonra açmanı istedim.
+Bu hediyeyi seçerken “güzel mi?” diye değil, “sana yakışır mı?” diye düşündüm.
 
-Çünkü ${gift} aslında sadece görünen kısmı.
-Asıl söylemek istediğim şey şu:
+Çünkü bence ${gift}, senin tarzına ve enerjine yakışan küçük ama anlamlı bir seçim.
 
-${name}, sen benim için ${relationText}.
-Bu hediyeyi seçerken seni düşündüm; ne seversin, ne hoşuna gider, ne seni mutlu eder diye düşündüm.
+${relationText ? `Sen benim için ${relationText} olarak çok özel bir yerdesin.` : ""}
+${detail ? `Özellikle şunu düşünerek hazırladım: ${detail}` : ""}
 
-Küçük ama içten bir şey olsun istedim.
-Umarım bu hediye sana biraz olsun bunu hissettirir.`;
+Umarım bunu gördüğünde “evet, bu gerçekten bana göre” dersin.${signature}`;
   }
 
-  return `✨ KİŞİYE ÖZEL HEDİYE SUNUMU
+  return `${opening}
 
-${name} için seçilen hediye: ${gift}
+Bazı hediyeler sadece alınmaz; bir anlamın içine yerleştirilir.
 
-Bu hediyeyi seçme sebebim sadece güzel görünmesi değil.
-Senin tarzına, hayatımdaki yerine ve bende bıraktığın hisse uygun olmasını istedim.
+Ben de ${gift} seçerken sadece güzel bir şey olsun istemedim. Seni düşündüğüm anla aramızdaki bağı birleştiren küçük bir hatıra olsun istedim.
 
-Sen benim için ${relationText}.
-Bu yüzden bu küçük hediyenin, sana özel düşünülmüş gibi hissettirmesini istedim.`;
+${relationText ? `Sen benim için ${relationText} olarak çok özel bir yerdesin.` : ""}
+${detail ? `Bu hediyeyi hazırlarken özellikle şunu düşündüm: ${detail}` : ""}
+
+Bu notun tonu ${toneText} olsun istedim. ${lengthText}
+
+Umarım bu küçük sürpriz sana kendini özel hissettirir.${signature}`;
 }
 
 export default function PremiumConceptLauncher() {
   const searchParams = useSearchParams();
-  const selectedConceptId = searchParams.get("concept");
-  const [concepts, setConcepts] = useState(fallbackConcepts);
-  const initialGiftName = searchParams.get("gift") || "";
 
-  const selectedConcept =
-    concepts.find((concept) => concept.id === selectedConceptId) ||
-    concepts[0];
+  const [concepts, setConcepts] = useState<PremiumConcept[]>(getFallbackConcepts());
+  const [selectedConceptId, setSelectedConceptId] = useState(
+    searchParams.get("concept") || "kader-bagi"
+  );
 
-  const [personName, setPersonName] = useState("");
-  const [relation, setRelation] = useState("");
-  const [giftName, setGiftName] = useState(initialGiftName);
-  const [tone, setTone] = useState("Duygusal");
+  const [personName, setPersonName] = useState(searchParams.get("person") || "");
+  const [senderName, setSenderName] = useState(searchParams.get("from") || "");
+  const [relation, setRelation] = useState(searchParams.get("relation") || "");
+  const [giftName, setGiftName] = useState(searchParams.get("gift") || "");
+  const [tone, setTone] = useState(searchParams.get("tone") || "emotional");
+  const [noteLength, setNoteLength] = useState("medium");
+  const [specialDetail, setSpecialDetail] = useState("");
+
+  const [generatedText, setGeneratedText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [savedId, setSavedId] = useState("");
+  const [message, setMessage] = useState("");
+
+  const selectedConcept = useMemo(() => {
+    return (
+      concepts.find((concept) => concept.id === selectedConceptId) ||
+      concepts[0]
+    );
+  }, [concepts, selectedConceptId]);
 
   useEffect(() => {
-    async function loadConcepts() {
-      try {
-        const response = await fetch("/api/premium-concepts", {
-          cache: "no-store",
-        });
-
-        const data = await response.json();
-
-        if (data?.ok && Array.isArray(data.concepts) && data.concepts.length > 0) {
-          setConcepts(data.concepts);
-        }
-      } catch {
-        setConcepts(fallbackConcepts);
-      }
-    }
-
     loadConcepts();
   }, []);
 
-  const output = useMemo(() => {
-    return buildConceptOutput({
-      conceptId: selectedConcept.id,
+  useEffect(() => {
+    if (!selectedConcept) return;
+
+    const output = buildConceptOutput({
+      concept: selectedConcept,
       personName,
+      senderName,
       relation,
       giftName,
       tone,
+      noteLength,
+      specialDetail,
     });
-  }, [selectedConcept.id, personName, relation, giftName, tone]);
 
-  if (!selectedConceptId) {
-    return null;
+    setGeneratedText(output);
+    setSavedId("");
+  }, [
+    selectedConcept,
+    personName,
+    senderName,
+    relation,
+    giftName,
+    tone,
+    noteLength,
+    specialDetail,
+  ]);
+
+  async function loadConcepts() {
+    try {
+      const response = await fetch("/api/premium-concepts", {
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (data?.ok && Array.isArray(data.concepts) && data.concepts.length > 0) {
+        setConcepts(data.concepts);
+      }
+    } catch {
+      setConcepts(getFallbackConcepts());
+    }
   }
 
-  async function copyOutput() {
+  async function copyText() {
     try {
-      await navigator.clipboard.writeText(output);
+      await navigator.clipboard.writeText(generatedText);
       alert("Metin kopyalandı.");
     } catch {
-      alert("Kopyalanamadı. Metni elle seçip kopyalayabilirsin.");
+      alert("Metin kopyalanamadı.");
     }
   }
 
   async function saveExperience() {
+    setSaving(true);
+    setMessage("");
+
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
       if (!session?.access_token) {
-        alert("Kaydetmek için önce giriş yapmalısın.");
+        setMessage("Kaydetmek için önce giriş yapmalısın.");
         return;
       }
 
@@ -179,146 +293,213 @@ export default function PremiumConceptLauncher() {
           conceptKey: selectedConcept.id,
           conceptTitle: selectedConcept.title,
           personName,
+          senderName,
           relation,
           giftName,
           tone,
-          generatedText: output,
+          noteLength,
+          specialDetail,
+          generatedText,
         }),
       });
 
       const data = await response.json();
 
       if (!data?.ok) {
-        alert(data?.error || "Deneyim kaydedilemedi.");
+        setMessage(data?.error || "Deneyim kaydedilemedi.");
         return;
       }
 
-      alert("Premium deneyim hesabına kaydedildi.");
+      setSavedId(data.experience?.id || "");
+      setMessage("Deneyim kaydedildi. Artık kartını ve QR kodunu oluşturabilirsin.");
     } catch {
-      alert("Deneyim kaydedilemedi.");
+      setMessage("Deneyim kaydedilemedi.");
+    } finally {
+      setSaving(false);
     }
   }
 
+  if (!selectedConcept) return null;
+
   return (
-    <section className="mx-auto mt-8 max-w-6xl px-5">
-      <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-        <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-          Seçilen Premium Konsept
-        </p>
+    <section className="mx-auto mt-10 max-w-7xl px-5">
+      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Premium Deneyim
+          </p>
 
-        <div className="mt-4 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-black text-pink-700">
-                {selectedConcept.badge}
-              </span>
+          <h2 className="mt-3 text-3xl font-black text-[#2b1b1b]">
+            Özel Not Oluştur
+          </h2>
 
-              <span className="rounded-full bg-[#2b1b1b] px-4 py-2 text-xs font-black uppercase text-white">
-                {selectedConcept.premiumLevel}
-              </span>
+          <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
+            Kime, kimden ve hangi hediye için olduğunu yaz. Sistem sana daha
+            özel, daha gerçek bir hediye notu oluştursun.
+          </p>
+
+          <div className="mt-6 grid gap-4">
+            <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+              Konsept
+              <select
+                value={selectedConceptId}
+                onChange={(event) => setSelectedConceptId(event.target.value)}
+                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+              >
+                {concepts.map((concept) => (
+                  <option key={concept.id} value={concept.id}>
+                    {concept.title} - {concept.badge}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                Kime?
+                <input
+                  value={personName}
+                  onChange={(event) => setPersonName(event.target.value)}
+                  placeholder="Örn: Ayşe"
+                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                />
+              </label>
+
+              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                Kimden?
+                <input
+                  value={senderName}
+                  onChange={(event) => setSenderName(event.target.value)}
+                  placeholder="Örn: Merve"
+                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                />
+              </label>
             </div>
 
-            <h1 className="mt-4 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
-              {selectedConcept.title}
-            </h1>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                Yakınlık / ilişki
+                <input
+                  value={relation}
+                  onChange={(event) => setRelation(event.target.value)}
+                  placeholder="Örn: en yakın arkadaşım, sevgilim, annem"
+                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                />
+              </label>
 
-            <p className="mt-4 text-sm font-semibold leading-7 text-[#6b4a4a]">
-              {selectedConcept.description}
-            </p>
-
-            <div className="mt-6 rounded-[1.5rem] bg-[#fff4ef] p-5">
-              <h2 className="text-xl font-black text-[#2b1b1b]">
-                Konsepti hazırla
-              </h2>
-
-              <div className="mt-4 grid gap-3">
-                <label className="text-sm font-black text-[#6b4a4a]">
-                  Kime hazırlanıyor?
-                  <input
-                    value={personName}
-                    onChange={(event) => setPersonName(event.target.value)}
-                    placeholder="Örn: Elif, annem, sevgilim..."
-                    className="mt-2 w-full rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-pink-400"
-                  />
-                </label>
-
-                <label className="text-sm font-black text-[#6b4a4a]">
-                  Senin için kim?
-                  <input
-                    value={relation}
-                    onChange={(event) => setRelation(event.target.value)}
-                    placeholder="Örn: en yakın arkadaşım, sevgilim, annem..."
-                    className="mt-2 w-full rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-pink-400"
-                  />
-                </label>
-
-                <label className="text-sm font-black text-[#6b4a4a]">
-                  Hediye ne?
-                  <input
-                    value={giftName}
-                    onChange={(event) => setGiftName(event.target.value)}
-                    placeholder="Örn: parfüm, sweatshirt, kahve fincanı..."
-                    className="mt-2 w-full rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-pink-400"
-                  />
-                </label>
-
-                <label className="text-sm font-black text-[#6b4a4a]">
-                  Tonu nasıl olsun?
-                  <select
-                    value={tone}
-                    onChange={(event) => setTone(event.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-pink-400"
-                  >
-                    <option>Duygusal</option>
-                    <option>Romantik</option>
-                    <option>Komik</option>
-                    <option>Sade</option>
-                    <option>Samimi</option>
-                  </select>
-                </label>
-              </div>
+              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                Hediye ne?
+                <input
+                  value={giftName}
+                  onChange={(event) => setGiftName(event.target.value)}
+                  placeholder="Örn: parfüm, kahve kupası, kolye"
+                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                />
+              </label>
             </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                Ton
+                <select
+                  value={tone}
+                  onChange={(event) => setTone(event.target.value)}
+                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                >
+                  <option value="emotional">Duygusal</option>
+                  <option value="romantic">Romantik</option>
+                  <option value="funny">Tatlı / Eğlenceli</option>
+                  <option value="minimal">Sade</option>
+                  <option value="premium">Şık / Premium</option>
+                </select>
+              </label>
+
+              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                Not uzunluğu
+                <select
+                  value={noteLength}
+                  onChange={(event) => setNoteLength(event.target.value)}
+                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                >
+                  <option value="short">Kısa</option>
+                  <option value="medium">Orta</option>
+                  <option value="long">Uzun / Hikayeli</option>
+                </select>
+              </label>
+            </div>
+
+            <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+              Özel detay
+              <textarea
+                value={specialDetail}
+                onChange={(event) => setSpecialDetail(event.target.value)}
+                placeholder="Örn: İlk kahvemizi beraber içtiğimiz günü hatırlatmak istiyorum."
+                rows={4}
+                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-black text-pink-600">
+                {selectedConcept.title}
+              </p>
+
+              <h3 className="mt-1 text-2xl font-black text-[#2b1b1b]">
+                Oluşturulan Not
+              </h3>
+            </div>
+
+            <span className="rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-black text-pink-700">
+              {selectedConcept.badge}
+            </span>
           </div>
 
-          <div className="rounded-[1.5rem] bg-[#fff0f7] p-5">
-            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
-              Hazırlanan konsept metni
+          <pre className="mt-5 max-h-[540px] overflow-y-auto whitespace-pre-wrap rounded-[1.5rem] bg-[#fff4ef] p-5 text-sm font-semibold leading-7 text-[#2b1b1b]">
+            {generatedText}
+          </pre>
+
+          {message && (
+            <p className="mt-4 rounded-2xl bg-pink-50 p-4 text-sm font-black text-pink-700">
+              {message}
             </p>
+          )}
 
-            <pre className="mt-4 whitespace-pre-wrap rounded-[1.25rem] bg-white p-5 text-sm font-semibold leading-7 text-[#2b1b1b] shadow-sm">
-              {output}
-            </pre>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <button
+              onClick={copyText}
+              className="rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-black text-white"
+            >
+              Metni Kopyala
+            </button>
 
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                onClick={copyOutput}
-                className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700"
-              >
-                Konsept Metnini Kopyala
-              </button>
-
-              <button
-                onClick={saveExperience}
-                className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
-              >
-                Hesabıma Kaydet
-              </button>
-
-              <Link
-                href="/paketler"
-                className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
-              >
-                Bu Deneyimi Kullan
-              </Link>
-
-              <Link
-                href="/deneyim"
-                className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-              >
-                Tüm Konseptler
-              </Link>
-            </div>
+            <button
+              onClick={saveExperience}
+              disabled={saving}
+              className="rounded-full bg-pink-600 px-5 py-4 text-sm font-black text-white disabled:opacity-60"
+            >
+              {saving ? "Kaydediliyor..." : "Hesabıma Kaydet"}
+            </button>
           </div>
+
+          {savedId && (
+            <Link
+              href={`/deneyim/paylas/${savedId}`}
+              className="mt-4 flex w-full items-center justify-center rounded-full border border-pink-200 bg-white px-5 py-4 text-sm font-black text-pink-700"
+            >
+              Kart Tasarımı / QR Oluştur
+            </Link>
+          )}
+
+          <Link
+            href="/hesabim/kaydettiklerim"
+            className="mt-3 flex w-full items-center justify-center rounded-full bg-[#fff4ef] px-5 py-4 text-sm font-black text-[#6b4a4a]"
+          >
+            Kaydettiklerime Git
+          </Link>
         </div>
       </div>
     </section>

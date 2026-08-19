@@ -3,18 +3,25 @@ import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
+function getSupabaseWithToken(token: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !anonKey) {
+    throw new Error("Supabase environment variables are missing.");
+  }
+
+  return createClient(supabaseUrl, anonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !anonKey) {
-      return NextResponse.json(
-        { ok: false, error: "Supabase environment variables are missing." },
-        { status: 500 }
-      );
-    }
-
     const authHeader = request.headers.get("authorization") || "";
     const token = authHeader.replace("Bearer ", "");
 
@@ -25,13 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createClient(supabaseUrl, anonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    });
+    const supabase = getSupabaseWithToken(token);
 
     const {
       data: { user },
@@ -47,27 +48,39 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    const payload = {
-      user_id: user.id,
-      concept_key: body.conceptKey,
-      concept_title: body.conceptTitle,
-      person_name: body.personName || "",
-      relation: body.relation || "",
-      gift_name: body.giftName || "",
-      tone: body.tone || "",
-      generated_text: body.generatedText || "",
-    };
+    const conceptKey = String(body?.conceptKey || "");
+    const conceptTitle = String(body?.conceptTitle || "");
+    const personName = String(body?.personName || "");
+    const senderName = String(body?.senderName || "");
+    const relation = String(body?.relation || "");
+    const giftName = String(body?.giftName || "");
+    const tone = String(body?.tone || "");
+    const noteLength = String(body?.noteLength || "");
+    const specialDetail = String(body?.specialDetail || "");
+    const generatedText = String(body?.generatedText || "");
 
-    if (!payload.concept_key || !payload.concept_title || !payload.generated_text) {
+    if (!conceptKey || !conceptTitle || !generatedText) {
       return NextResponse.json(
-        { ok: false, error: "Kaydedilecek deneyim bilgisi eksik." },
+        { ok: false, error: "Kaydedilecek deneyim eksik." },
         { status: 400 }
       );
     }
 
     const { data, error } = await supabase
       .from("saved_premium_experiences")
-      .insert(payload)
+      .insert({
+        user_id: user.id,
+        concept_key: conceptKey,
+        concept_title: conceptTitle,
+        person_name: personName || null,
+        sender_name: senderName || null,
+        relation: relation || null,
+        gift_name: giftName || null,
+        tone: tone || null,
+        note_length: noteLength || null,
+        special_detail: specialDetail || null,
+        generated_text: generatedText,
+      })
       .select("*")
       .single();
 
@@ -78,15 +91,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ ok: true, experience: data });
+    return NextResponse.json({
+      ok: true,
+      experience: data,
+    });
   } catch (error) {
     return NextResponse.json(
       {
         ok: false,
         error:
-          error instanceof Error
-            ? error.message
-            : "Premium deneyim kaydedilemedi.",
+          error instanceof Error ? error.message : "Deneyim kaydedilemedi.",
       },
       { status: 500 }
     );

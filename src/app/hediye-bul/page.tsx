@@ -324,7 +324,14 @@ function GiftResultCard({
                           </p>
 
 <div className="mt-4 flex flex-wrap items-center gap-2">
-                            <ShareGiftButton
+                            <Link
+            href={`/deneyim?gift=${encodeURIComponent(gift.title || "hediye")}`}
+            className="mt-3 flex w-full items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
+          >
+            Bu Hediye İçin Özel Not Oluştur
+          </Link>
+
+          <ShareGiftButton
                               title={gift.title}
                               text={`${gift.title} — ${gift.reason}`}
                             />
