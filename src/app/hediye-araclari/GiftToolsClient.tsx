@@ -268,6 +268,49 @@ export default function GiftToolsClient() {
         </div>
 
 
+
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          <Link
+            href="/hediye-paketi"
+            className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <p className="text-sm font-black text-pink-600">Paket</p>
+            <h2 className="mt-2 text-2xl font-black text-[#2b1b1b]">
+              Hediye Paketi Oluşturucu
+            </h2>
+            <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
+              Ana hediye, yan ürün, not ve sunum önerisini birlikte oluştur.
+            </p>
+          </Link>
+
+          <Link
+            href="/son-dakika-hediye"
+            className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <p className="text-sm font-black text-pink-600">Acil</p>
+            <h2 className="mt-2 text-2xl font-black text-[#2b1b1b]">
+              Son Dakika Hediye Kurtarıcı
+            </h2>
+            <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
+              Bugün, yarın veya 3 gün içinde alınabilecek hızlı hediyeleri bul.
+            </p>
+          </Link>
+
+          <Link
+            href="/hediye-takvimi"
+            className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <p className="text-sm font-black text-pink-600">Takvim</p>
+            <h2 className="mt-2 text-2xl font-black text-[#2b1b1b]">
+              Hediye Takvimi
+            </h2>
+            <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
+              Özel günleri kaydet, hediye almayı unutma.
+            </p>
+          </Link>
+        </div>
+
+
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <article className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
             <p className="text-sm font-black text-pink-600">
