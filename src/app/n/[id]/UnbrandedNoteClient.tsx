@@ -29,12 +29,30 @@ export default function UnbrandedNoteClient({
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [themeId, setThemeId] = useState("pink-flowers");
+  const [decorType, setDecorType] = useState("auto");
+  const [decorColor, setDecorColor] = useState("#F472B6");
+  const [textColor, setTextColor] = useState("");
 
   useEffect(() => {
     const bg = searchParams.get("bg");
+    const decor = searchParams.get("decor");
+    const color = searchParams.get("color");
+    const text = searchParams.get("text");
 
     if (bg && noteThemes.some((theme) => theme.id === bg)) {
       setThemeId(bg);
+    }
+
+    if (decor) {
+      setDecorType(decor);
+    }
+
+    if (color) {
+      setDecorColor(`#${color.replace("#", "")}`);
+    }
+
+    if (text) {
+      setTextColor(`#${text.replace("#", "")}`);
     }
   }, [searchParams]);
 
@@ -98,18 +116,24 @@ export default function UnbrandedNoteClient({
         <article
           className={`relative w-full overflow-hidden rounded-[2.5rem] border border-white/60 p-6 shadow-2xl md:p-12 ${selectedTheme.cardClass}`}
         >
-            <NoteDecorations variant={themeId} />
+            <NoteDecorations
+            variant={themeId}
+            decorType={decorType}
+            customColor={decorColor}
+          />
 
           <div className="relative z-10">
             <div className="text-center">
               <p
                 className={`text-sm font-black uppercase tracking-[0.25em] ${selectedTheme.accentClass}`}
+                style={textColor ? { color: textColor } : undefined}
               >
                 Özel Mesaj
               </p>
 
               <h1
                 className={`mt-4 text-3xl font-black leading-tight md:text-5xl ${selectedTheme.accentClass}`}
+                style={textColor ? { color: textColor } : undefined}
               >
                 {experience.gift_name || "Sana Küçük Bir Sürprizim Var"}
               </h1>

@@ -1,5 +1,7 @@
 type NoteDecorationsProps = {
   variant: string;
+  decorType?: string;
+  customColor?: string;
 };
 
 function isBoldTheme(variant: string) {
@@ -368,9 +370,19 @@ function BoldDecorations({
   );
 }
 
-export default function NoteDecorations({ variant }: NoteDecorationsProps) {
+export default function NoteDecorations({
+  variant,
+  decorType = "auto",
+  customColor,
+}: NoteDecorationsProps) {
   const palette = getPalette(variant);
-  const bold = isBoldTheme(variant);
+  const bold = decorType === "auto" ? isBoldTheme(variant) : ["geometric", "wave", "minimal", "tech"].includes(decorType);
+
+  if (customColor) {
+    palette.primary = customColor;
+    palette.secondary = customColor;
+    palette.line = customColor;
+  }
 
   return (
     <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
@@ -384,7 +396,75 @@ export default function NoteDecorations({ variant }: NoteDecorationsProps) {
         style={{ background: palette.soft }}
       />
 
-      {bold ? (
+      {decorType === "flower" ? (
+        <CuteFlower
+          className="absolute left-5 top-5 h-28 w-28 rotate-[-10deg] opacity-75 md:h-40 md:w-40"
+          primary={palette.primary}
+          secondary={palette.secondary}
+        />
+      ) : decorType === "heart" ? (
+        <>
+          <CuteHeart
+            className="absolute left-8 top-8 h-24 w-24 rotate-[-8deg] opacity-70 md:h-36 md:w-36"
+            color={palette.primary}
+          />
+          <CuteHeart
+            className="absolute bottom-8 right-8 h-24 w-24 rotate-[10deg] opacity-65 md:h-36 md:w-36"
+            color={palette.secondary}
+          />
+        </>
+      ) : decorType === "bow" ? (
+        <CuteBow
+          className="absolute right-5 top-8 h-24 w-36 rotate-[12deg] opacity-75 md:h-32 md:w-48"
+          primary={palette.primary}
+          secondary={palette.secondary}
+        />
+      ) : decorType === "sparkle" ? (
+        <>
+          <Sparkle
+            className="absolute left-8 top-8 h-20 w-20 rotate-12 opacity-70 md:h-32 md:w-32"
+            color={palette.primary}
+          />
+          <Sparkle
+            className="absolute bottom-10 right-10 h-20 w-20 rotate-[-10deg] opacity-60 md:h-28 md:w-28"
+            color={palette.secondary}
+          />
+        </>
+      ) : decorType === "wave" ? (
+        <BoldWave
+          className="absolute bottom-8 left-8 h-24 w-72 opacity-65 md:h-32 md:w-96"
+          color={palette.primary}
+        />
+      ) : decorType === "geometric" ? (
+        <>
+          <BoldGrid
+            className="absolute -right-10 top-8 h-40 w-72 rotate-6 opacity-55 md:h-52 md:w-96"
+            line={palette.line}
+          />
+          <BoldRing
+            className="absolute -left-8 bottom-8 h-36 w-36 rotate-12 opacity-70 md:h-52 md:w-52"
+            primary={palette.primary}
+            secondary={palette.secondary}
+          />
+        </>
+      ) : decorType === "tech" ? (
+        <>
+          <BoldGrid
+            className="absolute -right-10 top-8 h-40 w-72 rotate-6 opacity-55 md:h-52 md:w-96"
+            line={palette.line}
+          />
+          <BoldBolt
+            className="absolute bottom-8 right-10 h-28 w-24 rotate-12 opacity-70 md:h-40 md:w-32"
+            color={palette.primary}
+          />
+        </>
+      ) : decorType === "minimal" ? (
+        <BoldRing
+          className="absolute -right-8 top-8 h-32 w-32 rotate-12 opacity-45 md:h-48 md:w-48"
+          primary={palette.primary}
+          secondary={palette.secondary}
+        />
+      ) : bold ? (
         <BoldDecorations palette={palette} />
       ) : (
         <CuteDecorations palette={palette} />

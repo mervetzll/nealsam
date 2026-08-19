@@ -32,6 +32,9 @@ export default function ShareExperienceClient({
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [themeId, setThemeId] = useState("pink-flowers");
+  const [decorType, setDecorType] = useState("auto");
+  const [decorColor, setDecorColor] = useState("#F472B6");
+  const [textColor, setTextColor] = useState("");
 
   const selectedTheme = useMemo(() => {
     return noteThemes.find((theme) => theme.id === themeId) || noteThemes[0];
@@ -40,9 +43,24 @@ export default function ShareExperienceClient({
 
   useEffect(() => {
     const bg = searchParams.get("bg");
+    const decor = searchParams.get("decor");
+    const color = searchParams.get("color");
+    const text = searchParams.get("text");
 
     if (bg && noteThemes.some((theme) => theme.id === bg)) {
       setThemeId(bg);
+    }
+
+    if (decor) {
+      setDecorType(decor);
+    }
+
+    if (color) {
+      setDecorColor(`#${color.replace("#", "")}`);
+    }
+
+    if (text) {
+      setTextColor(`#${text.replace("#", "")}`);
     }
   }, [searchParams]);
 
@@ -55,7 +73,7 @@ export default function ShareExperienceClient({
     if (!experience) return;
     generateQr();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [themeId, experience]);
+  }, [themeId, decorType, decorColor, textColor, experience]);
 
   async function loadExperience() {
     setLoading(true);
@@ -82,7 +100,20 @@ export default function ShareExperienceClient({
   }
 
   async function generateQr() {
-    const currentUrl = `${window.location.origin}/n/${experienceId}?bg=${themeId}`;
+    const cleanDecorColor = decorColor.replace("#", "");
+    const cleanTextColor = textColor.replace("#", "");
+
+    const params = new URLSearchParams({
+      bg: themeId,
+      decor: decorType,
+      color: cleanDecorColor,
+    });
+
+    if (cleanTextColor) {
+      params.set("text", cleanTextColor);
+    }
+
+    const currentUrl = `${window.location.origin}/n/${experienceId}?${params.toString()}`;
     setShareUrl(currentUrl);
 
     try {
@@ -150,7 +181,11 @@ export default function ShareExperienceClient({
           <article
             className={`relative overflow-hidden rounded-[2.2rem] border border-white/60 p-6 shadow-xl md:p-10 ${selectedTheme.cardClass}`}
           >
-            <NoteDecorations variant={themeId} />
+            <NoteDecorations
+              variant={themeId}
+              decorType={decorType}
+              customColor={decorColor}
+            />
 
             <div className="relative z-10">
               <div className="flex flex-wrap gap-2">
@@ -168,12 +203,14 @@ export default function ShareExperienceClient({
               <div className="mt-8 text-center">
                 <p
                   className={`text-sm font-black uppercase tracking-[0.25em] ${selectedTheme.accentClass}`}
+                  style={textColor ? { color: textColor } : undefined}
                 >
                   Özel Mesaj
                 </p>
 
                 <h1
                   className={`mt-4 text-3xl font-black md:text-5xl ${selectedTheme.accentClass}`}
+                  style={textColor ? { color: textColor } : undefined}
                 >
                   {experience.gift_name || "Sana Küçük Bir Sürprizim Var"}
                 </h1>
@@ -220,6 +257,67 @@ export default function ShareExperienceClient({
                   </p>
                 </button>
               ))}
+            </div>
+
+            <div className="mt-6 rounded-[1.5rem] bg-[#fff4ef] p-5">
+              <h3 className="text-sm font-black text-[#2b1b1b]">
+                Kendi Tasarımını Oluştur
+              </h3>
+
+              <div className="mt-4 grid gap-4">
+                <label className="grid gap-2 text-xs font-black text-[#6b4a4a]">
+                  Dekor Tipi
+                  <select
+                    value={decorType}
+                    onChange={(event) => setDecorType(event.target.value)}
+                    className="rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-bold text-[#2b1b1b] outline-none"
+                  >
+                    <option value="auto">Temaya göre otomatik</option>
+                    <option value="flower">Çiçek</option>
+                    <option value="heart">Kalp</option>
+                    <option value="bow">Kurdele</option>
+                    <option value="sparkle">Yıldız / Işıltı</option>
+                    <option value="wave">Dalga</option>
+                    <option value="geometric">Geometrik</option>
+                    <option value="tech">Tech</option>
+                    <option value="minimal">Minimal</option>
+                  </select>
+                </label>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="grid gap-2 text-xs font-black text-[#6b4a4a]">
+                    Dekor Rengi
+                    <input
+                      type="color"
+                      value={decorColor}
+                      onChange={(event) => setDecorColor(event.target.value)}
+                      className="h-12 w-full cursor-pointer rounded-2xl border border-pink-100 bg-white p-1"
+                    />
+                  </label>
+
+                  <label className="grid gap-2 text-xs font-black text-[#6b4a4a]">
+                    Yazı Rengi
+                    <input
+                      type="color"
+                      value={textColor || "#2b1b1b"}
+                      onChange={(event) => setTextColor(event.target.value)}
+                      className="h-12 w-full cursor-pointer rounded-2xl border border-pink-100 bg-white p-1"
+                    />
+                  </label>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDecorType("auto");
+                    setDecorColor("#F472B6");
+                    setTextColor("");
+                  }}
+                  className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
+                >
+                  Tasarımı Sıfırla
+                </button>
+              </div>
             </div>
 
             <div className="mt-6 rounded-[1.5rem] bg-[#fff4ef] p-5">
