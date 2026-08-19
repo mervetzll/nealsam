@@ -216,6 +216,16 @@ export default function UnbrandedNoteClient({
             width: 760px !important;
             max-width: 92vw !important;
             box-shadow: none !important;
+            overflow: visible !important;
+          }
+
+          .note-message {
+            max-height: none !important;
+            overflow: visible !important;
+            font-size: 12px !important;
+            line-height: 1.45 !important;
+            padding: 14px !important;
+            white-space: pre-wrap !important;
           }
         }
       `}</style>
@@ -229,7 +239,7 @@ export default function UnbrandedNoteClient({
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute inset-x-[12%] bottom-[13%] top-[23%] flex flex-col items-center justify-center text-center">
+            <div className="absolute inset-x-[11%] bottom-[10%] top-[18%] flex flex-col items-center justify-center text-center">
               <p
                 className="text-xs font-black uppercase tracking-[0.24em] opacity-80"
                 style={{ color: finalTextColor || undefined }}
@@ -253,7 +263,7 @@ export default function UnbrandedNoteClient({
               </p>
 
               <pre
-                className="mt-5 max-h-[56%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/55 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
+                className="note-message mt-5 max-h-[64%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/55 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
                 style={{ color: finalTextColor || undefined }}
               >
                 {experience.generated_text}
@@ -291,7 +301,7 @@ export default function UnbrandedNoteClient({
               </p>
 
               <pre
-                className="mt-5 max-h-[56%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/70 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
+                className="note-message mt-5 max-h-[64%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/70 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
                 style={textColor ? { color: textColor } : undefined}
               >
                 {experience.generated_text}
