@@ -29,10 +29,10 @@ function getFallbackConcepts(): PremiumConcept[] {
     {
       id: "hediye-avi",
       title: "Hediye Avı",
-      badge: "Eğlenceli",
-      description: "Hediyeyi küçük bir oyun ve sürpriz akışına dönüştürür.",
-      bestFor: ["Arkadaş", "Kardeş", "Eğlenceli ilişkiler"],
-      sample: "Bu hediyeye ulaşmak için küçük bir ipucun var.",
+      badge: "Oyunlu",
+      description: "Hediyeyi adım adım ipuçlarıyla bulunan mini bir sürpriz oyununa dönüştürür.",
+      bestFor: ["Arkadaş", "Kardeş", "Sevgili", "Eğlenceli ilişkiler"],
+      sample: "QR kodu okut, ipuçlarını takip et ve hediyeye ulaş.",
       premiumLevel: "experience",
     },
     {
@@ -80,6 +80,73 @@ function getLengthInstruction(noteLength: string) {
   return "Orta uzunlukta, okunması kolay ve etkileyici yaz.";
 }
 
+function getHuntStyleText(style: string) {
+  if (style === "funny") return "tatlı ve eğlenceli";
+  if (style === "romantic") return "romantik ve merak uyandıran";
+  if (style === "mysterious") return "gizemli ve heyecanlı";
+  if (style === "cute") return "sevimli ve yumuşak";
+  return "sürprizli ve keyifli";
+}
+
+function getDifficultyText(difficulty: string) {
+  if (difficulty === "easy") return "kolay";
+  if (difficulty === "hard") return "zorlayıcı";
+  return "orta zorlukta";
+}
+
+function buildHuntClues({
+  personName,
+  senderName,
+  giftName,
+  huntLocation,
+  huntSteps,
+  huntDifficulty,
+  huntStyle,
+  huntDetail,
+}: {
+  personName: string;
+  senderName: string;
+  giftName: string;
+  huntLocation: string;
+  huntSteps: number;
+  huntDifficulty: string;
+  huntStyle: string;
+  huntDetail: string;
+}) {
+  const toName = personName.trim() || "sen";
+  const fromName = senderName.trim();
+  const gift = giftName.trim() || "sürprizin";
+  const location = huntLocation.trim() || "hediyenin saklı olduğu yer";
+  const detail = huntDetail.trim();
+  const steps = Math.min(Math.max(Number(huntSteps || 3), 2), 6);
+  const styleText = getHuntStyleText(huntStyle);
+  const difficultyText = getDifficultyText(huntDifficulty);
+
+  const clues = [
+    `İlk ipucun burada başlıyor: Bugün sıradan bir gün gibi görünebilir ama aslında küçük bir sürprize doğru ilerliyorsun. ${difficultyText} bir av olacak, dikkatli bak.`,
+    `İkinci ipucu: ${gift} sana direkt gelmeyecek. Önce etrafında sana tanıdık gelen, günlük hayatında sık gördüğün bir yere odaklan.`,
+    `Üçüncü ipucu: Sürpriz, çok uzaklarda değil. Biraz merak, biraz dikkat ve biraz da gülümseme gerekiyor.`,
+    `Dördüncü ipucu: ${detail ? `Şunu hatırla: ${detail}` : "Bugün sana özel hazırlanan küçük detaylara dikkat et."}`,
+    `Beşinci ipucu: Artık çok yaklaştın. Sürprizi bulduğunda bunun özellikle senin için hazırlandığını anlayacaksın.`,
+    `Son ipucu: Şimdi final zamanı. Hediyene ulaşmak için ${location} kısmına bak.`,
+  ];
+
+  const selectedClues = clues.slice(0, steps - 1);
+
+  selectedClues.push(`Final: ${location}. Orada seni ${gift} bekliyor.`);
+
+  return `${toName === "sen" ? "Sevgili sen" : `Sevgili ${toName}`},
+
+Sana hediyeni direkt vermek yerine küçük bir Hediye Avı hazırladım.
+
+Bu avın tarzı: ${styleText}.
+Zorluk seviyesi: ${difficultyText}.
+
+${selectedClues.map((clue, index) => `${index + 1}. ADIM\n${clue}`).join("\n\n")}
+
+${fromName ? `${fromName}'den küçük bir sürpriz.` : "Bu küçük sürpriz senin için."}`;
+}
+
 function buildConceptOutput({
   concept,
   personName,
@@ -89,6 +156,11 @@ function buildConceptOutput({
   tone,
   noteLength,
   specialDetail,
+  huntLocation,
+  huntSteps,
+  huntDifficulty,
+  huntStyle,
+  huntDetail,
 }: {
   concept: PremiumConcept;
   personName: string;
@@ -98,39 +170,35 @@ function buildConceptOutput({
   tone: string;
   noteLength: string;
   specialDetail: string;
+  huntLocation: string;
+  huntSteps: number;
+  huntDifficulty: string;
+  huntStyle: string;
+  huntDetail: string;
 }) {
+  if (concept.id === "hediye-avi") {
+    return buildHuntClues({
+      personName,
+      senderName,
+      giftName,
+      huntLocation,
+      huntSteps,
+      huntDifficulty,
+      huntStyle,
+      huntDetail,
+    });
+  }
+
   const toName = personName.trim() || "sen";
   const fromName = senderName.trim();
   const gift = giftName.trim() || "bu hediye";
   const relationText = relation.trim();
   const detail = specialDetail.trim();
 
-  const opening =
-    toName === "sen"
-      ? "Sevgili sen,"
-      : `Sevgili ${toName},`;
-
+  const opening = toName === "sen" ? "Sevgili sen," : `Sevgili ${toName},`;
   const signature = fromName ? `\n\n${fromName}'den sevgilerle.` : "";
-
   const toneText = getToneLabel(tone);
   const lengthText = getLengthInstruction(noteLength);
-
-  if (concept.id === "hediye-avi") {
-    return `${opening}
-
-Bu sefer hediyene direkt ulaşmanı istemedim; çünkü bazı sürprizler küçük bir heyecanı hak eder.
-
-Senin için hazırladığım bu küçük hediye avında ipucun şu:
-
-“Beni görünce aklına hem ${gift} hem de seni düşündüğüm o an gelsin.”
-
-${relationText ? `Bunu özellikle ${relationText} olduğun için daha özel hissetmeni istedim.` : ""}
-${detail ? `Aklımda özellikle şu vardı: ${detail}` : ""}
-
-Bu notun tonu ${toneText} olsun istedim. ${lengthText}
-
-Şimdi hediyeni açma zamanı.${signature}`;
-  }
 
   if (concept.id === "ani-kutusu") {
     return `${opening}
@@ -201,17 +269,22 @@ export default function PremiumConceptLauncher() {
   const [noteLength, setNoteLength] = useState("medium");
   const [specialDetail, setSpecialDetail] = useState("");
 
+  const [huntLocation, setHuntLocation] = useState("");
+  const [huntSteps, setHuntSteps] = useState(4);
+  const [huntDifficulty, setHuntDifficulty] = useState("medium");
+  const [huntStyle, setHuntStyle] = useState("cute");
+  const [huntDetail, setHuntDetail] = useState("");
+
   const [generatedText, setGeneratedText] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState("");
   const [message, setMessage] = useState("");
 
   const selectedConcept = useMemo(() => {
-    return (
-      concepts.find((concept) => concept.id === selectedConceptId) ||
-      concepts[0]
-    );
+    return concepts.find((concept) => concept.id === selectedConceptId) || concepts[0];
   }, [concepts, selectedConceptId]);
+
+  const isHunt = selectedConcept?.id === "hediye-avi";
 
   useEffect(() => {
     loadConcepts();
@@ -229,6 +302,11 @@ export default function PremiumConceptLauncher() {
       tone,
       noteLength,
       specialDetail,
+      huntLocation,
+      huntSteps,
+      huntDifficulty,
+      huntStyle,
+      huntDetail,
     });
 
     setGeneratedText(output);
@@ -242,6 +320,11 @@ export default function PremiumConceptLauncher() {
     tone,
     noteLength,
     specialDetail,
+    huntLocation,
+    huntSteps,
+    huntDifficulty,
+    huntStyle,
+    huntDetail,
   ]);
 
   async function loadConcepts() {
@@ -300,6 +383,11 @@ export default function PremiumConceptLauncher() {
           noteLength,
           specialDetail,
           generatedText,
+          huntLocation,
+          huntSteps,
+          huntDifficulty,
+          huntStyle,
+          huntDetail,
         }),
       });
 
@@ -311,7 +399,11 @@ export default function PremiumConceptLauncher() {
       }
 
       setSavedId(data.experience?.id || "");
-      setMessage("Deneyim kaydedildi. Artık kartını ve QR kodunu oluşturabilirsin.");
+      setMessage(
+        isHunt
+          ? "Hediye Avı kaydedildi. Artık adım adım QR deneyimini oluşturabilirsin."
+          : "Deneyim kaydedildi. Artık kartını ve QR kodunu oluşturabilirsin."
+      );
     } catch {
       setMessage("Deneyim kaydedilemedi.");
     } finally {
@@ -330,12 +422,13 @@ export default function PremiumConceptLauncher() {
           </p>
 
           <h2 className="mt-3 text-3xl font-black text-[#2b1b1b]">
-            Özel Not Oluştur
+            {isHunt ? "Hediye Avı Oluştur" : "Özel Not Oluştur"}
           </h2>
 
           <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
-            Kime, kimden ve hangi hediye için olduğunu yaz. Sistem sana daha
-            özel, daha gerçek bir hediye notu oluştursun.
+            {isHunt
+              ? "Hediyeni direkt vermek yerine QR ile açılan adım adım bir sürpriz oyununa dönüştür."
+              : "Kime, kimden ve hangi hediye için olduğunu yaz. Sistem sana daha özel bir hediye notu oluştursun."}
           </p>
 
           <div className="mt-6 grid gap-4">
@@ -382,7 +475,7 @@ export default function PremiumConceptLauncher() {
                 <input
                   value={relation}
                   onChange={(event) => setRelation(event.target.value)}
-                  placeholder="Örn: en yakın arkadaşım, sevgilim, annem"
+                  placeholder="Örn: sevgilim, kardeşim, en yakın arkadaşım"
                   className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
                 />
               </label>
@@ -398,46 +491,123 @@ export default function PremiumConceptLauncher() {
               </label>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
-                Ton
-                <select
-                  value={tone}
-                  onChange={(event) => setTone(event.target.value)}
-                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
-                >
-                  <option value="emotional">Duygusal</option>
-                  <option value="romantic">Romantik</option>
-                  <option value="funny">Tatlı / Eğlenceli</option>
-                  <option value="minimal">Sade</option>
-                  <option value="premium">Şık / Premium</option>
-                </select>
-              </label>
+            {isHunt ? (
+              <div className="rounded-[1.5rem] bg-[#fff4ef] p-5">
+                <h3 className="text-lg font-black text-[#2b1b1b]">
+                  Hediye Avı Ayarları
+                </h3>
 
-              <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
-                Not uzunluğu
-                <select
-                  value={noteLength}
-                  onChange={(event) => setNoteLength(event.target.value)}
-                  className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
-                >
-                  <option value="short">Kısa</option>
-                  <option value="medium">Orta</option>
-                  <option value="long">Uzun / Hikayeli</option>
-                </select>
-              </label>
-            </div>
+                <div className="mt-4 grid gap-4">
+                  <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                    Hediye nerede saklı / final neresi?
+                    <input
+                      value={huntLocation}
+                      onChange={(event) => setHuntLocation(event.target.value)}
+                      placeholder="Örn: çalışma masasının çekmecesi, dolabın üst rafı"
+                      className="rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-bold outline-none"
+                    />
+                  </label>
 
-            <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
-              Özel detay
-              <textarea
-                value={specialDetail}
-                onChange={(event) => setSpecialDetail(event.target.value)}
-                placeholder="Örn: İlk kahvemizi beraber içtiğimiz günü hatırlatmak istiyorum."
-                rows={4}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
-              />
-            </label>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                      Kaç adım?
+                      <select
+                        value={huntSteps}
+                        onChange={(event) => setHuntSteps(Number(event.target.value))}
+                        className="rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-bold outline-none"
+                      >
+                        <option value={2}>2 adım</option>
+                        <option value={3}>3 adım</option>
+                        <option value={4}>4 adım</option>
+                        <option value={5}>5 adım</option>
+                        <option value={6}>6 adım</option>
+                      </select>
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                      Zorluk
+                      <select
+                        value={huntDifficulty}
+                        onChange={(event) => setHuntDifficulty(event.target.value)}
+                        className="rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-bold outline-none"
+                      >
+                        <option value="easy">Kolay</option>
+                        <option value="medium">Orta</option>
+                        <option value="hard">Zor</option>
+                      </select>
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                      Tarz
+                      <select
+                        value={huntStyle}
+                        onChange={(event) => setHuntStyle(event.target.value)}
+                        className="rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-bold outline-none"
+                      >
+                        <option value="cute">Sevimli</option>
+                        <option value="funny">Eğlenceli</option>
+                        <option value="romantic">Romantik</option>
+                        <option value="mysterious">Gizemli</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                    Özel ipucu detayı
+                    <textarea
+                      value={huntDetail}
+                      onChange={(event) => setHuntDetail(event.target.value)}
+                      placeholder="Örn: İlk kahvemizi içtiğimiz yerle ilgili küçük bir gönderme olsun."
+                      rows={4}
+                      className="rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                    Ton
+                    <select
+                      value={tone}
+                      onChange={(event) => setTone(event.target.value)}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                    >
+                      <option value="emotional">Duygusal</option>
+                      <option value="romantic">Romantik</option>
+                      <option value="funny">Tatlı / Eğlenceli</option>
+                      <option value="minimal">Sade</option>
+                      <option value="premium">Şık / Premium</option>
+                    </select>
+                  </label>
+
+                  <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                    Not uzunluğu
+                    <select
+                      value={noteLength}
+                      onChange={(event) => setNoteLength(event.target.value)}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                    >
+                      <option value="short">Kısa</option>
+                      <option value="medium">Orta</option>
+                      <option value="long">Uzun / Hikayeli</option>
+                    </select>
+                  </label>
+                </div>
+
+                <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                  Özel detay
+                  <textarea
+                    value={specialDetail}
+                    onChange={(event) => setSpecialDetail(event.target.value)}
+                    placeholder="Örn: İlk kahvemizi beraber içtiğimiz günü hatırlatmak istiyorum."
+                    rows={4}
+                    className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                  />
+                </label>
+              </>
+            )}
           </div>
         </div>
 
@@ -449,7 +619,7 @@ export default function PremiumConceptLauncher() {
               </p>
 
               <h3 className="mt-1 text-2xl font-black text-[#2b1b1b]">
-                Oluşturulan Not
+                {isHunt ? "Hediye Avı Akışı" : "Oluşturulan Not"}
               </h3>
             </div>
 
@@ -490,7 +660,7 @@ export default function PremiumConceptLauncher() {
               href={`/deneyim/paylas/${savedId}`}
               className="mt-4 flex w-full items-center justify-center rounded-full border border-pink-200 bg-white px-5 py-4 text-sm font-black text-pink-700"
             >
-              Kart Tasarımı / QR Oluştur
+              {isHunt ? "Hediye Avı QR / Kart Oluştur" : "Kart Tasarımı / QR Oluştur"}
             </Link>
           )}
 

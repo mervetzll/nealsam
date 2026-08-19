@@ -11,10 +11,18 @@ type Experience = {
   concept_key: string;
   concept_title: string;
   person_name: string | null;
+  sender_name: string | null;
   relation: string | null;
   gift_name: string | null;
   tone: string | null;
+  note_length: string | null;
+  special_detail: string | null;
   generated_text: string;
+  hunt_location: string | null;
+  hunt_steps: number | null;
+  hunt_difficulty: string | null;
+  hunt_style: string | null;
+  hunt_detail: string | null;
   created_at: string;
 };
 
@@ -41,6 +49,22 @@ function getImageTextColor(templateId: string) {
   return "#2b1b1b";
 }
 
+function parseHuntSteps(text: string) {
+  const parts = text
+    .split(/\n(?=\d+\.\s*ADIM)/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (parts.length <= 1) {
+    return [text];
+  }
+
+  const intro = parts[0];
+  const steps = parts.slice(1);
+
+  return [intro, ...steps];
+}
+
 export default function UnbrandedNoteClient({
   experienceId,
 }: {
@@ -54,13 +78,12 @@ export default function UnbrandedNoteClient({
   const [message, setMessage] = useState("");
 
   const [mode, setMode] = useState<TemplateMode>("image");
-
   const [themeId, setThemeId] = useState("pink-flowers");
   const [decorType, setDecorType] = useState("auto");
   const [decorColor, setDecorColor] = useState("#F472B6");
-
   const [templateId, setTemplateId] = useState("peach-blossom");
   const [textColor, setTextColor] = useState("");
+  const [huntIndex, setHuntIndex] = useState(0);
 
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -70,29 +93,12 @@ export default function UnbrandedNoteClient({
     const tpl = searchParams.get("tpl");
     const text = searchParams.get("text");
 
-    if (urlMode === "classic" || urlMode === "image") {
-      setMode(urlMode);
-    }
-
-    if (bg && noteThemes.some((theme) => theme.id === bg)) {
-      setThemeId(bg);
-    }
-
-    if (decor) {
-      setDecorType(decor);
-    }
-
-    if (color) {
-      setDecorColor(`#${color.replace("#", "")}`);
-    }
-
-    if (tpl && noteImageThemes.some((theme) => theme.id === tpl)) {
-      setTemplateId(tpl);
-    }
-
-    if (text) {
-      setTextColor(`#${text.replace("#", "")}`);
-    }
+    if (urlMode === "classic" || urlMode === "image") setMode(urlMode);
+    if (bg && noteThemes.some((theme) => theme.id === bg)) setThemeId(bg);
+    if (decor) setDecorType(decor);
+    if (color) setDecorColor(`#${color.replace("#", "")}`);
+    if (tpl && noteImageThemes.some((theme) => theme.id === tpl)) setTemplateId(tpl);
+    if (text) setTextColor(`#${text.replace("#", "")}`);
   }, [searchParams]);
 
   const selectedTheme = useMemo(() => {
@@ -105,6 +111,12 @@ export default function UnbrandedNoteClient({
       noteImageThemes[0]
     );
   }, [templateId]);
+
+  const isHunt = experience?.concept_key === "hediye-avi";
+  const huntSteps = useMemo(() => {
+    if (!experience) return [];
+    return parseHuntSteps(experience.generated_text);
+  }, [experience]);
 
   useEffect(() => {
     loadExperience();
@@ -168,6 +180,69 @@ export default function UnbrandedNoteClient({
   const finalTextColor =
     textColor || (mode === "image" ? getImageTextColor(templateId) : "");
 
+  const huntText = huntSteps[huntIndex] || experience.generated_text;
+  const isLastHuntStep = huntIndex >= huntSteps.length - 1;
+
+  const CardContent = (
+    <div className="absolute inset-x-[11%] bottom-[10%] top-[18%] flex flex-col items-center justify-center text-center">
+      <p
+        className="text-xs font-black uppercase tracking-[0.24em] opacity-80"
+        style={{ color: finalTextColor || undefined }}
+      >
+        {isHunt ? "Hediye Avı" : "Özel Mesaj"}
+      </p>
+
+      <h1
+        className="mt-3 text-2xl font-black leading-tight md:text-3xl"
+        style={{ color: finalTextColor || undefined }}
+      >
+        {isHunt
+          ? isLastHuntStep
+            ? "Finale Geldin!"
+            : `İpucu ${huntIndex + 1}`
+          : experience.gift_name || "Sana Küçük Bir Sürprizim Var"}
+      </h1>
+
+      <p
+        className="mt-3 text-xs font-bold leading-6 md:text-sm"
+        style={{ color: finalTextColor || undefined }}
+      >
+        {experience.person_name ? `İçin: ${experience.person_name}` : "Senin için"}
+        {experience.sender_name ? ` · ${experience.sender_name}'den` : ""}
+      </p>
+
+      <pre
+        className="note-message mt-5 max-h-[64%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/60 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
+        style={{ color: finalTextColor || undefined }}
+      >
+        {isHunt ? huntText : experience.generated_text}
+      </pre>
+
+      {isHunt && !shouldPrint && huntSteps.length > 1 && (
+        <div className="mt-4 flex w-full flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            disabled={huntIndex === 0}
+            onClick={() => setHuntIndex((value) => Math.max(0, value - 1))}
+            className="rounded-full border border-pink-200 bg-white/80 px-4 py-2 text-xs font-black text-pink-700 disabled:opacity-40"
+          >
+            Önceki
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              setHuntIndex((value) => Math.min(huntSteps.length - 1, value + 1))
+            }
+            className="rounded-full bg-pink-600 px-5 py-2 text-xs font-black text-white"
+          >
+            {isLastHuntStep ? "Av Tamamlandı" : "Sonraki İpucu"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <main className="print-note-page fixed inset-0 z-[9999] overflow-y-auto bg-[#fff4ef] px-4 py-8 text-[#2b1b1b] md:px-6 md:py-10">
       <style>{`
@@ -229,84 +304,27 @@ export default function UnbrandedNoteClient({
           }
         }
       `}</style>
+
       <section className="print-note-wrap mx-auto flex min-h-[90vh] max-w-3xl items-center justify-center">
         {mode === "image" ? (
-          <article
-            className="print-note-card relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-white shadow-2xl"
-          >
+          <article className="print-note-card relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-white shadow-2xl">
             <img
               src={selectedTemplate.image}
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute inset-x-[11%] bottom-[10%] top-[18%] flex flex-col items-center justify-center text-center">
-              <p
-                className="text-xs font-black uppercase tracking-[0.24em] opacity-80"
-                style={{ color: finalTextColor || undefined }}
-              >
-                Özel Mesaj
-              </p>
-
-              <h1
-                className="mt-3 text-2xl font-black leading-tight md:text-3xl"
-                style={{ color: finalTextColor || undefined }}
-              >
-                {experience.gift_name || "Sana Küçük Bir Sürprizim Var"}
-              </h1>
-
-              <p
-                className="mt-3 text-xs font-bold leading-6 md:text-sm"
-                style={{ color: finalTextColor || undefined }}
-              >
-                {experience.person_name ? `İçin: ${experience.person_name}` : "Senin için"}
-                {experience.relation ? ` · ${experience.relation}` : ""}
-              </p>
-
-              <pre
-                className="note-message mt-5 max-h-[64%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/55 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
-                style={{ color: finalTextColor || undefined }}
-              >
-                {experience.generated_text}
-              </pre>
-            </div>
+            {CardContent}
           </article>
         ) : (
           <article
-            className={`relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] border border-white/60 p-8 shadow-2xl ${selectedTheme.cardClass}`}
+            className={`print-note-card relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] border border-white/60 p-8 shadow-2xl ${selectedTheme.cardClass}`}
           >
             <NoteDecorations
               variant={themeId}
               decorType={decorType}
               customColor={decorColor}
             />
-
-            <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-              <p
-                className={`text-xs font-black uppercase tracking-[0.24em] ${selectedTheme.accentClass}`}
-                style={textColor ? { color: textColor } : undefined}
-              >
-                Özel Mesaj
-              </p>
-
-              <h1
-                className={`mt-3 text-2xl font-black leading-tight md:text-3xl ${selectedTheme.accentClass}`}
-                style={textColor ? { color: textColor } : undefined}
-              >
-                {experience.gift_name || "Sana Küçük Bir Sürprizim Var"}
-              </h1>
-
-              <p className="mt-3 text-xs font-bold leading-6 text-[#6b4a4a] md:text-sm">
-                {experience.person_name ? `İçin: ${experience.person_name}` : "Senin için"}
-                {experience.relation ? ` · ${experience.relation}` : ""}
-              </p>
-
-              <pre
-                className="note-message mt-5 max-h-[64%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/70 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
-                style={textColor ? { color: textColor } : undefined}
-              >
-                {experience.generated_text}
-              </pre>
-            </div>
+            {CardContent}
           </article>
         )}
       </section>

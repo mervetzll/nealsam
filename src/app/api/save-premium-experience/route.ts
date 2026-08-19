@@ -59,6 +59,12 @@ export async function POST(request: NextRequest) {
     const specialDetail = String(body?.specialDetail || "");
     const generatedText = String(body?.generatedText || "");
 
+    const huntLocation = String(body?.huntLocation || "");
+    const huntSteps = Number(body?.huntSteps || 3);
+    const huntDifficulty = String(body?.huntDifficulty || "");
+    const huntStyle = String(body?.huntStyle || "");
+    const huntDetail = String(body?.huntDetail || "");
+
     if (!conceptKey || !conceptTitle || !generatedText) {
       return NextResponse.json(
         { ok: false, error: "Kaydedilecek deneyim eksik." },
@@ -80,6 +86,11 @@ export async function POST(request: NextRequest) {
         note_length: noteLength || null,
         special_detail: specialDetail || null,
         generated_text: generatedText,
+        hunt_location: huntLocation || null,
+        hunt_steps: Number.isFinite(huntSteps) ? huntSteps : null,
+        hunt_difficulty: huntDifficulty || null,
+        hunt_style: huntStyle || null,
+        hunt_detail: huntDetail || null,
       })
       .select("*")
       .single();
