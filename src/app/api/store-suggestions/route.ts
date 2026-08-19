@@ -15,10 +15,12 @@ export async function POST(request: NextRequest) {
       tags: Array.isArray(body?.tags) ? body.tags : [],
     };
 
+    const links = getGiftStoreLinks(gift);
+
     return NextResponse.json({
       ok: true,
-      links: getGiftStoreLinks(gift),
-      stores: getGiftStoreLinks(gift),
+      links,
+      stores: links,
     });
   } catch {
     return NextResponse.json(
@@ -34,13 +36,15 @@ export async function GET(request: NextRequest) {
   const gift = {
     title: searchParams.get("title") || searchParams.get("q") || "",
     category: searchParams.get("category") || "",
-    description: "",
+    description: searchParams.get("description") || "",
     tags: [],
   };
 
+  const links = getGiftStoreLinks(gift);
+
   return NextResponse.json({
     ok: true,
-    links: getGiftStoreLinks(gift),
-    stores: getGiftStoreLinks(gift),
+    links,
+    stores: links,
   });
 }

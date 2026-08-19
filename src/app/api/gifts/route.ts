@@ -1,55 +1,66 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { gifts as fallbackGifts } from "@/data/gifts";
+import { expandedGiftCatalog } from "@/data/expandedGiftCatalog";
 
-function rowToGift(row: any) {
+export const dynamic = "force-dynamic";
+
+function normalizeGift(item: any, index: number) {
   return {
-    title: row.title,
-    category: row.category,
-    subCategory: row.sub_category,
-    priceMin: row.price_min,
-    priceMax: row.price_max,
-    recipients: row.recipients || [],
-    interests: row.interests || [],
-    styles: row.styles || [],
-    occasions: row.occasions || [],
-    urgency: row.urgency || [],
-    riskLevel: row.risk_level || "low",
-    reason: row.reason || "",
-    note: row.note || "",
-    searchQuery: row.search_query || row.title || "",
+    id: item.id || `expanded-${index}`,
+    title: item.title || item.name || "Hediye",
+    name: item.name || item.title || "Hediye",
+    category: item.category || "Genel",
+    price: item.price || item.budget || "",
+    budget: item.budget || item.price || "",
+    description: item.description || item.reason || "",
+    reason: item.reason || item.description || "",
+    tags: Array.isArray(item.tags) ? item.tags : [],
   };
 }
 
-export async function GET() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+async function getSupabaseGifts() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !anonKey) {
-    return NextResponse.json({
-      source: "fallback",
-      gifts: fallbackGifts,
-    });
+  if (!supabaseUrl || !anonKey) return [];
+
+  try {
+    const supabase = createClient(supabaseUrl, anonKey);
+
+    const { data, error } = await supabase
+      .from("gifts")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) return [];
+
+    return data || [];
+  } catch {
+    return [];
   }
+}
 
-  const supabase = createClient(url, anonKey);
+export async function GET() {
+  const supabaseGifts = await getSupabaseGifts();
 
-  const { data, error } = await supabase
-    .from("gifts")
-    .select("*")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
+  const merged = [
+    ...supabaseGifts,
+    ...expandedGiftCatalog,
+  ].map(normalizeGift);
 
-  if (error) {
-    return NextResponse.json({
-      source: "fallback",
-      error: error.message,
-      gifts: fallbackGifts,
-    });
-  }
+  const seen = new Set<string>();
+
+  const unique = merged.filter((gift) => {
+    const key = `${gift.title}-${gift.category}`.toLowerCase();
+
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
 
   return NextResponse.json({
-    source: "supabase",
-    gifts: (data || []).map(rowToGift),
+    ok: true,
+    gifts: unique,
   });
 }
