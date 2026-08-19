@@ -53,6 +53,22 @@ export default function BlogPage() {
           <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
             Hediye seçmeyi kolaylaştıran rehberler
           </h1>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <a
+          href="/blog/yeni"
+          className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+        >
+          Blog Yazısı Gönder
+        </a>
+
+        <a
+          href="/hesabim/bloglarim"
+          className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700"
+        >
+          Bloglarım
+        </a>
+      </div>
+
           <p className="mt-5 text-base leading-7 text-[#6b4a4a]">
             Kime ne hediye alacağını bilmiyorsan önce rehberlere göz atabilir,
             sonra Hediye Bul testiyle kişiye özel öneri alabilirsin.

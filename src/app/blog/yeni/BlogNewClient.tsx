@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 export default function BlogNewClient() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Hediye Fikirleri");
   const [excerpt, setExcerpt] = useState("");
@@ -12,6 +15,21 @@ export default function BlogNewClient() {
   const [content, setContent] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  async function checkAuth() {
+    setCheckingAuth(true);
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    setIsLoggedIn(Boolean(session?.access_token));
+    setCheckingAuth(false);
+  }
 
   async function submitPost(saveAsDraft: boolean) {
     setSaving(true);
@@ -24,6 +42,7 @@ export default function BlogNewClient() {
 
       if (!session?.access_token) {
         setMessage("Blog yazısı göndermek için önce giriş yapmalısın.");
+        setIsLoggedIn(false);
         return;
       }
 
@@ -65,6 +84,52 @@ export default function BlogNewClient() {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (checkingAuth) {
+    return (
+      <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+        <section className="mx-auto max-w-4xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <p className="font-black">Giriş kontrol ediliyor...</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+        <section className="mx-auto max-w-4xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Blog
+          </p>
+
+          <h1 className="mt-3 text-4xl font-black tracking-tight">
+            Blog yazmak için giriş yapmalısın
+          </h1>
+
+          <p className="mx-auto mt-4 max-w-2xl text-sm font-semibold leading-7 text-[#6b4a4a]">
+            Blog yazısı göndermek ve kendi bloglarını yönetmek için üye hesabına giriş yapmalısın.
+          </p>
+
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/giris"
+              className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+            >
+              Giriş Yap / Üye Ol
+            </Link>
+
+            <Link
+              href="/blog"
+              className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700"
+            >
+              Bloga Dön
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (

@@ -125,6 +125,20 @@ export default function AccountPage() {
               Giriş Yap / Kayıt Ol
             </Link>
           </div>
+        
+          <Link
+            href="/hesabim/bloglarim"
+            className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <p className="text-sm font-black text-pink-600">Blog</p>
+            <h3 className="mt-2 text-xl font-black text-[#2b1b1b]">
+              Bloglarım
+            </h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
+              Gönderdiğin blog yazılarını takip et.
+            </p>
+          </Link>
+
         </section>
       </main>
     );
