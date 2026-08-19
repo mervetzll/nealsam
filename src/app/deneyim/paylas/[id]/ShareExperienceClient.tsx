@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { useSearchParams } from "next/navigation";
 import { noteThemes } from "@/data/noteThemes";
 import { noteImageThemes } from "@/data/noteImageThemes";
@@ -54,6 +56,7 @@ export default function ShareExperienceClient({
   const [shareUrl, setShareUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const cardRef = useRef<HTMLDivElement | null>(null);
 
   const [mode, setMode] = useState<TemplateMode>("image");
 
@@ -204,6 +207,34 @@ export default function ShareExperienceClient({
     }
   }
 
+  async function downloadPdf() {
+    if (!cardRef.current) {
+      alert("Kart hazırlanamadı.");
+      return;
+    }
+
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#fff4ef",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save("hediye-notu.pdf");
+    } catch {
+      alert("PDF oluşturulamadı.");
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
@@ -237,6 +268,7 @@ export default function ShareExperienceClient({
         <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
           {mode === "image" ? (
             <article
+              ref={cardRef}
               className="relative mx-auto aspect-[4/5] w-full max-w-[620px] overflow-hidden rounded-[2rem] bg-cover bg-center shadow-2xl"
               style={{
                 backgroundImage: `url(${selectedTemplate.image})`,
@@ -275,6 +307,7 @@ export default function ShareExperienceClient({
             </article>
           ) : (
             <article
+              ref={cardRef}
               className={`relative mx-auto aspect-[4/5] w-full max-w-[620px] overflow-hidden rounded-[2rem] border border-white/60 p-8 shadow-2xl ${selectedTheme.cardClass}`}
             >
               <NoteDecorations
@@ -505,6 +538,13 @@ export default function ShareExperienceClient({
                   className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
                 >
                   Metni Kopyala
+                </button>
+
+                <button
+                  onClick={downloadPdf}
+                  className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
+                >
+                  PDF Olarak İndir
                 </button>
               </div>
             </div>
