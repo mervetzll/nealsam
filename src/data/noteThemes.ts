@@ -111,4 +111,75 @@ export const noteThemes: NoteTheme[] = [
       "bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.7),_transparent_20%),linear-gradient(135deg,#fff7ff_0%,#f4e8ff_45%,#fffafd_100%)]",
     accentClass: "text-violet-700",
   },
+
+  {
+    id: "navy-minimal",
+    name: "Lacivert Minimal",
+    cardClass:
+      "bg-[linear-gradient(135deg,#0f172a_0%,#1e293b_50%,#334155_100%)]",
+    accentClass: "text-sky-100",
+  },
+  {
+    id: "black-gold",
+    name: "Siyah Gold",
+    cardClass:
+      "bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.22),_transparent_30%),linear-gradient(135deg,#111827_0%,#1f2937_55%,#030712_100%)]",
+    accentClass: "text-amber-100",
+  },
+  {
+    id: "forest-calm",
+    name: "Orman",
+    cardClass:
+      "bg-[linear-gradient(135deg,#052e2b_0%,#14532d_50%,#064e3b_100%)]",
+    accentClass: "text-emerald-100",
+  },
+  {
+    id: "tech-neon",
+    name: "Tech Neon",
+    cardClass:
+      "bg-[radial-gradient(circle_at_top_right,_rgba(34,211,238,0.28),_transparent_28%),linear-gradient(135deg,#020617_0%,#0f172a_48%,#111827_100%)]",
+    accentClass: "text-cyan-100",
+  },
+  {
+    id: "ocean-deep",
+    name: "Derin Deniz",
+    cardClass:
+      "bg-[linear-gradient(135deg,#082f49_0%,#075985_45%,#0c4a6e_100%)]",
+    accentClass: "text-blue-100",
+  },
+  {
+    id: "graphite",
+    name: "Grafit",
+    cardClass:
+      "bg-[linear-gradient(135deg,#27272a_0%,#3f3f46_50%,#18181b_100%)]",
+    accentClass: "text-zinc-100",
+  },
+  {
+    id: "leather-brown",
+    name: "Deri Kahve",
+    cardClass:
+      "bg-[linear-gradient(135deg,#3f2415_0%,#7c4a2d_50%,#2b1710_100%)]",
+    accentClass: "text-orange-100",
+  },
+  {
+    id: "sport-red",
+    name: "Sportif",
+    cardClass:
+      "bg-[linear-gradient(135deg,#111827_0%,#7f1d1d_48%,#1f2937_100%)]",
+    accentClass: "text-red-100",
+  },
+  {
+    id: "space-blue",
+    name: "Uzay",
+    cardClass:
+      "bg-[radial-gradient(circle_at_20%_20%,_rgba(147,197,253,0.24),_transparent_22%),radial-gradient(circle_at_80%_30%,_rgba(196,181,253,0.18),_transparent_24%),linear-gradient(135deg,#020617_0%,#1e1b4b_50%,#0f172a_100%)]",
+    accentClass: "text-indigo-100",
+  },
+  {
+    id: "premium-cream",
+    name: "Premium Sade",
+    cardClass:
+      "bg-[linear-gradient(135deg,#f8f4ed_0%,#e7d8c9_50%,#fffaf3_100%)]",
+    accentClass: "text-stone-800",
+  },
 ];
