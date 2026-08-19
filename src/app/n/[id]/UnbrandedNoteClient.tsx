@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { noteThemes } from "@/data/noteThemes";
+import NoteDecorations from "@/components/NoteDecorations";
 
 type Experience = {
   id: string;
@@ -16,16 +17,6 @@ type Experience = {
   created_at: string;
 };
 
-function getDecorations(themeId: string) {
-  if (themeId.includes("night")) return ["✨", "🌙", "⭐", "💫", "✨"];
-  if (themeId.includes("coffee")) return ["☕", "🤎", "✨", "🍂", "🤍"];
-  if (themeId.includes("mint")) return ["🌿", "🤍", "✨", "🍃", "🌸"];
-  if (themeId.includes("sky") || themeId.includes("aqua")) return ["☁️", "🫧", "✨", "🤍", "🌙"];
-  if (themeId.includes("golden") || themeId.includes("sunset")) return ["🌞", "✨", "💛", "🌸", "⭐"];
-  if (themeId.includes("lavender") || themeId.includes("fairy")) return ["🪻", "✨", "🦋", "💜", "🌙"];
-  if (themeId.includes("heart") || themeId.includes("rose") || themeId.includes("berry")) return ["💗", "🌹", "✨", "🎀", "💕"];
-  return ["🌸", "🎀", "✨", "💗", "🌷"];
-}
 
 export default function UnbrandedNoteClient({
   experienceId,
@@ -51,7 +42,6 @@ export default function UnbrandedNoteClient({
     return noteThemes.find((theme) => theme.id === themeId) || noteThemes[0];
   }, [themeId]);
 
-  const decorations = getDecorations(themeId);
 
   useEffect(() => {
     loadExperience();
@@ -108,30 +98,7 @@ export default function UnbrandedNoteClient({
         <article
           className={`relative w-full overflow-hidden rounded-[2.5rem] border border-white/60 p-6 shadow-2xl md:p-12 ${selectedTheme.cardClass}`}
         >
-          <div className="pointer-events-none absolute inset-0 select-none">
-            <span className="absolute left-6 top-6 text-4xl opacity-50 md:text-6xl">
-              {decorations[0]}
-            </span>
-
-            <span className="absolute right-8 top-10 text-3xl opacity-45 md:text-6xl">
-              {decorations[1]}
-            </span>
-
-            <span className="absolute bottom-8 left-8 text-3xl opacity-45 md:text-6xl">
-              {decorations[2]}
-            </span>
-
-            <span className="absolute bottom-10 right-10 text-4xl opacity-50 md:text-7xl">
-              {decorations[3]}
-            </span>
-
-            <span className="absolute left-1/2 top-8 -translate-x-1/2 text-2xl opacity-35 md:text-5xl">
-              {decorations[4]}
-            </span>
-
-            <div className="absolute -left-16 top-24 h-40 w-40 rounded-full bg-white/25 blur-3xl" />
-            <div className="absolute -right-16 bottom-24 h-48 w-48 rounded-full bg-white/30 blur-3xl" />
-          </div>
+            <NoteDecorations variant={themeId} />
 
           <div className="relative z-10">
             <div className="text-center">
