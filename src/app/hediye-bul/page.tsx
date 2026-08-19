@@ -1,5 +1,7 @@
 "use client";
 
+import GiftInsightCard from "@/components/GiftInsightCard";
+
 import ShareGiftButton from "@/components/ShareGiftButton";
 import SaveGiftResultButton from "@/components/SaveGiftResultButton";
 import FavoriteGiftButton from "@/components/FavoriteGiftButton";
@@ -330,6 +332,8 @@ function GiftResultCard({
           >
             Bu Hediye İçin Özel Not Oluştur
           </Link>
+
+                    <GiftInsightCard gift={gift} />
 
           <ShareGiftButton
                               title={gift.title}

@@ -220,6 +220,30 @@ export default function GiftToolsClient() {
           </div>
         </div>
 
+
+        <div className="mt-8 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Yeni Özellik
+          </p>
+
+          <h2 className="mt-3 text-3xl font-black text-[#2b1b1b]">
+            Hediye Karakter Kartı
+          </h2>
+
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a]">
+            Hediye sonuçlarında artık hediyenin ne anlattığını, risk seviyesini,
+            kişisellik puanını ve nasıl verilmesi gerektiğini görebilirsin.
+          </p>
+
+          <Link
+            href="/hediye-bul"
+            className="mt-5 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+          >
+            Hediye Bul ve Karakter Kartını Gör
+          </Link>
+        </div>
+
+
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <article className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
             <p className="text-sm font-black text-pink-600">
