@@ -209,6 +209,13 @@ export default function BloglarimClient() {
                       </Link>
                     )}
 
+                    <Link
+                      href={`/blog/duzenle/${post.id}`}
+                      className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+                    >
+                      Düzenle
+                    </Link>
+
                     <button
                       onClick={() => deletePost(post.id)}
                       className="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-600"

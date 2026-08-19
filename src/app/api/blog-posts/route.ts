@@ -3,13 +3,20 @@ import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
-function getSupabaseWithToken(token?: string) {
+function getEnv() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !anonKey) {
     throw new Error("Supabase environment variables are missing.");
   }
+
+  return { supabaseUrl, anonKey, serviceRoleKey };
+}
+
+function getAnonSupabase(token?: string) {
+  const { supabaseUrl, anonKey } = getEnv();
 
   return createClient(supabaseUrl, anonKey, {
     global: token
@@ -20,6 +27,16 @@ function getSupabaseWithToken(token?: string) {
         }
       : undefined,
   });
+}
+
+function getAdminSupabase() {
+  const { supabaseUrl, serviceRoleKey } = getEnv();
+
+  if (!serviceRoleKey) {
+    throw new Error("Supabase service role key is missing.");
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey);
 }
 
 function makeSlug(title: string) {
@@ -42,16 +59,16 @@ async function getUser(request: NextRequest) {
   const token = authHeader.replace("Bearer ", "");
 
   if (!token) {
-    return { user: null, token: "", supabase: getSupabaseWithToken() };
+    return { user: null, token: "" };
   }
 
-  const supabase = getSupabaseWithToken(token);
+  const supabase = getAnonSupabase(token);
 
   const {
     data: { user },
   } = await supabase.auth.getUser(token);
 
-  return { user, token, supabase };
+  return { user, token };
 }
 
 export async function GET(request: NextRequest) {
@@ -62,7 +79,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category") || "";
 
     const auth = await getUser(request);
-    const supabase = auth.supabase;
+    const supabase = getAdminSupabase();
 
     let query = supabase
       .from("blog_posts")
@@ -83,7 +100,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      query = query.or(`title.ilike.%${search}%,excerpt.ilike.%${search}%,content.ilike.%${search}%`);
+      query = query.or(
+        `title.ilike.%${search}%,excerpt.ilike.%${search}%,content.ilike.%${search}%`
+      );
     }
 
     if (category) {
@@ -107,7 +126,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : "Blog yazıları alınamadı.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Blog yazıları alınamadı.",
       },
       { status: 500 }
     );
@@ -143,8 +165,9 @@ export async function POST(request: NextRequest) {
 
     const baseSlug = makeSlug(title) || "blog-yazisi";
     const slug = `${baseSlug}-${Date.now().toString(36)}`;
+    const supabase = getAdminSupabase();
 
-    const { data, error } = await auth.supabase
+    const { data, error } = await supabase
       .from("blog_posts")
       .insert({
         author_id: auth.user.id,
@@ -174,7 +197,103 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error: error instanceof Error ? error.message : "Blog yazısı kaydedilemedi.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Blog yazısı kaydedilemedi.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const auth = await getUser(request);
+
+    if (!auth.user) {
+      return NextResponse.json(
+        { ok: false, error: "Düzenlemek için giriş yapmalısın." },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+
+    const id = String(body?.id || "");
+    const title = String(body?.title || "").trim();
+    const excerpt = String(body?.excerpt || "").trim();
+    const content = String(body?.content || "").trim();
+    const category = String(body?.category || "Genel").trim();
+    const coverImageUrl = String(body?.coverImageUrl || "").trim();
+    const saveAsDraft = Boolean(body?.saveAsDraft);
+
+    if (!id || !title || !content) {
+      return NextResponse.json(
+        { ok: false, error: "Eksik blog bilgisi." },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getAdminSupabase();
+
+    const { data: existingPost, error: findError } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (findError || !existingPost) {
+      return NextResponse.json(
+        { ok: false, error: "Blog yazısı bulunamadı." },
+        { status: 404 }
+      );
+    }
+
+    if (existingPost.author_id !== auth.user.id) {
+      return NextResponse.json(
+        { ok: false, error: "Bu blog yazısını düzenleyemezsin." },
+        { status: 403 }
+      );
+    }
+
+    const nextStatus = saveAsDraft ? "draft" : "pending";
+
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .update({
+        title,
+        excerpt: excerpt || content.slice(0, 160),
+        content,
+        category: category || "Genel",
+        cover_image_url: coverImageUrl || null,
+        status: nextStatus,
+        admin_note: null,
+        updated_at: new Date().toISOString(),
+        published_at: null,
+      })
+      .eq("id", id)
+      .eq("author_id", auth.user.id)
+      .select("*")
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      post: data,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          error instanceof Error ? error.message : "Blog yazısı güncellenemedi.",
       },
       { status: 500 }
     );
@@ -202,7 +321,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { error } = await auth.supabase
+    const supabase = getAdminSupabase();
+
+    const { error } = await supabase
       .from("blog_posts")
       .delete()
       .eq("id", id)

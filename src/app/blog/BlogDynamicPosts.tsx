@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 type BlogPost = Record<string, any>;
@@ -17,7 +17,28 @@ function formatDate(value?: string) {
 
 export default function BlogDynamicPosts() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
   const [loading, setLoading] = useState(true);
+
+  const categories = useMemo(() => {
+    const values = posts
+      .map((post) => post.category)
+      .filter(Boolean)
+      .filter((value, index, array) => array.indexOf(value) === index);
+
+    return values;
+  }, [posts]);
+
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      const text = `${post.title || ""} ${post.excerpt || ""} ${post.content || ""}`.toLowerCase();
+      const searchOk = !search.trim() || text.includes(search.toLowerCase());
+      const categoryOk = category === "all" || post.category === category;
+
+      return searchOk && categoryOk;
+    });
+  }, [posts, search, category]);
 
   useEffect(() => {
     loadPosts();
@@ -64,16 +85,38 @@ export default function BlogDynamicPosts() {
         </Link>
       </div>
 
+      <div className="mt-6 grid gap-3 rounded-[2rem] border border-pink-100 bg-white p-4 shadow-sm md:grid-cols-[1fr_auto]">
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Topluluk yazılarında ara..."
+          className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+        />
+
+        <select
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+        >
+          <option value="all">Tüm Kategoriler</option>
+          {categories.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {loading ? (
         <div className="mt-6 rounded-[2rem] bg-white p-8 text-center shadow-sm">
           <p className="font-black text-[#6b4a4a]">
             Topluluk yazıları yükleniyor...
           </p>
         </div>
-      ) : posts.length === 0 ? (
+      ) : filteredPosts.length === 0 ? (
         <div className="mt-6 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
           <h3 className="text-2xl font-black text-[#2b1b1b]">
-            Henüz onaylanmış topluluk yazısı yok.
+            Henüz uygun topluluk yazısı yok.
           </h3>
 
           <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-7 text-[#6b4a4a]">
@@ -90,7 +133,7 @@ export default function BlogDynamicPosts() {
         </div>
       ) : (
         <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}

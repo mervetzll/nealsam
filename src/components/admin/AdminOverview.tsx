@@ -126,6 +126,20 @@ export default function AdminOverview() {
           </p>
         </a>
 
+      
+        <a
+          href="/admin/blog/comments"
+          className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+        >
+          <p className="text-sm font-black text-pink-600">Yorumlar</p>
+          <h3 className="mt-2 text-xl font-black text-[#2b1b1b]">
+            Blog Yorumları
+          </h3>
+          <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
+            Blog yorumlarını gizle, yayına al veya sil.
+          </p>
+        </a>
+
       </div>
 
         <div className="flex flex-wrap gap-3">
