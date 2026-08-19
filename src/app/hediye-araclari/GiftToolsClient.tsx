@@ -244,6 +244,30 @@ export default function GiftToolsClient() {
         </div>
 
 
+
+        <div className="mt-8 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Karar Yardımcısı
+          </p>
+
+          <h2 className="mt-3 text-3xl font-black text-[#2b1b1b]">
+            Hediye Karşılaştırma
+          </h2>
+
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a]">
+            İki hediye arasında kaldıysan kişisellik, risk, duygusallık,
+            kullanışlılık ve sürpriz etkisine göre karşılaştır.
+          </p>
+
+          <Link
+            href="/hediye-karsilastir"
+            className="mt-5 inline-flex rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white"
+          >
+            Hediyeleri Karşılaştır
+          </Link>
+        </div>
+
+
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <article className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
             <p className="text-sm font-black text-pink-600">
