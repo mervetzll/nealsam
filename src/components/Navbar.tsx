@@ -10,6 +10,7 @@ const navItems = [
   { href: "/", label: "Ana Sayfa" },
   { href: "/hediye-bul", label: "Hediye Bul" },
   { href: "/deneyim", label: "Deneyim" },
+  { label: "Hediye Araçları", href: "/hediye-araclari" },
   { href: "/paketler", label: "Paketler" },
   { href: "/blog", label: "Rehber / Blog" },
   { href: "/yardim", label: "Yardım" },
