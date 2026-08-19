@@ -92,7 +92,7 @@ export default function ShareExperienceClient({
   }
 
   async function generateQr() {
-    const currentUrl = `${window.location.origin}/not/${experienceId}?bg=${themeId}`;
+    const currentUrl = `${window.location.origin}/n/${experienceId}?bg=${themeId}`;
     setShareUrl(currentUrl);
 
     try {
@@ -231,7 +231,7 @@ export default function ShareExperienceClient({
             </h2>
 
             <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
-              İstediğin arka planı seç. QR kod okutulduğunda sadece sade not kartı açılır.
+              İstediğin arka planı seç. QR okutulduğunda karşı taraf sadece özel not kartını görür.
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
