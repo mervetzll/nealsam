@@ -178,12 +178,21 @@ export default function KaydettiklerimClient() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => copyText(item.generated_text)}
-                    className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
-                  >
-                    Metni Kopyala
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/deneyim/paylas/${item.id}`}
+                      className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+                    >
+                      QR Kod / Paylaş
+                    </Link>
+
+                    <button
+                      onClick={() => copyText(item.generated_text)}
+                      className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
+                    >
+                      Metni Kopyala
+                    </button>
+                  </div>
                 </div>
 
                 <pre className="mt-5 whitespace-pre-wrap rounded-[1.5rem] bg-[#fff4ef] p-5 text-sm font-semibold leading-7 text-[#2b1b1b]">
