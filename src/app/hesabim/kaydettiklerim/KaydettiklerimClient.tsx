@@ -119,6 +119,63 @@ export default function KaydettiklerimClient() {
     }
   }
 
+  async function deleteItem(type: TabKey, id?: string) {
+    if (!id) {
+      alert("Silinecek kayıt bulunamadı.");
+      return;
+    }
+
+    const confirmed = confirm("Bu kaydı silmek istediğine emin misin?");
+
+    if (!confirmed) return;
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        alert("Silmek için giriş yapmalısın.");
+        return;
+      }
+
+      const response = await fetch("/api/my-saved-items", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          id,
+          type,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data?.ok) {
+        alert(data?.error || "Kayıt silinemedi.");
+        return;
+      }
+
+      if (type === "premium") {
+        setPremiumExperiences((items) => items.filter((item) => item.id !== id));
+      }
+
+      if (type === "favorites") {
+        setFavoriteGifts((items) => items.filter((item) => item.id !== id));
+      }
+
+      if (type === "saved") {
+        setSavedGiftResults((items) => items.filter((item) => item.id !== id));
+      }
+
+      alert("Kayıt silindi.");
+    } catch {
+      alert("Kayıt silinemedi.");
+    }
+  }
+
   const tabs = useMemo(
     () => [
       {
@@ -231,6 +288,7 @@ export default function KaydettiklerimClient() {
                 index={index}
                 activeTab={activeTab}
                 onCopy={copyText}
+                onDelete={deleteItem}
               />
             ))}
           </div>
@@ -274,11 +332,13 @@ function SavedCard({
   index,
   activeTab,
   onCopy,
+  onDelete,
 }: {
   item: SavedItem;
   index: number;
   activeTab: TabKey;
   onCopy: (text: string) => void;
+  onDelete: (type: TabKey, id?: string) => void;
 }) {
   const title = getTitle(item, `Kayıt ${index + 1}`);
   const subtitle = getSubtitle(item);
@@ -344,6 +404,14 @@ function SavedCard({
           >
             Yeni Oluştur
           </Link>
+
+          <button
+            type="button"
+            onClick={() => onDelete(activeTab, item.id)}
+            className="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-black text-red-600"
+          >
+            Kaydı Sil
+          </button>
         </div>
       </div>
 
