@@ -65,6 +65,18 @@ export async function POST(request: NextRequest) {
     const huntStyle = String(body?.huntStyle || "");
     const huntDetail = String(body?.huntDetail || "");
 
+    const lockEnabled = Boolean(body?.lockEnabled);
+    const lockQuestion = String(body?.lockQuestion || "");
+    const lockAnswer = String(body?.lockAnswer || "");
+    const unlockAt = String(body?.unlockAt || "");
+
+    const moodEnabled = Boolean(body?.moodEnabled);
+    const moodHappy = String(body?.moodHappy || "");
+    const moodEmotional = String(body?.moodEmotional || "");
+    const moodRomantic = String(body?.moodRomantic || "");
+    const moodFunny = String(body?.moodFunny || "");
+    const moodNostalgic = String(body?.moodNostalgic || "");
+
     if (!conceptKey || !conceptTitle || !generatedText) {
       return NextResponse.json(
         { ok: false, error: "Kaydedilecek deneyim eksik." },
@@ -91,6 +103,16 @@ export async function POST(request: NextRequest) {
         hunt_difficulty: huntDifficulty || null,
         hunt_style: huntStyle || null,
         hunt_detail: huntDetail || null,
+        lock_enabled: lockEnabled,
+        lock_question: lockQuestion || null,
+        lock_answer: lockAnswer || null,
+        unlock_at: unlockAt || null,
+        mood_enabled: moodEnabled,
+        mood_happy: moodHappy || null,
+        mood_emotional: moodEmotional || null,
+        mood_romantic: moodRomantic || null,
+        mood_funny: moodFunny || null,
+        mood_nostalgic: moodNostalgic || null,
       })
       .select("*")
       .single();

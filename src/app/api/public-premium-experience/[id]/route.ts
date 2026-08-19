@@ -38,7 +38,7 @@ export async function GET(
     const { data, error } = await supabase
       .from("saved_premium_experiences")
       .select(
-        "id, concept_key, concept_title, person_name, sender_name, relation, gift_name, tone, note_length, special_detail, generated_text, hunt_location, hunt_steps, hunt_difficulty, hunt_style, hunt_detail, created_at"
+        "id, concept_key, concept_title, person_name, sender_name, relation, gift_name, tone, note_length, special_detail, generated_text, hunt_location, hunt_steps, hunt_difficulty, hunt_style, hunt_detail, lock_enabled, lock_question, lock_answer, unlock_at, mood_enabled, mood_happy, mood_emotional, mood_romantic, mood_funny, mood_nostalgic, created_at"
       )
       .eq("id", id)
       .single();

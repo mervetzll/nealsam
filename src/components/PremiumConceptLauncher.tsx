@@ -275,6 +275,18 @@ export default function PremiumConceptLauncher() {
   const [huntStyle, setHuntStyle] = useState("cute");
   const [huntDetail, setHuntDetail] = useState("");
 
+  const [lockEnabled, setLockEnabled] = useState(false);
+  const [lockQuestion, setLockQuestion] = useState("");
+  const [lockAnswer, setLockAnswer] = useState("");
+  const [unlockAt, setUnlockAt] = useState("");
+
+  const [moodEnabled, setMoodEnabled] = useState(false);
+  const [moodHappy, setMoodHappy] = useState("");
+  const [moodEmotional, setMoodEmotional] = useState("");
+  const [moodRomantic, setMoodRomantic] = useState("");
+  const [moodFunny, setMoodFunny] = useState("");
+  const [moodNostalgic, setMoodNostalgic] = useState("");
+
   const [generatedText, setGeneratedText] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState("");
@@ -489,6 +501,113 @@ export default function PremiumConceptLauncher() {
                   className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
                 />
               </label>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-pink-100 bg-[#fff4ef] p-5">
+              <h3 className="text-lg font-black text-[#2b1b1b]">
+                QR Sürpriz Ayarları
+              </h3>
+
+              <div className="mt-4 grid gap-4">
+                <label className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-[#2b1b1b]">
+                  <input
+                    type="checkbox"
+                    checked={lockEnabled}
+                    onChange={(event) => setLockEnabled(event.target.checked)}
+                  />
+                  Gizli mesaj kilidi olsun
+                </label>
+
+                {lockEnabled && (
+                  <div className="grid gap-3 rounded-2xl bg-white p-4">
+                    <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                      Kilit sorusu
+                      <input
+                        value={lockQuestion}
+                        onChange={(event) => setLockQuestion(event.target.value)}
+                        placeholder="Örn: İlk kahvemizi nerede içmiştik?"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                    </label>
+
+                    <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
+                      Doğru cevap
+                      <input
+                        value={lockAnswer}
+                        onChange={(event) => setLockAnswer(event.target.value)}
+                        placeholder="Örn: Bebek"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                    </label>
+                  </div>
+                )}
+
+                <label className="grid gap-2 rounded-2xl bg-white p-4 text-sm font-black text-[#2b1b1b]">
+                  Zaman kilidi
+                  <input
+                    type="datetime-local"
+                    value={unlockAt}
+                    onChange={(event) => setUnlockAt(event.target.value)}
+                    className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                  />
+                  <span className="text-xs font-semibold text-[#8a6a6a]">
+                    Boş bırakırsan mesaj hemen açılır.
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-[#2b1b1b]">
+                  <input
+                    type="checkbox"
+                    checked={moodEnabled}
+                    onChange={(event) => setMoodEnabled(event.target.checked)}
+                  />
+                  Alıcı duygu seçsin
+                </label>
+
+                {moodEnabled && (
+                  <div className="grid gap-3 rounded-2xl bg-white p-4">
+                    <textarea
+                      value={moodHappy}
+                      onChange={(event) => setMoodHappy(event.target.value)}
+                      placeholder="Mutlu seçerse görünecek mesaj..."
+                      rows={3}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+
+                    <textarea
+                      value={moodEmotional}
+                      onChange={(event) => setMoodEmotional(event.target.value)}
+                      placeholder="Duygusal seçerse görünecek mesaj..."
+                      rows={3}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+
+                    <textarea
+                      value={moodRomantic}
+                      onChange={(event) => setMoodRomantic(event.target.value)}
+                      placeholder="Romantik seçerse görünecek mesaj..."
+                      rows={3}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+
+                    <textarea
+                      value={moodFunny}
+                      onChange={(event) => setMoodFunny(event.target.value)}
+                      placeholder="Gülümseten seçerse görünecek mesaj..."
+                      rows={3}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+
+                    <textarea
+                      value={moodNostalgic}
+                      onChange={(event) => setMoodNostalgic(event.target.value)}
+                      placeholder="Nostaljik seçerse görünecek mesaj..."
+                      rows={3}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             {isHunt ? (

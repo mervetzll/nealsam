@@ -23,10 +23,33 @@ type Experience = {
   hunt_difficulty: string | null;
   hunt_style: string | null;
   hunt_detail: string | null;
+  lock_enabled: boolean | null;
+  lock_question: string | null;
+  lock_answer: string | null;
+  unlock_at: string | null;
+  mood_enabled: boolean | null;
+  mood_happy: string | null;
+  mood_emotional: string | null;
+  mood_romantic: string | null;
+  mood_funny: string | null;
+  mood_nostalgic: string | null;
   created_at: string;
 };
 
 type TemplateMode = "classic" | "image";
+
+function normalizeAnswer(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .replace(/\s+/g, " ");
+}
 
 function getImageTextColor(templateId: string) {
   if (
@@ -55,14 +78,24 @@ function parseHuntSteps(text: string) {
     .map((item) => item.trim())
     .filter(Boolean);
 
-  if (parts.length <= 1) {
-    return [text];
-  }
+  if (parts.length <= 1) return [text];
 
-  const intro = parts[0];
-  const steps = parts.slice(1);
+  return [parts[0], ...parts.slice(1)];
+}
 
-  return [intro, ...steps];
+function formatCountdown(target: string) {
+  const targetTime = new Date(target).getTime();
+  const now = Date.now();
+  const diff = targetTime - now;
+
+  if (diff <= 0) return "";
+
+  const totalMinutes = Math.floor(diff / 1000 / 60);
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${days} gün ${hours} saat ${minutes} dakika`;
 }
 
 export default function UnbrandedNoteClient({
@@ -83,7 +116,21 @@ export default function UnbrandedNoteClient({
   const [decorColor, setDecorColor] = useState("#F472B6");
   const [templateId, setTemplateId] = useState("peach-blossom");
   const [textColor, setTextColor] = useState("");
+
   const [huntIndex, setHuntIndex] = useState(0);
+  const [answer, setAnswer] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [unlockError, setUnlockError] = useState("");
+  const [selectedMood, setSelectedMood] = useState("");
+  const [nowTick, setNowTick] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setNowTick(Date.now());
+    }, 30000);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -113,10 +160,33 @@ export default function UnbrandedNoteClient({
   }, [templateId]);
 
   const isHunt = experience?.concept_key === "hediye-avi";
+
   const huntSteps = useMemo(() => {
     if (!experience) return [];
     return parseHuntSteps(experience.generated_text);
   }, [experience]);
+
+  const isTimeLocked = useMemo(() => {
+    if (!experience?.unlock_at) return false;
+    return new Date(experience.unlock_at).getTime() > nowTick;
+  }, [experience, nowTick]);
+
+  const countdown = useMemo(() => {
+    if (!experience?.unlock_at) return "";
+    return formatCountdown(experience.unlock_at);
+  }, [experience, nowTick]);
+
+  const moodText = useMemo(() => {
+    if (!experience || !selectedMood) return "";
+
+    if (selectedMood === "happy") return experience.mood_happy || "";
+    if (selectedMood === "emotional") return experience.mood_emotional || "";
+    if (selectedMood === "romantic") return experience.mood_romantic || "";
+    if (selectedMood === "funny") return experience.mood_funny || "";
+    if (selectedMood === "nostalgic") return experience.mood_nostalgic || "";
+
+    return "";
+  }, [experience, selectedMood]);
 
   useEffect(() => {
     loadExperience();
@@ -150,10 +220,28 @@ export default function UnbrandedNoteClient({
       }
 
       setExperience(data.experience);
+
+      if (!data.experience?.lock_enabled) {
+        setIsUnlocked(true);
+      }
     } catch {
       setMessage("Not yüklenemedi.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function checkAnswer() {
+    if (!experience?.lock_answer) {
+      setIsUnlocked(true);
+      return;
+    }
+
+    if (normalizeAnswer(answer) === normalizeAnswer(experience.lock_answer)) {
+      setIsUnlocked(true);
+      setUnlockError("");
+    } else {
+      setUnlockError("Cevap doğru değil gibi. Bir daha dene 💌");
     }
   }
 
@@ -177,11 +265,123 @@ export default function UnbrandedNoteClient({
     );
   }
 
+  if (isTimeLocked) {
+    return (
+      <main className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#fff4ef] px-5 text-[#2b1b1b]">
+        <section className="max-w-xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Zaman Kilitli Mesaj
+          </p>
+
+          <h1 className="mt-4 text-3xl font-black">
+            Bu sürpriz henüz açılmadı
+          </h1>
+
+          <p className="mt-4 text-sm font-semibold leading-7 text-[#6b4a4a]">
+            Mesajın açılmasına:
+          </p>
+
+          <p className="mt-3 rounded-2xl bg-[#fff4ef] px-5 py-4 text-2xl font-black text-pink-700">
+            {countdown}
+          </p>
+
+          <p className="mt-4 text-xs font-semibold text-[#8a6a6a]">
+            Zamanı gelince bu QR kodu tekrar açabilirsin.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  if (experience.lock_enabled && !isUnlocked) {
+    return (
+      <main className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#fff4ef] px-5 text-[#2b1b1b]">
+        <section className="max-w-xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Gizli Mesaj
+          </p>
+
+          <h1 className="mt-4 text-3xl font-black">
+            Bu mesajı açmak için cevabı bilmelisin
+          </h1>
+
+          <p className="mt-5 rounded-2xl bg-[#fff4ef] p-5 text-sm font-black leading-7 text-[#2b1b1b]">
+            {experience.lock_question || "Bu mesajın şifresi ne?"}
+          </p>
+
+          <input
+            value={answer}
+            onChange={(event) => setAnswer(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") checkAnswer();
+            }}
+            placeholder="Cevabı yaz..."
+            className="mt-5 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-center text-sm font-bold outline-none"
+          />
+
+          {unlockError && (
+            <p className="mt-3 text-sm font-black text-pink-700">
+              {unlockError}
+            </p>
+          )}
+
+          <button
+            onClick={checkAnswer}
+            className="mt-5 w-full rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+          >
+            Mesajı Aç
+          </button>
+        </section>
+      </main>
+    );
+  }
+
+  if (experience.mood_enabled && !selectedMood && !isHunt) {
+    return (
+      <main className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#fff4ef] px-5 text-[#2b1b1b]">
+        <section className="max-w-2xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Duygu Seçimli Not
+          </p>
+
+          <h1 className="mt-4 text-3xl font-black">
+            Bugün nasıl hissetmek istiyorsun?
+          </h1>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            {[
+              ["happy", "Mutlu"],
+              ["emotional", "Duygusal"],
+              ["romantic", "Romantik"],
+              ["funny", "Gülümseten"],
+              ["nostalgic", "Nostaljik"],
+            ].map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setSelectedMood(key)}
+                className="rounded-2xl bg-[#fff4ef] px-5 py-4 text-sm font-black text-[#2b1b1b] transition hover:bg-pink-100"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   const finalTextColor =
     textColor || (mode === "image" ? getImageTextColor(templateId) : "");
 
   const huntText = huntSteps[huntIndex] || experience.generated_text;
   const isLastHuntStep = huntIndex >= huntSteps.length - 1;
+
+  const visibleMessage =
+    experience.mood_enabled && moodText && !isHunt
+      ? moodText
+      : isHunt
+        ? huntText
+        : experience.generated_text;
 
   const CardContent = (
     <div className="absolute inset-x-[11%] bottom-[10%] top-[18%] flex flex-col items-center justify-center text-center">
@@ -189,7 +389,7 @@ export default function UnbrandedNoteClient({
         className="text-xs font-black uppercase tracking-[0.24em] opacity-80"
         style={{ color: finalTextColor || undefined }}
       >
-        {isHunt ? "Hediye Avı" : "Özel Mesaj"}
+        {isHunt ? "Hediye Avı" : experience.mood_enabled ? "Duygu Notu" : "Özel Mesaj"}
       </p>
 
       <h1
@@ -215,7 +415,7 @@ export default function UnbrandedNoteClient({
         className="note-message mt-5 max-h-[64%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/60 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
         style={{ color: finalTextColor || undefined }}
       >
-        {isHunt ? huntText : experience.generated_text}
+        {visibleMessage}
       </pre>
 
       {isHunt && !shouldPrint && huntSteps.length > 1 && (
