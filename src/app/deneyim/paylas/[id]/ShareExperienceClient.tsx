@@ -92,7 +92,7 @@ export default function ShareExperienceClient({
   }
 
   async function generateQr() {
-    const currentUrl = `${window.location.origin}/deneyim/paylas/${experienceId}?bg=${themeId}`;
+    const currentUrl = `${window.location.origin}/not/${experienceId}?bg=${themeId}`;
     setShareUrl(currentUrl);
 
     try {
@@ -231,7 +231,7 @@ export default function ShareExperienceClient({
             </h2>
 
             <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
-              İstediğin arka planı seç. Seçtiğin tasarım linke ve QR koda da işlenir.
+              İstediğin arka planı seç. QR kod okutulduğunda sadece sade not kartı açılır.
             </p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
@@ -275,7 +275,7 @@ export default function ShareExperienceClient({
                   onClick={copyShareUrl}
                   className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
                 >
-                  Linki Kopyala
+                  Not Linkini Kopyala
                 </button>
 
                 <button
