@@ -287,6 +287,25 @@ export default function PremiumConceptLauncher() {
   const [moodFunny, setMoodFunny] = useState("");
   const [moodNostalgic, setMoodNostalgic] = useState("");
 
+  const [surpriseEnabled, setSurpriseEnabled] = useState(false);
+  const [surpriseBox1, setSurpriseBox1] = useState("");
+  const [surpriseBox2, setSurpriseBox2] = useState("");
+  const [surpriseBox3, setSurpriseBox3] = useState("");
+  const [surpriseBox4, setSurpriseBox4] = useState("");
+
+  const [quizEnabled, setQuizEnabled] = useState(false);
+  const [quizQ1, setQuizQ1] = useState("");
+  const [quizA1, setQuizA1] = useState("");
+  const [quizQ2, setQuizQ2] = useState("");
+  const [quizA2, setQuizA2] = useState("");
+  const [quizQ3, setQuizQ3] = useState("");
+  const [quizA3, setQuizA3] = useState("");
+
+  const [memoryEnabled, setMemoryEnabled] = useState(false);
+  const [memoryTitle, setMemoryTitle] = useState("");
+  const [memoryDetail, setMemoryDetail] = useState("");
+  const [memoryEmoji, setMemoryEmoji] = useState("💌");
+
   const [generatedText, setGeneratedText] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState("");
@@ -563,6 +582,150 @@ export default function PremiumConceptLauncher() {
                   />
                   Alıcı duygu seçsin
                 </label>
+
+                <label className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-[#2b1b1b]">
+                  <input
+                    type="checkbox"
+                    checked={surpriseEnabled}
+                    onChange={(event) => setSurpriseEnabled(event.target.checked)}
+                  />
+                  Sürpriz kutusu modu olsun
+                </label>
+
+                {surpriseEnabled && (
+                  <div className="grid gap-3 rounded-2xl bg-white p-4">
+                    <textarea
+                      value={surpriseBox1}
+                      onChange={(event) => setSurpriseBox1(event.target.value)}
+                      placeholder="1. kutu: Minik mesaj..."
+                      rows={2}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+
+                    <textarea
+                      value={surpriseBox2}
+                      onChange={(event) => setSurpriseBox2(event.target.value)}
+                      placeholder="2. kutu: Anı / ipucu..."
+                      rows={2}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+
+                    <textarea
+                      value={surpriseBox3}
+                      onChange={(event) => setSurpriseBox3(event.target.value)}
+                      placeholder="3. kutu: Tatlı detay..."
+                      rows={2}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+
+                    <textarea
+                      value={surpriseBox4}
+                      onChange={(event) => setSurpriseBox4(event.target.value)}
+                      placeholder="4. kutu: Final notu..."
+                      rows={2}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+                  </div>
+                )}
+
+                <label className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-[#2b1b1b]">
+                  <input
+                    type="checkbox"
+                    checked={quizEnabled}
+                    onChange={(event) => setQuizEnabled(event.target.checked)}
+                  />
+                  Mini quiz olsun
+                </label>
+
+                {quizEnabled && (
+                  <div className="grid gap-3 rounded-2xl bg-white p-4">
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <input
+                        value={quizQ1}
+                        onChange={(event) => setQuizQ1(event.target.value)}
+                        placeholder="Soru 1"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                      <input
+                        value={quizA1}
+                        onChange={(event) => setQuizA1(event.target.value)}
+                        placeholder="Cevap 1"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                    </div>
+
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <input
+                        value={quizQ2}
+                        onChange={(event) => setQuizQ2(event.target.value)}
+                        placeholder="Soru 2"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                      <input
+                        value={quizA2}
+                        onChange={(event) => setQuizA2(event.target.value)}
+                        placeholder="Cevap 2"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                    </div>
+
+                    <div className="grid gap-2 md:grid-cols-2">
+                      <input
+                        value={quizQ3}
+                        onChange={(event) => setQuizQ3(event.target.value)}
+                        placeholder="Soru 3"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                      <input
+                        value={quizA3}
+                        onChange={(event) => setQuizA3(event.target.value)}
+                        placeholder="Cevap 3"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                    </div>
+
+                    <p className="text-xs font-semibold text-[#8a6a6a]">
+                      Cevaplar oyun hissi içindir. Yanlış cevap verse bile sonunda not açılır.
+                    </p>
+                  </div>
+                )}
+
+                <label className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-[#2b1b1b]">
+                  <input
+                    type="checkbox"
+                    checked={memoryEnabled}
+                    onChange={(event) => setMemoryEnabled(event.target.checked)}
+                  />
+                  Anı kartı eklensin
+                </label>
+
+                {memoryEnabled && (
+                  <div className="grid gap-3 rounded-2xl bg-white p-4">
+                    <div className="grid gap-3 md:grid-cols-[100px_1fr]">
+                      <input
+                        value={memoryEmoji}
+                        onChange={(event) => setMemoryEmoji(event.target.value)}
+                        placeholder="💌"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-center text-sm font-bold outline-none"
+                      />
+
+                      <input
+                        value={memoryTitle}
+                        onChange={(event) => setMemoryTitle(event.target.value)}
+                        placeholder="Anı başlığı: İlk kahvemiz"
+                        className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+                      />
+                    </div>
+
+                    <textarea
+                      value={memoryDetail}
+                      onChange={(event) => setMemoryDetail(event.target.value)}
+                      placeholder="Bu hediye hangi anıyı temsil ediyor?"
+                      rows={3}
+                      className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold leading-6 outline-none"
+                    />
+                  </div>
+                )}
 
                 {moodEnabled && (
                   <div className="grid gap-3 rounded-2xl bg-white p-4">

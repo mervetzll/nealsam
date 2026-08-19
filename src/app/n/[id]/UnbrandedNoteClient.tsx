@@ -6,6 +6,11 @@ import { noteThemes } from "@/data/noteThemes";
 import { noteImageThemes } from "@/data/noteImageThemes";
 import NoteDecorations from "@/components/NoteDecorations";
 
+type QuizItem = {
+  question?: string;
+  answer?: string;
+};
+
 type Experience = {
   id: string;
   concept_key: string;
@@ -33,6 +38,14 @@ type Experience = {
   mood_romantic: string | null;
   mood_funny: string | null;
   mood_nostalgic: string | null;
+  surprise_enabled: boolean | null;
+  surprise_boxes: string[] | null;
+  quiz_enabled: boolean | null;
+  quiz_items: QuizItem[] | null;
+  memory_enabled: boolean | null;
+  memory_title: string | null;
+  memory_detail: string | null;
+  memory_emoji: string | null;
   created_at: string;
 };
 
@@ -98,6 +111,21 @@ function formatCountdown(target: string) {
   return `${days} gün ${hours} saat ${minutes} dakika`;
 }
 
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => String(item || "")).filter(Boolean);
+}
+
+function asQuizArray(value: unknown): QuizItem[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => ({
+      question: String(item?.question || ""),
+      answer: String(item?.answer || ""),
+    }))
+    .filter((item) => item.question || item.answer);
+}
+
 export default function UnbrandedNoteClient({
   experienceId,
 }: {
@@ -123,6 +151,11 @@ export default function UnbrandedNoteClient({
   const [unlockError, setUnlockError] = useState("");
   const [selectedMood, setSelectedMood] = useState("");
   const [nowTick, setNowTick] = useState(Date.now());
+
+  const [boxIndex, setBoxIndex] = useState(-1);
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [quizDone, setQuizDone] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, string>>({});
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -164,6 +197,14 @@ export default function UnbrandedNoteClient({
   const huntSteps = useMemo(() => {
     if (!experience) return [];
     return parseHuntSteps(experience.generated_text);
+  }, [experience]);
+
+  const surpriseBoxes = useMemo(() => {
+    return asStringArray(experience?.surprise_boxes);
+  }, [experience]);
+
+  const quizItems = useMemo(() => {
+    return asQuizArray(experience?.quiz_items);
   }, [experience]);
 
   const isTimeLocked = useMemo(() => {
@@ -243,6 +284,10 @@ export default function UnbrandedNoteClient({
     } else {
       setUnlockError("Cevap doğru değil gibi. Bir daha dene 💌");
     }
+  }
+
+  function finishQuiz() {
+    setQuizDone(true);
   }
 
   if (loading) {
@@ -336,6 +381,121 @@ export default function UnbrandedNoteClient({
     );
   }
 
+  if (experience.quiz_enabled && quizItems.length > 0 && !quizDone) {
+    return (
+      <main className="fixed inset-0 z-[9999] overflow-y-auto bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+        <section className="mx-auto max-w-2xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Mini Quiz
+          </p>
+
+          <h1 className="mt-4 text-3xl font-black">
+            Beni ne kadar tanıyorsun?
+          </h1>
+
+          <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
+            Hediyeye ulaşmadan önce küçük bir oyun var. Cevaplar eğlence amaçlıdır.
+          </p>
+
+          {!quizStarted ? (
+            <button
+              onClick={() => setQuizStarted(true)}
+              className="mt-6 rounded-full bg-pink-600 px-8 py-4 text-sm font-black text-white"
+            >
+              Quiz’e Başla
+            </button>
+          ) : (
+            <div className="mt-6 grid gap-4 text-left">
+              {quizItems.map((item, index) => (
+                <div key={index} className="rounded-2xl bg-[#fff4ef] p-5">
+                  <p className="text-sm font-black text-[#2b1b1b]">
+                    {index + 1}. {item.question || "Soru"}
+                  </p>
+
+                  <input
+                    value={quizAnswers[index] || ""}
+                    onChange={(event) =>
+                      setQuizAnswers((current) => ({
+                        ...current,
+                        [index]: event.target.value,
+                      }))
+                    }
+                    placeholder="Cevabını yaz..."
+                    className="mt-3 w-full rounded-2xl border border-pink-100 bg-white px-4 py-3 text-sm font-bold outline-none"
+                  />
+
+                  {quizAnswers[index] && item.answer && (
+                    <p className="mt-3 text-xs font-bold text-[#8a6a6a]">
+                      Cevap: {item.answer}
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              <button
+                onClick={finishQuiz}
+                className="rounded-full bg-pink-600 px-8 py-4 text-sm font-black text-white"
+              >
+                Sürprizi Aç
+              </button>
+            </div>
+          )}
+        </section>
+      </main>
+    );
+  }
+
+  if (experience.surprise_enabled && surpriseBoxes.length > 0 && boxIndex < surpriseBoxes.length - 1) {
+    return (
+      <main className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#fff4ef] px-5 text-[#2b1b1b]">
+        <section className="max-w-2xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            Sürpriz Kutusu
+          </p>
+
+          <h1 className="mt-4 text-3xl font-black">
+            Küçük kutuları sırayla aç
+          </h1>
+
+          {boxIndex >= 0 ? (
+            <div className="mt-6 rounded-[2rem] bg-[#fff4ef] p-6">
+              <p className="text-5xl">🎁</p>
+              <p className="mt-4 whitespace-pre-wrap text-sm font-black leading-7 text-[#2b1b1b]">
+                {surpriseBoxes[boxIndex]}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-5 text-sm font-semibold leading-7 text-[#6b4a4a]">
+              Bu sürpriz tek parça değil. Önce küçük kutuları aç, sonra final mesajına ulaş.
+            </p>
+          )}
+
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            {surpriseBoxes.map((box, index) => (
+              <button
+                key={index}
+                onClick={() => setBoxIndex(index)}
+                disabled={index > boxIndex + 1}
+                className="rounded-2xl bg-[#fff4ef] px-5 py-4 text-sm font-black text-[#2b1b1b] disabled:opacity-40"
+              >
+                {index < boxIndex ? "Açıldı" : index === boxIndex ? "Açık" : `${index + 1}. Kutuyu Aç`}
+              </button>
+            ))}
+          </div>
+
+          {boxIndex >= surpriseBoxes.length - 1 && (
+            <button
+              onClick={() => setBoxIndex(surpriseBoxes.length)}
+              className="mt-5 rounded-full bg-pink-600 px-8 py-4 text-sm font-black text-white"
+            >
+              Final Mesajına Geç
+            </button>
+          )}
+        </section>
+      </main>
+    );
+  }
+
   if (experience.mood_enabled && !selectedMood && !isHunt) {
     return (
       <main className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#fff4ef] px-5 text-[#2b1b1b]">
@@ -411,8 +571,26 @@ export default function UnbrandedNoteClient({
         {experience.sender_name ? ` · ${experience.sender_name}'den` : ""}
       </p>
 
+      {experience.memory_enabled && (
+        <div className="mt-4 w-full rounded-[1.4rem] bg-white/70 p-4 shadow-sm backdrop-blur-sm">
+          <p className="text-3xl">{experience.memory_emoji || "💌"}</p>
+          <p
+            className="mt-2 text-sm font-black"
+            style={{ color: finalTextColor || undefined }}
+          >
+            {experience.memory_title || "Bizim Anımız"}
+          </p>
+          <p
+            className="mt-1 text-xs font-semibold leading-5"
+            style={{ color: finalTextColor || undefined }}
+          >
+            {experience.memory_detail || "Bu hediye küçük bir anıyı temsil ediyor."}
+          </p>
+        </div>
+      )}
+
       <pre
-        className="note-message mt-5 max-h-[64%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/60 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
+        className="note-message mt-5 max-h-[50%] w-full overflow-y-auto whitespace-pre-wrap rounded-[1.4rem] bg-white/60 p-4 text-sm font-semibold leading-7 shadow-sm backdrop-blur-sm md:text-base"
         style={{ color: finalTextColor || undefined }}
       >
         {visibleMessage}

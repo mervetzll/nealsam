@@ -77,6 +77,17 @@ export async function POST(request: NextRequest) {
     const moodFunny = String(body?.moodFunny || "");
     const moodNostalgic = String(body?.moodNostalgic || "");
 
+    const surpriseEnabled = Boolean(body?.surpriseEnabled);
+    const surpriseBoxes = Array.isArray(body?.surpriseBoxes) ? body.surpriseBoxes : [];
+
+    const quizEnabled = Boolean(body?.quizEnabled);
+    const quizItems = Array.isArray(body?.quizItems) ? body.quizItems : [];
+
+    const memoryEnabled = Boolean(body?.memoryEnabled);
+    const memoryTitle = String(body?.memoryTitle || "");
+    const memoryDetail = String(body?.memoryDetail || "");
+    const memoryEmoji = String(body?.memoryEmoji || "💌");
+
     if (!conceptKey || !conceptTitle || !generatedText) {
       return NextResponse.json(
         { ok: false, error: "Kaydedilecek deneyim eksik." },
@@ -113,6 +124,14 @@ export async function POST(request: NextRequest) {
         mood_romantic: moodRomantic || null,
         mood_funny: moodFunny || null,
         mood_nostalgic: moodNostalgic || null,
+        surprise_enabled: surpriseEnabled,
+        surprise_boxes: surpriseBoxes,
+        quiz_enabled: quizEnabled,
+        quiz_items: quizItems,
+        memory_enabled: memoryEnabled,
+        memory_title: memoryTitle || null,
+        memory_detail: memoryDetail || null,
+        memory_emoji: memoryEmoji || null,
       })
       .select("*")
       .single();
