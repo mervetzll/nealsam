@@ -47,6 +47,7 @@ export default function UnbrandedNoteClient({
   experienceId: string;
 }) {
   const searchParams = useSearchParams();
+  const shouldPrint = searchParams.get("print") === "1";
 
   const [experience, setExperience] = useState<Experience | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,6 +111,16 @@ export default function UnbrandedNoteClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [experienceId]);
 
+  useEffect(() => {
+    if (!experience || !shouldPrint) return;
+
+    const timer = window.setTimeout(() => {
+      window.print();
+    }, 1800);
+
+    return () => window.clearTimeout(timer);
+  }, [experience, shouldPrint]);
+
   async function loadExperience() {
     setLoading(true);
     setMessage("");
@@ -158,15 +169,66 @@ export default function UnbrandedNoteClient({
     textColor || (mode === "image" ? getImageTextColor(templateId) : "");
 
   return (
-    <main className="fixed inset-0 z-[9999] overflow-y-auto bg-[#fff4ef] px-4 py-8 text-[#2b1b1b] md:px-6 md:py-10">
-      <section className="mx-auto flex min-h-[90vh] max-w-3xl items-center justify-center">
+    <main className="print-note-page fixed inset-0 z-[9999] overflow-y-auto bg-[#fff4ef] px-4 py-8 text-[#2b1b1b] md:px-6 md:py-10">
+      <style>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+
+          html,
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          header,
+          nav,
+          footer {
+            display: none !important;
+          }
+
+          .print-note-page {
+            position: static !important;
+            inset: auto !important;
+            z-index: auto !important;
+            min-height: 100vh !important;
+            overflow: visible !important;
+            background: #ffffff !important;
+            padding: 0 !important;
+          }
+
+          .print-note-wrap {
+            min-height: 100vh !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+
+          .print-note-card {
+            width: 760px !important;
+            max-width: 92vw !important;
+            box-shadow: none !important;
+          }
+        }
+      `}</style>
+      <section className="print-note-wrap mx-auto flex min-h-[90vh] max-w-3xl items-center justify-center">
         {mode === "image" ? (
           <article
-            className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-cover bg-center shadow-2xl"
-            style={{
-              backgroundImage: `url(${selectedTemplate.image})`,
-            }}
+            className="print-note-card relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-white shadow-2xl"
           >
+            <img
+              src={selectedTemplate.image}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
             <div className="absolute inset-x-[12%] bottom-[13%] top-[23%] flex flex-col items-center justify-center text-center">
               <p
                 className="text-xs font-black uppercase tracking-[0.24em] opacity-80"

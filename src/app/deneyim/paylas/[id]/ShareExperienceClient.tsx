@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import { useSearchParams } from "next/navigation";
 import { noteThemes } from "@/data/noteThemes";
 import { noteImageThemes } from "@/data/noteImageThemes";
@@ -56,7 +54,6 @@ export default function ShareExperienceClient({
   const [shareUrl, setShareUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const cardRef = useRef<HTMLDivElement | null>(null);
 
   const [mode, setMode] = useState<TemplateMode>("image");
 
@@ -207,32 +204,17 @@ export default function ShareExperienceClient({
     }
   }
 
-  async function downloadPdf() {
-    if (!cardRef.current) {
-      alert("Kart hazırlanamadı.");
+  function downloadPdf() {
+    if (!shareUrl) {
+      alert("PDF linki hazırlanamadı.");
       return;
     }
 
-    try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#fff4ef",
-      });
+    const printUrl = shareUrl.includes("?")
+      ? `${shareUrl}&print=1`
+      : `${shareUrl}?print=1`;
 
-      const imgData = canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "px",
-        format: [canvas.width, canvas.height],
-      });
-
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save("hediye-notu.pdf");
-    } catch {
-      alert("PDF oluşturulamadı.");
-    }
+    window.open(printUrl, "_blank", "noopener,noreferrer");
   }
 
   if (loading) {
@@ -268,12 +250,13 @@ export default function ShareExperienceClient({
         <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
           {mode === "image" ? (
             <article
-              ref={cardRef}
-              className="relative mx-auto aspect-[4/5] w-full max-w-[620px] overflow-hidden rounded-[2rem] bg-cover bg-center shadow-2xl"
-              style={{
-                backgroundImage: `url(${selectedTemplate.image})`,
-              }}
+              className="relative mx-auto aspect-[4/5] w-full max-w-[620px] overflow-hidden rounded-[2rem] bg-white shadow-2xl"
             >
+              <img
+                src={selectedTemplate.image}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+              />
               <div className="absolute inset-x-[12%] bottom-[13%] top-[23%] flex flex-col items-center justify-center text-center">
                 <p
                   className="text-xs font-black uppercase tracking-[0.24em] opacity-80"
@@ -307,7 +290,6 @@ export default function ShareExperienceClient({
             </article>
           ) : (
             <article
-              ref={cardRef}
               className={`relative mx-auto aspect-[4/5] w-full max-w-[620px] overflow-hidden rounded-[2rem] border border-white/60 p-8 shadow-2xl ${selectedTheme.cardClass}`}
             >
               <NoteDecorations
@@ -544,7 +526,7 @@ export default function ShareExperienceClient({
                   onClick={downloadPdf}
                   className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
                 >
-                  PDF Olarak İndir
+                  PDF / Yazdır
                 </button>
               </div>
             </div>
