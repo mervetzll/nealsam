@@ -135,17 +135,17 @@ export function getStoreSuggestions(gift: Partial<Gift>): StoreSuggestion[] {
       return [
         {
           name: "Boyner",
-          url: searchUrl("Boyner Calvin Klein Tommy Hilfiger Gant", query),
-          reason: "Calvin Klein, Tommy Hilfiger, Gant ve Lacoste gibi markaları karşılaştırmak için uygun.",
+          url: searchUrl("Boyner Gant", query),
+          reason: "Calvin Klein, Tommy Hilfiger, ve gibi markaları karşılaştırmak için uygun.",
         },
         {
           name: "Calvin Klein",
-          url: searchUrl("Calvin Klein Türkiye", query),
+          url: searchUrl("Türkiye", query),
           reason: "Premium basic tişört ve sweatshirt hediyesi için güçlü bir marka.",
         },
         {
           name: "Gant",
-          url: searchUrl("Gant Türkiye", query),
+          url: searchUrl("Türkiye", query),
           reason: "Daha klasik ve kaliteli giyim hediyesi için uygun.",
         },
       ];

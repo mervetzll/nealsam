@@ -271,7 +271,7 @@ export default function StoresAdminClient() {
                   setForm({ ...form, search_prefix: event.target.value })
                 }
                 className="mt-2 w-full rounded-2xl border border-pink-100 px-4 py-3 font-semibold outline-none focus:border-pink-400"
-                placeholder="Örn: Boyner Calvin Klein Tommy Hilfiger"
+                placeholder="Örn: Boyner Tommy Hilfiger"
               />
             </label>
 

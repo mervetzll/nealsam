@@ -27,20 +27,27 @@ export function cleanGiftTitle(value?: string) {
 
   let title = value.trim();
 
-  const brandPatterns = [
-    /zara\s*tarz[ıi]\s*/gi,
-    /mango\s*tarz[ıi]\s*/gi,
-    /calvin\s*tarz[ıi]\s*/gi,
-    /calvin\s+klein\s*tarz[ıi]\s*/gi,
-    /bershka\s*tarz[ıi]\s*/gi,
-    /pull\s*&?\s*bear\s*tarz[ıi]\s*/gi,
-    /stradivarius\s*tarz[ıi]\s*/gi,
-    /hm\s*tarz[ıi]\s*/gi,
-    /h&m\s*tarz[ıi]\s*/gi,
-    /marka\s*tarz[ıi]\s*/gi,
+  const removePatterns = [
+    /calvin\s+klein\s*/gi,
+    /tommy\s+hilfiger\s*/gi,
+    /ralph\s+lauren\s*/gi,
+    /polo\s+ralph\s+lauren\s*/gi,
+    /lacoste\s*/gi,
+    /gant\s*/gi,
+    /zara\s*/gi,
+    /mango\s*/gi,
+    /bershka\s*/gi,
+    /pull\s*&?\s*bear\s*/gi,
+    /stradivarius\s*/gi,
+    /h&m\s*/gi,
+    /hm\s*/gi,
+    /massimo\s+dutti\s*/gi,
+    /premium\s*/gi,
+    /marka\s*/gi,
+    /tarz[ıi]\s*/gi,
   ];
 
-  for (const pattern of brandPatterns) {
+  for (const pattern of removePatterns) {
     title = title.replace(pattern, "");
   }
 
@@ -57,6 +64,10 @@ export function cleanGiftTitle(value?: string) {
 export function inferGiftSearchQuery(gift: GiftLike) {
   const raw = `${gift.title || ""} ${gift.name || ""} ${gift.category || ""} ${gift.description || ""} ${(gift.tags || []).join(" ")}`;
   const text = normalizeTurkish(raw);
+
+  if (text.includes("polo") && (text.includes("tisort") || text.includes("t-shirt") || text.includes("tshirt"))) {
+    return "polo yaka tişört";
+  }
 
   if (text.includes("tisort") || text.includes("t-shirt") || text.includes("tshirt")) return "tişört";
   if (text.includes("gomlek")) return "gömlek";
@@ -84,7 +95,7 @@ function enc(value: string) {
 
 export function getGiftStoreLinks(gift: GiftLike) {
   const query = inferGiftSearchQuery(gift);
-  const text = normalizeTurkish(`${gift.title || ""} ${gift.category || ""} ${gift.description || ""}`);
+  const text = normalizeTurkish(`${gift.title || ""} ${gift.name || ""} ${gift.category || ""} ${gift.description || ""}`);
 
   const links = [
     {
@@ -103,6 +114,7 @@ export function getGiftStoreLinks(gift: GiftLike) {
     text.includes("tisort") ||
     text.includes("t-shirt") ||
     text.includes("tshirt") ||
+    text.includes("polo") ||
     text.includes("gomlek") ||
     text.includes("sweatshirt") ||
     text.includes("kazak") ||
@@ -110,12 +122,6 @@ export function getGiftStoreLinks(gift: GiftLike) {
     text.includes("canta") ||
     text.includes("moda") ||
     text.includes("giyim");
-
-  const isPremiumFashion =
-    isFashion ||
-    text.includes("calvin") ||
-    text.includes("zara") ||
-    text.includes("mango");
 
   if (isFashion) {
     links.unshift(
@@ -130,14 +136,19 @@ export function getGiftStoreLinks(gift: GiftLike) {
         href: `https://shop.mango.com/tr/tr/search?q=${enc(query)}`,
       }
     );
-  }
 
-  if (isPremiumFashion) {
-    links.push({
-      label: "Calvin Klein’da Ara",
-      store: "Calvin Klein",
-      href: `https://tr.calvinklein.com/search?q=${enc(query)}`,
-    });
+    links.push(
+      {
+        label: "Calvin Klein’da Ara",
+        store: "Calvin Klein",
+        href: `https://tr.calvinklein.com/search?q=${enc(query)}`,
+      },
+      {
+        label: "Boyner’de Ara",
+        store: "Boyner",
+        href: `https://www.boyner.com.tr/search?q=${enc(query)}`,
+      }
+    );
   }
 
   return links;
