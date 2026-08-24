@@ -1,10 +1,9 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
-function getSupabaseAdmin() {
+function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -12,24 +11,16 @@ function getSupabaseAdmin() {
     throw new Error("Supabase admin environment variables are missing.");
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  return createClient(supabaseUrl, serviceRoleKey);
 }
 
-async function isAdmin() {
-  const sessionSecret = process.env.ADMIN_SESSION_SECRET;
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get("nealsam_admin_session")?.value;
+function parseArray(value: unknown) {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item).trim())
+      .filter(Boolean);
+  }
 
-  return Boolean(sessionSecret && sessionCookie === sessionSecret);
-}
-
-function toArray(value: unknown) {
-  if (Array.isArray(value)) return value.filter(Boolean);
   if (typeof value === "string") {
     return value
       .split(",")
@@ -40,109 +31,93 @@ function toArray(value: unknown) {
   return [];
 }
 
-function cleanGiftPayload(body: any) {
-  return {
-    title: body.title || "",
-    category: body.category || "",
-    sub_category: body.sub_category || body.subCategory || "",
-    price_min: Number(body.price_min || body.priceMin || 0),
-    price_max: Number(body.price_max || body.priceMax || 0),
-    recipients: toArray(body.recipients),
-    interests: toArray(body.interests),
-    styles: toArray(body.styles),
-    occasions: toArray(body.occasions),
-    urgency: toArray(body.urgency),
-    risk_level: body.risk_level || body.riskLevel || "medium",
-    reason: body.reason || "",
-    note: body.note || "",
-    search_query: body.search_query || body.searchQuery || body.title || "",
-    is_active: Boolean(body.is_active ?? body.isActive ?? true),
-  };
+function parseNumber(value: unknown, fallback: number) {
+  const number = Number(value);
+
+  if (Number.isFinite(number)) return number;
+
+  return fallback;
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    if (!(await isAdmin())) {
-      return NextResponse.json({ ok: false, error: "Yetkisiz işlem." }, { status: 401 });
-    }
+function normalizeGiftPayload(body: any) {
+  const title = String(body?.title || body?.name || "").trim();
+  const category = String(body?.category || "Genel").trim() || "Genel";
+  const subCategory =
+    String(body?.sub_category || body?.subCategory || category || "Genel").trim() || "Genel";
 
-    const supabase = getSupabaseAdmin();
-    const { searchParams } = new URL(request.url);
+  const description =
+    String(body?.description || body?.reason || "").trim() ||
+    "Bu hediye günlük kullanım ve hediyeleşme için uygun bir seçenektir.";
 
-    const search = searchParams.get("search") || "";
-    const status = searchParams.get("status") || "all";
-    const category = searchParams.get("category") || "all";
+  const reason =
+    String(body?.reason || body?.description || "").trim() ||
+    description;
 
-    let query = supabase
-      .from("gifts")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(300);
+  const note =
+    String(body?.note || "").trim() ||
+    `${title || "Bu hediye"} küçük bir not, güzel paketleme veya QR özel mesaj ile daha kişisel hale getirilebilir.`;
 
-    if (status === "active") {
-      query = query.eq("is_active", true);
-    }
+  const searchQuery =
+    String(body?.search_query || body?.searchQuery || title || "hediye").trim() || "hediye";
 
-    if (status === "passive") {
-      query = query.eq("is_active", false);
-    }
+  const priceMin = parseNumber(body?.price_min ?? body?.priceMin, 0);
+  const priceMax = parseNumber(body?.price_max ?? body?.priceMax, 999999);
 
-    if (category !== "all") {
-      query = query.eq("category", category);
-    }
-
-    if (search.trim()) {
-      query = query.or(
-        `title.ilike.%${search}%,category.ilike.%${search}%,sub_category.ilike.%${search}%,search_query.ilike.%${search}%`
-      );
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ ok: true, gifts: data || [] });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "Hediyeler alınamadı.",
-      },
-      { status: 500 }
-    );
-  }
+  return {
+    title,
+    category,
+    sub_category: subCategory,
+    price_min: priceMin,
+    price_max: priceMax,
+    recipients: parseArray(body?.recipients),
+    interests: parseArray(body?.interests),
+    styles: parseArray(body?.styles),
+    occasions: parseArray(body?.occasions),
+    urgency: parseArray(body?.urgency),
+    risk_level: String(body?.risk_level || body?.riskLevel || "low").trim() || "low",
+    reason,
+    note,
+    search_query: searchQuery,
+    is_active: typeof body?.is_active === "boolean" ? body.is_active : true,
+    price: body?.price ? String(body.price) : `${priceMin}–${priceMax} TL`,
+    budget: body?.budget ? String(body.budget) : `${priceMin}–${priceMax} TL`,
+    description,
+    tags: parseArray(body?.tags),
+    updated_at: new Date().toISOString(),
+  };
 }
 
 export async function POST(request: NextRequest) {
   try {
-    if (!(await isAdmin())) {
-      return NextResponse.json({ ok: false, error: "Yetkisiz işlem." }, { status: 401 });
-    }
-
-    const supabase = getSupabaseAdmin();
     const body = await request.json();
-    const payload = cleanGiftPayload(body);
+    const gift = normalizeGiftPayload(body);
 
-    if (!payload.title || !payload.category || !payload.sub_category) {
+    if (!gift.title) {
       return NextResponse.json(
-        { ok: false, error: "Hediye adı, kategori ve alt kategori zorunlu." },
+        { ok: false, error: "Hediye başlığı zorunlu." },
         { status: 400 }
       );
     }
 
+    const supabase = getAdminClient();
+
     const { data, error } = await supabase
       .from("gifts")
-      .insert(payload)
+      .insert(gift)
       .select("*")
       .single();
 
     if (error) {
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ ok: true, gift: data });
+    return NextResponse.json({
+      ok: true,
+      gift: data,
+    });
   } catch (error) {
     return NextResponse.json(
       {
@@ -156,37 +131,85 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    if (!(await isAdmin())) {
-      return NextResponse.json({ ok: false, error: "Yetkisiz işlem." }, { status: 401 });
-    }
-
-    const supabase = getSupabaseAdmin();
     const body = await request.json();
-    const id = body.id;
+    const id = String(body?.id || "").trim();
 
     if (!id) {
-      return NextResponse.json({ ok: false, error: "Hediye ID eksik." }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "Hediye ID eksik." },
+        { status: 400 }
+      );
     }
 
-    const payload = cleanGiftPayload(body);
+    const gift = normalizeGiftPayload(body);
+    const supabase = getAdminClient();
 
     const { data, error } = await supabase
       .from("gifts")
-      .update(payload)
+      .update(gift)
       .eq("id", id)
       .select("*")
       .single();
 
     if (error) {
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ ok: true, gift: data });
+    return NextResponse.json({
+      ok: true,
+      gift: data,
+    });
   } catch (error) {
     return NextResponse.json(
       {
         ok: false,
         error: error instanceof Error ? error.message : "Hediye güncellenemedi.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const id = String(body?.id || "").trim();
+
+    if (!id) {
+      return NextResponse.json(
+        { ok: false, error: "Hediye ID eksik." },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getAdminClient();
+
+    const { error } = await supabase
+      .from("gifts")
+      .update({
+        is_active: false,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (error) {
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : "Hediye silinemedi.",
       },
       { status: 500 }
     );
