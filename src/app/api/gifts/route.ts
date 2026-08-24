@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 function normalizeGift(item: any, index: number) {
   return {
-    id: item.id || `expanded-${index}`,
+    id: item.id || `gift-${index}`,
     title: item.title || item.name || "Hediye",
     name: item.name || item.title || "Hediye",
     category: item.category || "Genel",
@@ -30,6 +30,7 @@ async function getSupabaseGifts() {
     const { data, error } = await supabase
       .from("gifts")
       .select("*")
+      .eq("is_active", true)
       .order("created_at", { ascending: false });
 
     if (error) return [];
@@ -43,24 +44,17 @@ async function getSupabaseGifts() {
 export async function GET() {
   const supabaseGifts = await getSupabaseGifts();
 
-  const merged = [
-    ...supabaseGifts,
-    ...expandedGiftCatalog,
-  ].map(normalizeGift);
+  const source =
+    supabaseGifts.length > 0
+      ? supabaseGifts
+      : expandedGiftCatalog;
 
-  const seen = new Set<string>();
-
-  const unique = merged.filter((gift) => {
-    const key = `${gift.title}-${gift.category}`.toLowerCase();
-
-    if (seen.has(key)) return false;
-
-    seen.add(key);
-    return true;
-  });
+  const gifts = source.map(normalizeGift);
 
   return NextResponse.json({
     ok: true,
-    gifts: unique,
+    source: supabaseGifts.length > 0 ? "supabase" : "fallback",
+    count: gifts.length,
+    gifts,
   });
 }
