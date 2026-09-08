@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { expandedGiftCatalog } from "@/data/expandedGiftCatalog";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-function getSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const FALLBACK_SUPABASE_URL = "https://iapqvnwqbrlwriqoaojv.supabase.co";
 
-  if (!supabaseUrl) return null;
+function getSupabaseConfig() {
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.SUPABASE_URL ||
+    FALLBACK_SUPABASE_URL;
 
-  if (serviceRoleKey) {
-    return createClient(supabaseUrl, serviceRoleKey);
-  }
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    "";
 
-  if (anonKey) {
-    return createClient(supabaseUrl, anonKey);
-  }
-
-  return null;
+  return {
+    supabaseUrl: supabaseUrl.replace(/\/$/, ""),
+    key,
+  };
 }
 
 function normalizeArray(value: unknown) {
@@ -58,49 +59,72 @@ function normalizeGift(item: any, index: number) {
 }
 
 async function getSupabaseGifts() {
-  const supabase = getSupabaseClient();
+  const { supabaseUrl, key } = getSupabaseConfig();
 
-  if (!supabase) {
+  if (!supabaseUrl || !key) {
     return {
       gifts: [],
-      error: "Supabase client oluşturulamadı.",
+      error: "Supabase URL veya key eksik.",
+      debug: {
+        hasUrl: Boolean(supabaseUrl),
+        hasKey: Boolean(key),
+      },
     };
   }
 
-  try {
-    const { data, error } = await supabase
-      .from("gifts")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const url =
+    `${supabaseUrl}/rest/v1/gifts` +
+    `?select=*` +
+    `&is_active=eq.true` +
+    `&order=created_at.desc`;
 
-    if (error) {
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
       return {
         gifts: [],
-        error: error.message,
+        error: `Supabase REST hata: ${response.status} ${text.slice(0, 200)}`,
+        debug: {
+          status: response.status,
+          url: supabaseUrl,
+        },
       };
     }
 
-    const activeGifts = (data || []).filter((gift: any) => gift?.is_active !== false);
+    const data = JSON.parse(text);
 
     return {
-      gifts: activeGifts,
+      gifts: Array.isArray(data) ? data : [],
       error: "",
+      debug: {
+        status: response.status,
+        url: supabaseUrl,
+      },
     };
   } catch (error) {
     return {
       gifts: [],
-      error: error instanceof Error ? error.message : "Supabase hediyeleri alınamadı.",
+      error: error instanceof Error ? error.message : "Supabase fetch başarısız.",
+      debug: {
+        url: supabaseUrl,
+      },
     };
   }
 }
 
 export async function GET() {
   const result = await getSupabaseGifts();
-
-  const source =
-    result.gifts.length > 0
-      ? "supabase"
-      : "fallback";
 
   const rawGifts =
     result.gifts.length > 0
@@ -111,11 +135,12 @@ export async function GET() {
 
   return NextResponse.json({
     ok: true,
-    source,
+    source: result.gifts.length > 0 ? "supabase" : "fallback",
     count: gifts.length,
     supabaseCount: result.gifts.length,
     fallbackCount: expandedGiftCatalog.length,
     error: result.error || null,
+    debug: result.debug || null,
     gifts,
   });
 }
