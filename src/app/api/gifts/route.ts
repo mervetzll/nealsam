@@ -1,26 +1,28 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { expandedGiftCatalog } from "@/data/expandedGiftCatalog";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const FALLBACK_SUPABASE_URL = "https://iapqvnwqbrlwriqoaojv.supabase.co";
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-function getSupabaseConfig() {
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.SUPABASE_URL ||
-    FALLBACK_SUPABASE_URL;
+  if (!supabaseUrl) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL eksik.");
+  }
 
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    "";
+  if (serviceRoleKey) {
+    return createClient(supabaseUrl, serviceRoleKey);
+  }
 
-  return {
-    supabaseUrl: supabaseUrl.replace(/\/$/, ""),
-    key,
-  };
+  if (anonKey) {
+    return createClient(supabaseUrl, anonKey);
+  }
+
+  throw new Error("Supabase key eksik.");
 }
 
 function normalizeArray(value: unknown) {
@@ -39,19 +41,23 @@ function normalizeGift(item: any, index: number) {
     name: item?.name || item?.title || "Hediye",
     category: item?.category || "Genel",
     sub_category: item?.sub_category || item?.subCategory || item?.category || "Genel",
+
     price_min: priceMin,
     price_max: priceMax,
     price: item?.price || item?.budget || `${priceMin}–${priceMax} TL`,
     budget: item?.budget || item?.price || `${priceMin}–${priceMax} TL`,
+
     recipients: normalizeArray(item?.recipients),
     interests: normalizeArray(item?.interests),
     styles: normalizeArray(item?.styles),
     occasions: normalizeArray(item?.occasions),
     urgency: normalizeArray(item?.urgency),
+
     risk_level: item?.risk_level || item?.riskLevel || "low",
     reason: item?.reason || item?.description || "",
     note: item?.note || "",
     search_query: item?.search_query || item?.searchQuery || item?.title || "hediye",
+
     description: item?.description || item?.reason || "",
     tags: normalizeArray(item?.tags),
     is_active: item?.is_active !== false,
@@ -59,66 +65,30 @@ function normalizeGift(item: any, index: number) {
 }
 
 async function getSupabaseGifts() {
-  const { supabaseUrl, key } = getSupabaseConfig();
-
-  if (!supabaseUrl || !key) {
-    return {
-      gifts: [],
-      error: "Supabase URL veya key eksik.",
-      debug: {
-        hasUrl: Boolean(supabaseUrl),
-        hasKey: Boolean(key),
-      },
-    };
-  }
-
-  const url =
-    `${supabaseUrl}/rest/v1/gifts` +
-    `?select=*` +
-    `&is_active=eq.true` +
-    `&order=created_at.desc`;
-
   try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        apikey: key,
-        Authorization: `Bearer ${key}`,
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    });
+    const supabase = getSupabaseClient();
 
-    const text = await response.text();
+    const { data, error } = await supabase
+      .from("gifts")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
 
-    if (!response.ok) {
+    if (error) {
       return {
         gifts: [],
-        error: `Supabase REST hata: ${response.status} ${text.slice(0, 200)}`,
-        debug: {
-          status: response.status,
-          url: supabaseUrl,
-        },
+        error: error.message,
       };
     }
 
-    const data = JSON.parse(text);
-
     return {
-      gifts: Array.isArray(data) ? data : [],
+      gifts: data || [],
       error: "",
-      debug: {
-        status: response.status,
-        url: supabaseUrl,
-      },
     };
   } catch (error) {
     return {
       gifts: [],
-      error: error instanceof Error ? error.message : "Supabase fetch başarısız.",
-      debug: {
-        url: supabaseUrl,
-      },
+      error: error instanceof Error ? error.message : "Supabase hediyeleri alınamadı.",
     };
   }
 }
@@ -140,7 +110,6 @@ export async function GET() {
     supabaseCount: result.gifts.length,
     fallbackCount: expandedGiftCatalog.length,
     error: result.error || null,
-    debug: result.debug || null,
     gifts,
   });
 }
