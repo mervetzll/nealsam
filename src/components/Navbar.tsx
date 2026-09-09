@@ -2,104 +2,100 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
-import GiftLogo from "@/components/brand/GiftLogo";
 import { supabase } from "@/lib/supabase";
 
-const navItems = [
-  { href: "/", label: "Ana Sayfa" },
-  { href: "/hediye-bul", label: "Hediye Bul" },
-  { href: "/deneyim", label: "Deneyim" },
-  { label: "Hediye Araçları", href: "/hediye-araclari" },
-  { label: "Karşılaştır", href: "/hediye-karsilastir" },
-  { href: "/paketler", label: "Paketler" },
-  { href: "/blog", label: "Rehber / Blog" },
-  { href: "/yardim", label: "Yardım" },
-];
-
 export default function Navbar() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
+    let active = true;
 
-    async function loadUser() {
+    async function checkSession() {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      if (mounted) {
-        setUser(user);
-        setLoaded(true);
+      if (active) {
+        setLoggedIn(Boolean(session));
       }
     }
 
-    loadUser();
+    checkSession();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-      setLoaded(true);
+      setLoggedIn(Boolean(session));
     });
 
     return () => {
-      mounted = false;
+      active = false;
       subscription.unsubscribe();
     };
   }, []);
 
   async function logout() {
     await supabase.auth.signOut();
-    setUser(null);
     window.location.href = "/";
   }
 
-  return (
-    <header className="sticky top-0 z-50 border-b border-pink-100 bg-white/95 shadow-sm backdrop-blur">
-      <nav className="mx-auto flex max-w-7xl items-center gap-4 px-5 py-4">
-        <GiftLogo small />
+  const links = [
+    { href: "/", label: "Ana Sayfa" },
+    { href: "/hediye-bul", label: "Hediye Bul" },
+    { href: "/deneyim", label: "Deneyim" },
+    { href: "/hediye-araclari", label: "Hediye Araçları" },
+    { href: "/blog", label: "Rehber / Blog" },
+    { href: "/paketler", label: "Paketler" },
+    { href: "/yardim", label: "Yardım" },
+  ];
 
-        <div className="ml-auto hidden items-center gap-2 md:flex">
-          {navItems.map((item) => (
+  return (
+    <header className="sticky top-0 z-50 border-b border-pink-100 bg-[#fff4ef]/90 px-4 py-3 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-100 text-xl">
+            🎁
+          </div>
+
+          <div className="leading-tight">
+            <p className="text-lg font-black text-[#2b1b1b]">NeAlsam</p>
+            <p className="text-xs font-black text-pink-600">Hediye</p>
+          </div>
+        </Link>
+
+        <div className="hidden items-center gap-2 lg:flex">
+          {links.map((link) => (
             <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm transition hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-200"
+              key={link.href}
+              href={link.href}
+              className="rounded-full border border-pink-100 bg-white px-4 py-3 text-sm font-black text-[#5a3b3b] shadow-sm transition hover:bg-pink-50 hover:text-pink-700"
             >
-              {item.label}
+              {link.label}
             </Link>
           ))}
         </div>
 
-        <div className="hidden items-center gap-2 md:flex">
-          {!loaded ? (
-            <span className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm">
-              Yükleniyor
-            </span>
-          ) : user ? (
+        <div className="flex items-center gap-2">
+          {loggedIn ? (
             <>
               <Link
                 href="/hesabim"
-                className="rounded-full border border-pink-200 bg-pink-50 px-4 py-2 text-sm font-black text-pink-700 shadow-sm transition hover:bg-pink-100"
-                title={user.email || "Hesabım"}
+                className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 shadow-sm"
               >
                 Hesabım
               </Link>
 
               <button
-                type="button"
                 onClick={logout}
-                className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-pink-200"
+                className="hidden rounded-full bg-[#1f1212] px-5 py-3 text-sm font-black text-white shadow-sm md:block"
               >
-                Çıkış Yap
+                Çıkış
               </button>
             </>
           ) : (
             <Link
               href="/giris"
-              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-200"
+              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-pink-700"
             >
               Giriş Yap
             </Link>
@@ -107,44 +103,16 @@ export default function Navbar() {
         </div>
       </nav>
 
-      <div className="border-t border-pink-50 bg-[#fff4ef] px-5 py-2 md:hidden">
-        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="whitespace-nowrap rounded-full border border-pink-100 bg-white px-4 py-2 text-xs font-black text-[#6b4a4a] shadow-sm"
-            >
-              {item.label}
-            </Link>
-          ))}
-
-          {user ? (
-            <>
-              <Link
-                href="/hesabim"
-                className="whitespace-nowrap rounded-full border border-pink-200 bg-pink-50 px-4 py-2 text-xs font-black text-pink-700 shadow-sm"
-              >
-                Hesabım
-              </Link>
-
-              <button
-                type="button"
-                onClick={logout}
-                className="whitespace-nowrap rounded-full bg-[#2b1b1b] px-4 py-2 text-xs font-black text-white shadow-sm"
-              >
-                Çıkış Yap
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/giris"
-              className="whitespace-nowrap rounded-full bg-pink-600 px-4 py-2 text-xs font-black text-white shadow-sm"
-            >
-              Giriş Yap
-            </Link>
-          )}
-        </div>
+      <div className="mx-auto mt-3 flex max-w-7xl gap-2 overflow-x-auto pb-1 lg:hidden">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="shrink-0 rounded-full border border-pink-100 bg-white px-4 py-2 text-xs font-black text-[#5a3b3b]"
+          >
+            {link.label}
+          </Link>
+        ))}
       </div>
     </header>
   );
