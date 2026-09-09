@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import GiftInsightCard from "@/components/GiftInsightCard";
-import GiftStoreLinks from "@/components/GiftStoreLinks";
+import GiftResultCard from "@/components/GiftResultCard";
 import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
 
 type Gift = {
@@ -241,22 +240,6 @@ function getRiskLabel(gift: Gift) {
   return "Dengeli seçim";
 }
 
-function SafeGiftInsightCard({ gift }: { gift: Gift }) {
-  try {
-    return <GiftInsightCard gift={gift} />;
-  } catch {
-    return null;
-  }
-}
-
-function SafeGiftStoreLinks({ gift }: { gift: Gift }) {
-  try {
-    return <GiftStoreLinks gift={gift} />;
-  } catch {
-    return null;
-  }
-}
-
 export default function GiftFinderPage() {
   const [gifts, setGifts] = useState<Gift[]>(fallbackGifts);
   const [loading, setLoading] = useState(true);
@@ -492,71 +475,13 @@ export default function GiftFinderPage() {
             </div>
 
             <div className="mt-6 grid gap-6">
-              {results.map(({ gift, score }, index) => {
-                const title = cleanGiftTitle(getRawGiftTitle(gift));
-
-                return (
-                  <article
-                    key={gift.id || `${title}-${index}`}
-                    className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm"
-                  >
-                    <div className="flex flex-wrap gap-3">
-                      <span className="rounded-full bg-[#fff0f7] px-4 py-2 text-sm font-black text-pink-700">
-                        %{score} eşleşme
-                      </span>
-
-                      <span className="rounded-full bg-[#fff8f0] px-4 py-2 text-sm font-black text-[#6b4a4a]">
-                        {score >= 90 ? "Çok güçlü eşleşme" : score >= 80 ? "Güçlü eşleşme" : "Uygun seçenek"}
-                      </span>
-
-                      <span className="rounded-full bg-[#fff8f0] px-4 py-2 text-sm font-black text-[#6b4a4a]">
-                        {getRiskLabel(gift)}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-5 text-4xl font-black tracking-tight text-[#2b1b1b]">
-                      {title}
-                    </h3>
-
-                    <p className="mt-3 text-xl font-black text-pink-600">
-                      {gift.category || "Genel"}
-                      {(gift.price || gift.budget) ? ` · ${gift.price || gift.budget}` : ""}
-                    </p>
-
-                    {(gift.description || gift.reason) && (
-                      <p className="mt-5 text-sm font-semibold leading-7 text-[#6b4a4a]">
-                        {gift.description || gift.reason}
-                      </p>
-                    )}
-
-                    <SafeGiftInsightCard gift={gift} />
-                    <SafeGiftStoreLinks gift={gift} />
-
-                    <div className="mt-5 grid gap-3 md:grid-cols-3">
-                      <Link
-                        href={`/deneyim?gift=${encodeURIComponent(title)}`}
-                        className="flex items-center justify-center rounded-full bg-pink-600 px-5 py-4 text-sm font-black text-white"
-                      >
-                        Özel Not Oluştur
-                      </Link>
-
-                      <Link
-                        href={`/hediye-karsilastir?gift=${encodeURIComponent(title)}`}
-                        className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-black text-white"
-                      >
-                        Karşılaştır
-                      </Link>
-
-                      <Link
-                        href={`/hediye-paketi?gift=${encodeURIComponent(title)}`}
-                        className="flex items-center justify-center rounded-full border border-pink-200 bg-white px-5 py-4 text-sm font-black text-pink-700"
-                      >
-                        Pakete Çevir
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
+              {results.map(({ gift, score }, index) => (
+                <GiftResultCard
+                  key={gift.id || `${gift.title || gift.name || "gift"}-${index}`}
+                  gift={gift}
+                  score={score}
+                />
+              ))}
             </div>
           </section>
         )}
