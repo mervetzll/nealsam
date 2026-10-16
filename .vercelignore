@@ -1,0 +1,6 @@
+# Local credentials and generated files must never be uploaded.
+.env*
+.vercel
+.next
+node_modules
+*.tsbuildinfo

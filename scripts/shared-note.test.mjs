@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {createNoteLink,readSharedNote} from '../src/lib/sharedNote.ts';
+const value={title:'Sana özel 💌',note:'İyi ki varsın!\nÇay & kahve + sürpriz #1? 💕',from:'Ayşe'};
+const url=new URL(createNoteLink('http://localhost:3000',value));
+assert.equal(url.origin,'http://localhost:3000');
+assert.equal(url.pathname,'/hediye-notu');
+assert.equal(url.search,'');
+assert.deepEqual(readSharedNote(new URLSearchParams(url.hash.slice(1))),value);
+assert.equal(readSharedNote(new URLSearchParams()).note,'');
+assert.throws(()=>createNoteLink('https://nealsamhediye.com',{...value,note:' '}));
+assert.throws(()=>createNoteLink('https://nealsamhediye.com',{...value,note:'a'.repeat(1201)}));
+assert.equal(readSharedNote(new URLSearchParams({note:'x'.repeat(2000)})).note.length,1200);
+assert.equal(new URL(createNoteLink('https://nealsamhediye.com',value)).origin,'https://nealsamhediye.com');
+console.log('9 QR bağlantısı ve not kontrolü geçti.');

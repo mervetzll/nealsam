@@ -179,9 +179,13 @@ function getSuitableFor(gift: Gift) {
 export default function GiftResultCard({
   gift,
   score,
+  budgetNote,
+  matchReasons = [],
 }: {
   gift: Gift;
   score: number;
+  budgetNote?: string;
+  matchReasons?: string[];
 }) {
   const title = cleanGiftTitle(getRawGiftTitle(gift));
   const risk = getRiskInfo(gift);
@@ -193,12 +197,9 @@ export default function GiftResultCard({
       <div className="bg-gradient-to-br from-pink-50 to-[#fff4ef] p-6">
         <div className="flex flex-wrap gap-3">
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700 shadow-sm">
-            %{score} eşleşme
+            {score >= 90 ? "Tercihlerine yakın" : "Değerlendirebileceğin fikir"}
           </span>
 
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm">
-            {score >= 90 ? "Çok güçlü eşleşme" : score >= 80 ? "Güçlü eşleşme" : "Uygun seçenek"}
-          </span>
 
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm">
             {risk.label}
@@ -213,8 +214,10 @@ export default function GiftResultCard({
           {gift.category || "Genel"} · {getPriceText(gift)}
         </p>
 
+        {budgetNote && <p className="mt-3 text-sm font-semibold text-[#6b4a4a]">{budgetNote}</p>}
+
         <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a]">
-          {getWhyText(gift)}
+          {gift.description || getWhyText(gift)}
         </p>
       </div>
 
@@ -224,7 +227,7 @@ export default function GiftResultCard({
             Neden önerildi?
           </p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
-            {getWhyText(gift)}
+            {matchReasons.length ? matchReasons.join(". ") + "." : "Farklı bir alternatif olarak değerlendirebilirsin; kişisel zevkini ve ürün detaylarını kontrol et."}
           </p>
         </div>
 
@@ -291,7 +294,7 @@ export default function GiftResultCard({
           </Link>
 
           <Link
-            href={`/hediye-paketi?gift=${encodeURIComponent(title)}`}
+            href={`/hediye-paketi?gift=${encodeURIComponent(title)}&price=${encodeURIComponent(getPriceText(gift))}`}
             className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-black text-white"
           >
             Pakete Çevir

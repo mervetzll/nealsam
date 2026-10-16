@@ -5,253 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type PremiumConcept = {
-  id: string;
-  title: string;
-  badge: string;
-  description: string;
-  bestFor: string[];
-  sample: string;
-  premiumLevel: string;
-};
-
-function getFallbackConcepts(): PremiumConcept[] {
-  return [
-    {
-      id: "kader-bagi",
-      title: "Kader Bağı",
-      badge: "Duygusal",
-      description: "Hediyeyi anlamlı ve duygusal bir mesaja dönüştürür.",
-      bestFor: ["Sevgili", "Eş", "Yakın arkadaş", "Aile"],
-      sample: "Bu hediye sadece bir eşya değil, aramızdaki bağın küçük bir hatırası.",
-      premiumLevel: "plus",
-    },
-    {
-      id: "hediye-avi",
-      title: "Hediye Avı",
-      badge: "Oyunlu",
-      description: "Hediyeyi adım adım ipuçlarıyla bulunan mini bir sürpriz oyununa dönüştürür.",
-      bestFor: ["Arkadaş", "Kardeş", "Sevgili", "Eğlenceli ilişkiler"],
-      sample: "QR kodu okut, ipuçlarını takip et ve hediyeye ulaş.",
-      premiumLevel: "experience",
-    },
-    {
-      id: "ani-kutusu",
-      title: "Anı Kutusu",
-      badge: "Nostaljik",
-      description: "Hediyeyi ortak anılarla bağlayan özel bir not oluşturur.",
-      bestFor: ["Aile", "Yakın arkadaş", "Mezuniyet"],
-      sample: "Bu hediye bana birlikte yaşadığımız güzel anları hatırlattı.",
-      premiumLevel: "plus",
-    },
-    {
-      id: "gizli-mesaj",
-      title: "Gizli Mesaj",
-      badge: "Sürpriz",
-      description: "QR ile açılan daha gizemli ve özel bir mesaj hazırlar.",
-      bestFor: ["Sevgili", "Uzakta olan biri", "Sürpriz hediye"],
-      sample: "Bu mesajı sadece sen görebilesin istedim.",
-      premiumLevel: "premium",
-    },
-    {
-      id: "karakterine-gore",
-      title: "Karakterine Göre",
-      badge: "Kişisel",
-      description: "Kişinin tarzına göre özel ve samimi bir not yazar.",
-      bestFor: ["Herkes"],
-      sample: "Bunu seçtim çünkü tam senlik olduğunu düşündüm.",
-      premiumLevel: "plus",
-    },
-  ];
-}
-
-function getToneLabel(tone: string) {
-  if (tone === "romantic") return "romantik ve içten";
-  if (tone === "emotional") return "duygusal ve anlamlı";
-  if (tone === "funny") return "tatlı, eğlenceli ve samimi";
-  if (tone === "minimal") return "sade ve zarif";
-  if (tone === "premium") return "şık, özel ve etkileyici";
-  return "samimi ve sıcak";
-}
-
-function getLengthInstruction(noteLength: string) {
-  if (noteLength === "short") return "Kısa ve etkili tut.";
-  if (noteLength === "long") return "Biraz daha detaylı, duygulu ve hikayeli yaz.";
-  return "Orta uzunlukta, okunması kolay ve etkileyici yaz.";
-}
-
-function getHuntStyleText(style: string) {
-  if (style === "funny") return "tatlı ve eğlenceli";
-  if (style === "romantic") return "romantik ve merak uyandıran";
-  if (style === "mysterious") return "gizemli ve heyecanlı";
-  if (style === "cute") return "sevimli ve yumuşak";
-  return "sürprizli ve keyifli";
-}
-
-function getDifficultyText(difficulty: string) {
-  if (difficulty === "easy") return "kolay";
-  if (difficulty === "hard") return "zorlayıcı";
-  return "orta zorlukta";
-}
-
-function buildHuntClues({
-  personName,
-  senderName,
-  giftName,
-  huntLocation,
-  huntSteps,
-  huntDifficulty,
-  huntStyle,
-  huntDetail,
-}: {
-  personName: string;
-  senderName: string;
-  giftName: string;
-  huntLocation: string;
-  huntSteps: number;
-  huntDifficulty: string;
-  huntStyle: string;
-  huntDetail: string;
-}) {
-  const toName = personName.trim() || "sen";
-  const fromName = senderName.trim();
-  const gift = giftName.trim() || "sürprizin";
-  const location = huntLocation.trim() || "hediyenin saklı olduğu yer";
-  const detail = huntDetail.trim();
-  const steps = Math.min(Math.max(Number(huntSteps || 3), 2), 6);
-  const styleText = getHuntStyleText(huntStyle);
-  const difficultyText = getDifficultyText(huntDifficulty);
-
-  const clues = [
-    `İlk ipucun burada başlıyor: Bugün sıradan bir gün gibi görünebilir ama aslında küçük bir sürprize doğru ilerliyorsun. ${difficultyText} bir av olacak, dikkatli bak.`,
-    `İkinci ipucu: ${gift} sana direkt gelmeyecek. Önce etrafında sana tanıdık gelen, günlük hayatında sık gördüğün bir yere odaklan.`,
-    `Üçüncü ipucu: Sürpriz, çok uzaklarda değil. Biraz merak, biraz dikkat ve biraz da gülümseme gerekiyor.`,
-    `Dördüncü ipucu: ${detail ? `Şunu hatırla: ${detail}` : "Bugün sana özel hazırlanan küçük detaylara dikkat et."}`,
-    `Beşinci ipucu: Artık çok yaklaştın. Sürprizi bulduğunda bunun özellikle senin için hazırlandığını anlayacaksın.`,
-    `Son ipucu: Şimdi final zamanı. Hediyene ulaşmak için ${location} kısmına bak.`,
-  ];
-
-  const selectedClues = clues.slice(0, steps - 1);
-
-  selectedClues.push(`Final: ${location}. Orada seni ${gift} bekliyor.`);
-
-  return `${toName === "sen" ? "Sevgili sen" : `Sevgili ${toName}`},
-
-Sana hediyeni direkt vermek yerine küçük bir Hediye Avı hazırladım.
-
-Bu avın tarzı: ${styleText}.
-Zorluk seviyesi: ${difficultyText}.
-
-${selectedClues.map((clue, index) => `${index + 1}. ADIM\n${clue}`).join("\n\n")}
-
-${fromName ? `${fromName}'den küçük bir sürpriz.` : "Bu küçük sürpriz senin için."}`;
-}
-
-function buildConceptOutput({
-  concept,
-  personName,
-  senderName,
-  relation,
-  giftName,
-  tone,
-  noteLength,
-  specialDetail,
-  huntLocation,
-  huntSteps,
-  huntDifficulty,
-  huntStyle,
-  huntDetail,
-}: {
-  concept: PremiumConcept;
-  personName: string;
-  senderName: string;
-  relation: string;
-  giftName: string;
-  tone: string;
-  noteLength: string;
-  specialDetail: string;
-  huntLocation: string;
-  huntSteps: number;
-  huntDifficulty: string;
-  huntStyle: string;
-  huntDetail: string;
-}) {
-  if (concept.id === "hediye-avi") {
-    return buildHuntClues({
-      personName,
-      senderName,
-      giftName,
-      huntLocation,
-      huntSteps,
-      huntDifficulty,
-      huntStyle,
-      huntDetail,
-    });
-  }
-
-  const toName = personName.trim() || "sen";
-  const fromName = senderName.trim();
-  const gift = giftName.trim() || "bu hediye";
-  const relationText = relation.trim();
-  const detail = specialDetail.trim();
-
-  const opening = toName === "sen" ? "Sevgili sen," : `Sevgili ${toName},`;
-  const signature = fromName ? `\n\n${fromName}'den sevgilerle.` : "";
-  const toneText = getToneLabel(tone);
-  const lengthText = getLengthInstruction(noteLength);
-
-  if (concept.id === "ani-kutusu") {
-    return `${opening}
-
-Bazı hediyeler sadece bugünü değil, geçmişte kalan güzel anları da yanında getirir.
-
-Ben ${gift} seçerken sadece güzel bir şey almak istemedim. Bir anıyı, bir gülümsemeyi ve aklıma gelen küçük bir detayı da içine koymak istedim.
-
-${relationText ? `Sen benim için ${relationText} olarak çok ayrı bir yerdesin.` : ""}
-${detail ? `Bu hediyeyi seçerken özellikle şunu düşündüm: ${detail}` : ""}
-
-Umarım bu küçük hediye sana sadece mutlu bir an değil, güzel bir hatıra da bırakır.${signature}`;
-  }
-
-  if (concept.id === "gizli-mesaj") {
-    return `${opening}
-
-Bu mesajı herkes görsün istemedim. Sadece sen aç, sadece sen oku istedim.
-
-Çünkü ${gift} benim için sıradan bir hediye değil; seni düşündüğümü anlatan küçük ve özel bir işaret.
-
-${relationText ? `Seninle olan bağım ${relationText} kelimesinden çok daha fazlasını hissettiriyor.` : ""}
-${detail ? `Bu notun içinde saklamak istediğim küçük detay şu: ${detail}` : ""}
-
-Bunu okuduğunda yüzünde küçük bir gülümseme olsun istedim.${signature}`;
-  }
-
-  if (concept.id === "karakterine-gore") {
-    return `${opening}
-
-Bu hediyeyi seçerken “güzel mi?” diye değil, “sana yakışır mı?” diye düşündüm.
-
-Çünkü bence ${gift}, senin tarzına ve enerjine yakışan küçük ama anlamlı bir seçim.
-
-${relationText ? `Sen benim için ${relationText} olarak çok özel bir yerdesin.` : ""}
-${detail ? `Özellikle şunu düşünerek hazırladım: ${detail}` : ""}
-
-Umarım bunu gördüğünde “evet, bu gerçekten bana göre” dersin.${signature}`;
-  }
-
-  return `${opening}
-
-Bazı hediyeler sadece alınmaz; bir anlamın içine yerleştirilir.
-
-Ben de ${gift} seçerken sadece güzel bir şey olsun istemedim. Seni düşündüğüm anla aramızdaki bağı birleştiren küçük bir hatıra olsun istedim.
-
-${relationText ? `Sen benim için ${relationText} olarak çok özel bir yerdesin.` : ""}
-${detail ? `Bu hediyeyi hazırlarken özellikle şunu düşündüm: ${detail}` : ""}
-
-Bu notun tonu ${toneText} olsun istedim. ${lengthText}
-
-Umarım bu küçük sürpriz sana kendini özel hissettirir.${signature}`;
-}
+import { getFallbackConcepts, buildConceptOutput, type PremiumConcept } from "@/lib/conceptContent";
 
 export default function PremiumConceptLauncher() {
   const searchParams = useSearchParams();
@@ -306,7 +60,8 @@ export default function PremiumConceptLauncher() {
   const [memoryDetail, setMemoryDetail] = useState("");
   const [memoryEmoji, setMemoryEmoji] = useState("💌");
 
-  const [generatedText, setGeneratedText] = useState("");
+  const [editedNote, setEditedNote] = useState<{ source: string; text: string } | null>(null);
+  const [savedSnapshot, setSavedSnapshot] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState("");
   const [message, setMessage] = useState("");
@@ -317,12 +72,9 @@ export default function PremiumConceptLauncher() {
 
   const isHunt = selectedConcept?.id === "hediye-avi";
 
-  useEffect(() => {
-    loadConcepts();
-  }, []);
 
-  useEffect(() => {
-    if (!selectedConcept) return;
+  const generatedBase = useMemo(() => {
+    if (!selectedConcept) return "";
 
     const output = buildConceptOutput({
       concept: selectedConcept,
@@ -340,8 +92,7 @@ export default function PremiumConceptLauncher() {
       huntDetail,
     });
 
-    setGeneratedText(output);
-    setSavedId("");
+    return output;
   }, [
     selectedConcept,
     personName,
@@ -358,32 +109,49 @@ export default function PremiumConceptLauncher() {
     huntDetail,
   ]);
 
-  async function loadConcepts() {
-    try {
-      const response = await fetch("/api/premium-concepts", {
-        cache: "no-store",
-      });
+  const generatedText = editedNote?.source === generatedBase ? editedNote.text : generatedBase;
+  const savePayload = {
+    conceptKey: selectedConcept.id, conceptTitle: selectedConcept.title,
+    personName, senderName, relation, giftName, tone, noteLength, specialDetail, generatedText,
+    huntLocation, huntSteps, huntDifficulty, huntStyle, huntDetail,
+    lockEnabled, lockQuestion: lockEnabled ? lockQuestion : "", lockAnswer: lockEnabled ? lockAnswer : "", unlockAt: unlockAt && Number.isFinite(new Date(unlockAt).getTime()) ? new Date(unlockAt).toISOString() : "",
+    moodEnabled, moodHappy, moodEmotional, moodRomantic, moodFunny, moodNostalgic,
+    surpriseEnabled, surpriseBoxes: surpriseEnabled ? [surpriseBox1, surpriseBox2, surpriseBox3, surpriseBox4].map(value => value.trim()).filter(Boolean) : [],
+    quizEnabled, quizItems: quizEnabled ? [{ question: quizQ1, answer: quizA1 }, { question: quizQ2, answer: quizA2 }, { question: quizQ3, answer: quizA3 }].filter(item => item.question.trim()) : [],
+    memoryEnabled, memoryTitle, memoryDetail, memoryEmoji,
+  };
+  const snapshot = JSON.stringify(savePayload);
 
-      const data = await response.json();
-
-      if (data?.ok && Array.isArray(data.concepts) && data.concepts.length > 0) {
-        setConcepts(data.concepts);
-      }
-    } catch {
-      setConcepts(getFallbackConcepts());
+  useEffect(() => {
+    const controller = new AbortController();
+    async function load() {
+      try {
+        const response = await fetch("/api/premium-concepts", { cache: "no-store", signal: controller.signal });
+        const data = await response.json();
+        if (!controller.signal.aborted && data?.ok && Array.isArray(data.concepts) && data.concepts.length) setConcepts(data.concepts);
+      } catch { /* The local catalog remains available if the request fails. */ }
     }
-  }
+    void load();
+    return () => controller.abort();
+  }, []);
 
   async function copyText() {
     try {
       await navigator.clipboard.writeText(generatedText);
-      alert("Metin kopyalandı.");
+      setMessage("Metin kopyalandı.");
     } catch {
-      alert("Metin kopyalanamadı.");
+      setMessage("Kopyalanamadı. Not metnini seçerek kopyalayabilirsin.");
     }
   }
 
   async function saveExperience() {
+    if (!generatedText.trim()) { setMessage("Kaydetmeden önce notunu yaz."); return; }
+    if (lockEnabled && (!lockQuestion.trim() || !lockAnswer.trim())) { setMessage("Soru kilidi için soruyu ve cevabı doldur."); return; }
+    if (surpriseEnabled && savePayload.surpriseBoxes.length < 2) { setMessage("Sürpriz kutusu için en az iki mesaj ekle."); return; }
+    if (quizEnabled && !savePayload.quizItems.length) { setMessage("Mini quiz için en az bir soru ekle."); return; }
+    if (memoryEnabled && !memoryDetail.trim()) { setMessage("Anı kartına bir anı yaz."); return; }
+    if (isHunt && !huntLocation.trim()) { setMessage("Hediye avının final konumunu yaz."); return; }
+    if (unlockAt && (!Number.isFinite(new Date(unlockAt).getTime()) || new Date(unlockAt).getTime() <= Date.now())) { setMessage("Zaman kilidi için ileri bir tarih seç."); return; }
     setSaving(true);
     setMessage("");
 
@@ -403,23 +171,7 @@ export default function PremiumConceptLauncher() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          conceptKey: selectedConcept.id,
-          conceptTitle: selectedConcept.title,
-          personName,
-          senderName,
-          relation,
-          giftName,
-          tone,
-          noteLength,
-          specialDetail,
-          generatedText,
-          huntLocation,
-          huntSteps,
-          huntDifficulty,
-          huntStyle,
-          huntDetail,
-        }),
+        body: snapshot,
       });
 
       const data = await response.json();
@@ -430,6 +182,7 @@ export default function PremiumConceptLauncher() {
       }
 
       setSavedId(data.experience?.id || "");
+      setSavedSnapshot(snapshot);
       setMessage(
         isHunt
           ? "Hediye Avı kaydedildi. Artık adım adım QR deneyimini oluşturabilirsin."
@@ -463,21 +216,18 @@ export default function PremiumConceptLauncher() {
           </p>
 
           <div className="mt-6 grid gap-4">
-            <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
-              Konsept
-              <select
-                value={selectedConceptId}
-                onChange={(event) => setSelectedConceptId(event.target.value)}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
-              >
-                {concepts.map((concept) => (
-                  <option key={concept.id} value={concept.id}>
-                    {concept.title} - {concept.badge}
-                  </option>
-                ))}
-              </select>
-            </label>
-
+            <fieldset>
+              <legend className="text-sm font-bold">1. Deneyimini seç</legend>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {concepts.map(concept => <button type="button" key={concept.id} aria-pressed={selectedConcept.id === concept.id} onClick={() => setSelectedConceptId(concept.id)}
+                  className={`rounded-2xl border-2 p-4 text-left ${selectedConcept.id === concept.id ? "border-pink-600 bg-pink-50" : "border-pink-100 bg-white"}`}>
+                  <span className="block font-bold">{concept.title}</span>
+                  <span className="mt-2 block text-xs leading-6 text-[#6b4a4a]">{concept.description}</span>
+                </button>)}
+              </div>
+            </fieldset>
+            <p className="rounded-2xl bg-pink-50 p-4 text-sm leading-6">{selectedConcept.sample}</p>
+            <h3 className="text-lg font-bold">2. Kişisel detayları ekle</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
                 Kime?
@@ -522,10 +272,10 @@ export default function PremiumConceptLauncher() {
               </label>
             </div>
 
-            <div className="rounded-[1.5rem] border border-pink-100 bg-[#fff4ef] p-5">
-              <h3 className="text-lg font-black text-[#2b1b1b]">
-                QR Sürpriz Ayarları
-              </h3>
+            <details className="rounded-[1.5rem] border border-pink-100 bg-[#fff4ef] p-5">
+              <summary className="cursor-pointer text-lg font-black text-[#2b1b1b]">
+                İsteğe bağlı sürprizler
+              </summary>
 
               <div className="mt-4 grid gap-4">
                 <label className="flex items-center gap-3 rounded-2xl bg-white p-4 text-sm font-black text-[#2b1b1b]">
@@ -534,7 +284,7 @@ export default function PremiumConceptLauncher() {
                     checked={lockEnabled}
                     onChange={(event) => setLockEnabled(event.target.checked)}
                   />
-                  Gizli mesaj kilidi olsun
+                  Soruyla açılan sürpriz olsun
                 </label>
 
                 {lockEnabled && (
@@ -771,7 +521,7 @@ export default function PremiumConceptLauncher() {
                   </div>
                 )}
               </div>
-            </div>
+            </details>
 
             {isHunt ? (
               <div className="rounded-[1.5rem] bg-[#fff4ef] p-5">
@@ -879,7 +629,7 @@ export default function PremiumConceptLauncher() {
                 </div>
 
                 <label className="grid gap-2 text-sm font-black text-[#2b1b1b]">
-                  Özel detay
+                  {selectedConcept.id === "ani-kutusu" ? "Hangi anıyı hatırlatsın?" : selectedConcept.id === "karakterine-gore" ? "Onu anlatan özellik veya sevdiği bir şey" : "Nota katmak istediğin kişisel detay"}
                   <textarea
                     value={specialDetail}
                     onChange={(event) => setSpecialDetail(event.target.value)}
@@ -896,6 +646,7 @@ export default function PremiumConceptLauncher() {
         <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
+              <p className="text-xs font-bold text-[#6b4a4a]">3. Önizle ve düzenle</p>
               <p className="text-sm font-black text-pink-600">
                 {selectedConcept.title}
               </p>
@@ -910,12 +661,19 @@ export default function PremiumConceptLauncher() {
             </span>
           </div>
 
-          <pre className="mt-5 max-h-[540px] overflow-y-auto whitespace-pre-wrap rounded-[1.5rem] bg-[#fff4ef] p-5 text-sm font-semibold leading-7 text-[#2b1b1b]">
-            {generatedText}
-          </pre>
+          <div className="mt-4 rounded-2xl border border-pink-100 p-4 text-sm leading-7">
+            <p className="font-bold">Alıcı nasıl ilerleyecek?</p>
+            <p>{[unlockAt && "Belirlediğin zamanı bekler", lockEnabled && "Sorunun cevabını girer", quizEnabled && "Mini quizi oynar", surpriseEnabled && "Sürpriz kutularını açar", moodEnabled && "Duygusunu seçer", isHunt ? "İpuçlarını adım adım takip eder" : "Notunu okur", memoryEnabled && "Anı kartını görür"].filter(Boolean).join(" → ")}</p>
+          </div>
+          <label className="mt-5 block text-sm font-bold">Alıcının okuyacağı metin
+            <textarea value={generatedText} onChange={event => setEditedNote({ source: generatedBase, text: event.target.value })} rows={15} maxLength={8000}
+              className="mt-3 w-full rounded-3xl border border-pink-100 bg-[#fff4ef] p-5 text-sm font-normal leading-7" />
+          </label>
+          <p className="mt-3 text-xs leading-6 text-[#6b4a4a]">Detaylarını değiştirirsen yeni bir taslak hazırlanır. Kaydetmeden önce son metni kontrol et.</p>
+          {savedId && savedSnapshot !== snapshot && <p role="status" className="mt-3 text-sm text-amber-800">Deneyim değişti. Güncel kart bağlantısı için yeniden kaydet.</p>}
 
           {message && (
-            <p className="mt-4 rounded-2xl bg-pink-50 p-4 text-sm font-black text-pink-700">
+            <p role="status" className="mt-4 rounded-2xl bg-pink-50 p-4 text-sm font-black text-pink-700">
               {message}
             </p>
           )}
@@ -937,7 +695,7 @@ export default function PremiumConceptLauncher() {
             </button>
           </div>
 
-          {savedId && (
+          {savedId && savedSnapshot === snapshot && (
             <Link
               href={`/deneyim/paylas/${savedId}`}
               className="mt-4 flex w-full items-center justify-center rounded-full border border-pink-200 bg-white px-5 py-4 text-sm font-black text-pink-700"

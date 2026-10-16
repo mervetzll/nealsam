@@ -37,15 +37,7 @@ export const metadata = {
   alternates: {
     canonical: "https://nealsamhediye.com",
   },
-  icons: {
-    icon: [
-      { url: "/favicon-48x48.png?v=3", sizes: "48x48", type: "image/png" },
-      { url: "/favicon-96x96.png?v=3", sizes: "96x96", type: "image/png" },
-      { url: "/icon.png?v=3", sizes: "512x512", type: "image/png" },
-    ],
-    shortcut: "/favicon.ico?v=3",
-    apple: "/apple-icon.png?v=3",
-  },
+  icons: { icon: "/gift-icon.svg?v=4", shortcut: "/gift-icon.svg?v=4", apple: "/apple-icon.png?v=4" },
   openGraph: {
     title: "NeAlsam Hediye | Kime Ne Hediye Alınır?",
     description:
@@ -75,7 +67,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="tr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">

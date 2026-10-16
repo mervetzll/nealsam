@@ -223,6 +223,13 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
 }
 
 function GiftCard({ title, gift }: { title: string; gift: string }) {
+  if (!gift.trim()) return (
+    <article className="rounded-[2rem] border border-dashed border-pink-200 bg-white p-6">
+      <p className="text-sm font-bold text-pink-600">{title}</p>
+      <h2 className="mt-3 text-2xl font-bold">Karşılaştırmak istediğin hediyeyi yaz</h2>
+      <p className="mt-3 text-sm text-[#6b4a4a]">Bir hediye adı girdiğinde değerlendirme burada görünecek.</p>
+    </article>
+  );
   const score = getGiftScore(gift);
 
   return (
@@ -250,13 +257,16 @@ function GiftCard({ title, gift }: { title: string; gift: string }) {
   );
 }
 
-export default function GiftCompareClient() {
-  const [giftA, setGiftA] = useState("");
+export default function GiftCompareClient({ initialGift = "" }: { initialGift?: string }) {
+  const [giftA, setGiftA] = useState(initialGift);
   const [giftB, setGiftB] = useState("");
   const [person, setPerson] = useState("");
   const [context, setContext] = useState("birthday");
 
   const decision = useMemo(() => getDecision(giftA, giftB), [giftA, giftB]);
+  const recommendedGift = giftA.trim() && giftB.trim()
+    ? (totalScore(getGiftScore(giftA)) >= totalScore(getGiftScore(giftB)) ? giftA : giftB)
+    : giftA || giftB;
 
   const contextText = useMemo(() => {
     if (context === "birthday") return "Doğum günü için duygusal ve düşünülmüş hissettiren seçimler daha iyi olur.";
@@ -313,6 +323,7 @@ export default function GiftCompareClient() {
             <input
               value={giftA}
               onChange={(event) => setGiftA(event.target.value)}
+              aria-label="Birinci hediye"
               placeholder="1. hediye: Örn: parfüm"
               className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
             />
@@ -320,6 +331,7 @@ export default function GiftCompareClient() {
             <input
               value={giftB}
               onChange={(event) => setGiftB(event.target.value)}
+              aria-label="İkinci hediye"
               placeholder="2. hediye: Örn: kolye"
               className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
             />
@@ -377,7 +389,7 @@ export default function GiftCompareClient() {
             </button>
 
             <Link
-              href={`/deneyim?gift=${encodeURIComponent(giftA || giftB || "hediye")}`}
+              href={`/deneyim?gift=${encodeURIComponent(recommendedGift || "hediye")}`}
               className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white"
             >
               Bu Hediye İçin Not Oluştur

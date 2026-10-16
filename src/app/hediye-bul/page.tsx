@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { budgetLimit, fitsBudget, budgetDescription } from "@/lib/giftBudget";
 import GiftResultCard from "@/components/GiftResultCard";
 import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
 
@@ -10,6 +10,8 @@ type Gift = {
   title?: string;
   name?: string;
   category?: string;
+  price_min?: number;
+  price_max?: number;
   price?: string;
   budget?: string;
   description?: string;
@@ -114,12 +116,12 @@ const questions: Question[] = [
   {
     key: "budget",
     title: "Bütçen yaklaşık ne kadar?",
-    subtitle: "Bütçeye uygun önerileri öne çıkaralım.",
+    subtitle: "Başlangıç fiyatı bütçeni aşan fikirleri eleyelim. Fiyatlar tahminidir.",
     options: [
-      { label: "500 TL civarı", value: "500 düşük küçük", emoji: "💸" },
-      { label: "1000 TL civarı", value: "1000 orta", emoji: "💳" },
-      { label: "2500 TL civarı", value: "2500 iyi", emoji: "💎" },
-      { label: "Premium", value: "premium yüksek", emoji: "👑" },
+      { label: "En fazla 500 TL", value: "500 düşük küçük", emoji: "💸" },
+      { label: "En fazla 1000 TL", value: "1000 orta", emoji: "💳" },
+      { label: "2En fazla 500 TL", value: "2500 iyi", emoji: "💎" },
+      { label: "Bütçe sınırım yok", value: "premium yüksek", emoji: "👑" },
       { label: "Fark etmez", value: "", emoji: "🎁" },
     ],
   },
@@ -164,7 +166,6 @@ function getMatchScore(gift: Gift, answers: Answers) {
   const relation = normalize(answers.relation);
   const style = normalize(answers.style);
   const interest = normalize(answers.interest);
-  const budget = normalize(answers.budget);
   const urgency = normalize(answers.urgency);
 
   if (relation.includes("sevgili") || relation.includes("romantik")) {
@@ -175,7 +176,7 @@ function getMatchScore(gift: Gift, answers: Answers) {
     if (includesAny(text, ["pijama", "bakım", "krem", "dekor", "kahve", "battaniye", "oda kokusu"])) score += 12;
   }
 
-  if (relation.includes("arkadaş")) {
+  if (relation.includes("arkadas")) {
     if (includesAny(text, ["kupa", "body mist", "kahve", "çorap", "kitap", "hobi", "çikolata"])) score += 10;
   }
 
@@ -227,17 +228,7 @@ function getMatchScore(gift: Gift, answers: Answers) {
     if (includesAny(text, ["pijama", "bakım", "kahve", "kolye", "mum"])) score += 7;
   }
 
-  return Math.min(score, 98);
-}
-
-function getRiskLabel(gift: Gift) {
-  const text = getGiftText(gift);
-
-  if (includesAny(text, ["parfüm", "çanta", "giyim", "tişört", "pijama"])) return "Orta risk";
-  if (includesAny(text, ["kolye", "takı", "saat"])) return "Düşük / orta risk";
-  if (includesAny(text, ["kupa", "kahve", "mum", "çikolata", "el kremi"])) return "Düşük risk";
-
-  return "Dengeli seçim";
+  return score;
 }
 
 export default function GiftFinderPage() {
@@ -275,6 +266,7 @@ export default function GiftFinderPage() {
           const safeGifts = data.gifts
             .filter(Boolean)
             .map((gift: Gift, index: number) => ({
+              ...gift,
               id: gift.id || `gift-${index}`,
               title: cleanGiftTitle(getRawGiftTitle(gift)),
               name: cleanGiftTitle(getRawGiftTitle(gift)),
@@ -310,16 +302,18 @@ export default function GiftFinderPage() {
 
   const progress = Math.round(((step + 1) / questions.length) * 100);
 
+  const limit = budgetLimit(answers.budget);
+
   const results = useMemo(() => {
     return gifts
-      .filter(Boolean)
+      .filter((gift) => gift && fitsBudget(gift, limit))
       .map((gift) => ({
         gift,
         score: getMatchScore(gift, answers),
       }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 8);
-  }, [gifts, answers]);
+  }, [gifts, answers, limit]);
 
   function selectOption(value: string) {
     setAnswers((current) => ({
@@ -453,7 +447,7 @@ export default function GiftFinderPage() {
                 </h2>
 
                 <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
-                  Seçimlerine göre en güçlü eşleşmeleri sıraladık.
+                  Seçimlerine göre sıralanan hediye fikirleri. Fiyat aralıkları tahminidir; stok ve güncel fiyat mağazaya göre değişir.
                 </p>
               </div>
 
@@ -474,12 +468,29 @@ export default function GiftFinderPage() {
               </div>
             </div>
 
+            {answers.urgency && answers.urgency !== "normal" && (
+              <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
+                Acil hediye için mağazadan teslim veya dijital seçenekleri değerlendir. Stok ve teslimat süresini doğrulayamıyoruz; siparişten önce mağazada kontrol et.
+              </p>
+            )}
+            {results.length === 0 && !loading && (
+              <div className="mt-6 rounded-2xl border border-pink-100 bg-white p-6" role="status">
+                <h3 className="text-xl font-bold">Bu bütçeye uygun fiyat bilgisi olan hediye bulamadık.</h3>
+                <p className="mt-2 text-sm">Testi yeniden başlatıp bütçeni değiştirebilirsin. Bütçeni aşan veya fiyatı bilinmeyen önerileri listelemedik.</p>
+              </div>
+            )}
             <div className="mt-6 grid gap-6">
               {results.map(({ gift, score }, index) => (
                 <GiftResultCard
                   key={gift.id || `${gift.title || gift.name || "gift"}-${index}`}
                   gift={gift}
                   score={score}
+                  budgetNote={budgetDescription(gift, limit)}
+                  matchReasons={[
+                    ...(answers.interest && includesAny(getGiftText(gift), answers.interest.split(" ")) ? ["Seçtiğin ilgi alanıyla ilişkili"] : []),
+                    ...(answers.style && includesAny(getGiftText(gift), answers.style.split(" ")) ? ["Seçtiğin tarza yakın"] : []),
+                    ...(limit ? ["Başlangıç fiyatı bütçe sınırının içinde"] : []),
+                  ]}
                 />
               ))}
             </div>

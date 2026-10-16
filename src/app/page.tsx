@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const mainActions = [
   {
@@ -54,38 +55,38 @@ const steps = [
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#fff4ef] text-[#2b1b1b]">
-      <section className="mx-auto grid max-w-7xl gap-10 px-5 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-20">
+      <section className="mx-auto grid max-w-7xl gap-7 px-5 py-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-12">
         <div>
           <p className="inline-flex rounded-full bg-pink-100 px-5 py-2 text-sm font-black text-pink-700">
             Ne alsam diye düşünme
           </p>
 
-          <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[0.95] tracking-tight md:text-7xl">
+          <h1 className="mt-5 max-w-4xl text-3xl font-bold leading-[1.15] tracking-tight md:text-5xl">
             30 saniyede kişiye özel hediye önerisi bul
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base font-semibold leading-8 text-[#6b4a4a] md:text-lg">
-            NeAlsam; kime hediye alacağını, bütçeni, özel günü ve ilgi alanlarını analiz ederek daha anlamlı, daha risksiz ve daha alınabilir hediye fikirleri önerir.
+          <p className="mt-4 max-w-xl text-sm font-normal leading-7 text-[#6b4a4a] md:text-base">
+            Kime hediye alacağını, bütçeni ve ilgi alanlarını seç. Sana uygun fikirleri bul, küçük bir notla kişiselleştir.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/hediye-bul"
-              className="rounded-full bg-[#1f1212] px-7 py-4 text-sm font-black text-white shadow-sm transition hover:-translate-y-1"
+              className="rounded-full bg-[#1f1212] px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-1"
             >
               Hediye Bul
             </Link>
 
             <Link
               href="/hediye-paketi"
-              className="rounded-full bg-white px-7 py-4 text-sm font-black text-pink-700 shadow-sm transition hover:-translate-y-1"
+              className="rounded-full bg-white px-5 py-3 text-sm font-black text-pink-700 shadow-sm transition hover:-translate-y-1"
             >
               Paket Oluştur
             </Link>
 
             <Link
               href="/deneyim"
-              className="rounded-full bg-pink-600 px-7 py-4 text-sm font-black text-white shadow-sm transition hover:-translate-y-1"
+              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:-translate-y-1"
             >
               QR Not Oluştur
             </Link>
@@ -103,18 +104,18 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-xl shadow-pink-100/60">
+        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
           <div className="rounded-[1.5rem] bg-gradient-to-br from-pink-50 to-[#fff4ef] p-6">
             <p className="text-sm font-black uppercase tracking-[0.2em] text-pink-600">
               Örnek sonuç
             </p>
 
-            <h2 className="mt-3 text-3xl font-black">
-              Cilt bakım organizeri
+            <h2 className="mt-3 text-2xl font-bold">
+              Seramik kahve kupası
             </h2>
 
             <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
-              Cilt bakım ürünlerini seven biri için ürün seçme riski olmadan düzen sağlayan, güvenli ve kullanışlı bir hediye.
+              Kahve molalarını seven biri için renk ve desenle kişiselleştirebileceğin, günlük kullanıma uygun bir hediye.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -145,7 +146,7 @@ export default function HomePage() {
                 Mağaza önerisi
               </p>
               <p className="mt-2 text-sm font-semibold text-[#6b4a4a]">
-                Organizer ürünleri için Trendyol, Hepsiburada ve Amazon daha uygun mağaza seçenekleri olabilir.
+                Kupa koleksiyonları için Starbucks, Tchibo, Madame Coco, English Home ve Karaca’ya göz atabilirsin.
               </p>
             </div>
           </div>
@@ -161,7 +162,7 @@ export default function HomePage() {
               className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pink-100 text-3xl">
-                {action.emoji}
+                {action.emoji === "🎁" ? <Image src="/gift-icon.svg" alt="" width={36} height={36} /> : action.emoji}
               </div>
 
               <h2 className="mt-5 text-2xl font-black">{action.title}</h2>
@@ -219,14 +220,14 @@ export default function HomePage() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/hediye-bul"
-              className="rounded-full bg-white px-7 py-4 text-sm font-black text-[#1f1212]"
+              className="rounded-full bg-white px-5 py-3 text-sm font-black text-[#1f1212]"
             >
               Hediye Bul
             </Link>
 
             <Link
               href="/deneyim"
-              className="rounded-full bg-pink-600 px-7 py-4 text-sm font-black text-white"
+              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
             >
               Deneyim Oluştur
             </Link>

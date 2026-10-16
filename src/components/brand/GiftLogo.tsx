@@ -1,37 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 
-type GiftLogoProps = {
-  small?: boolean;
-  href?: string;
-};
-
-export default function GiftLogo({ small = false, href = "/" }: GiftLogoProps) {
-  return (
-    <Link href={href} className="inline-flex items-center gap-2">
-      <span
-        className={`inline-flex shrink-0 items-center justify-center rounded-2xl bg-pink-100 shadow-sm ${
-          small ? "h-10 w-10" : "h-12 w-12"
-        }`}
-      >
-        <img
-          src="/gift-icon.svg"
-          alt="NeAlsam Hediye logosu"
-          className={small ? "h-7 w-7" : "h-8 w-8"}
-        />
-      </span>
-
-      <span className="leading-tight">
-        <span
-          className={`block font-black text-[#2b1b1b] ${
-            small ? "text-lg" : "text-xl"
-          }`}
-        >
-          NeAlsam
-        </span>
-        <span className="block text-xs font-semibold text-pink-600">
-          Hediye
-        </span>
-      </span>
-    </Link>
-  );
+export default function GiftLogo({ small = false, href = "/" }: { small?: boolean; href?: string }) {
+  return <Link href={href} aria-label="NeAlsam Hediye ana sayfa" className="inline-flex shrink-0 items-center gap-2">
+    <Image src="/gift-icon.svg" alt="" width={small ? 34 : 40} height={small ? 34 : 40} />
+    <span className="leading-tight"><span className="block text-base font-bold tracking-tight text-[#38252b]">NeAlsam</span><span className="block text-[10px] font-semibold tracking-wide text-[#b04f70]">Hediye</span></span>
+  </Link>;
 }

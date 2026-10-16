@@ -16,7 +16,7 @@ export default function GiftStoreLinks({ gift }: { gift: GiftLike }) {
   return (
     <div className="mt-5 rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-pink-600">
-        Satın Alma Linkleri
+        Mağazada Ara
       </p>
 
       <h3 className="mt-2 text-xl font-black text-[#2b1b1b]">
@@ -24,8 +24,7 @@ export default function GiftStoreLinks({ gift }: { gift: GiftLike }) {
       </h3>
 
       <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
-        Marka adı hediye önerisinin içinde kullanılmaz. Mağazalarda sadece
-        <strong> “{query}” </strong> araması yapılır.
+        <strong>“{query}”</strong> için ilgili koleksiyon veya arama sayfasını açar. Güncel fiyat, stok ve teslimat bilgisini mağazada kontrol et.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">

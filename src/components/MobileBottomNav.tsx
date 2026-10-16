@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const items = [
   { href: "/", label: "Ana Sayfa", icon: "⌂" },
@@ -17,7 +18,7 @@ export default function MobileBottomNav() {
             href={item.href}
             className="flex flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-[11px] font-black text-[#6b4a4a] transition active:bg-pink-50"
           >
-            <span className="text-lg leading-none">{item.icon}</span>
+            <span className="text-lg leading-none">{item.href === "/hediye-bul" ? <Image src="/gift-icon.svg" alt="" width={22} height={22} /> : item.icon}</span>
             <span className="mt-1 leading-none">{item.label}</span>
           </Link>
         ))}
