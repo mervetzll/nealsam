@@ -14,7 +14,7 @@ const packageDetails = {
   plus: {
     name: "Plus",
     price: 49,
-    description: "Daha kişisel hediye önerileri için.",
+    description: "Arama sınırını kaldır; kişisel not, paketleme fikri, bütçe dağılımı, alternatifler ve indirilebilir hazırlık planını kullan.",
   },
   experience: {
     name: "Deneyim",
@@ -44,12 +44,13 @@ export default function OdemeClient() {
     setLoading(true);
     setMessage("");
 
+    try {
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
     if (!session?.access_token) {
-      setMessage("Ödeme yapmak için önce giriş yapmalısın.");
+      router.push(`/giris?mode=register&next=${encodeURIComponent("/odeme?plan=" + selectedPlan)}`);
       setLoading(false);
       return;
     }
@@ -79,7 +80,8 @@ export default function OdemeClient() {
     }
 
     setMessage("Ödeme sayfası alınamadı.");
-    setLoading(false);
+    } catch { setMessage("Ödeme bağlantısı kurulamadı. Biraz sonra tekrar dene."); }
+    finally { setLoading(false); }
   }
 
   return (

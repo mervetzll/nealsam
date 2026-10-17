@@ -1,24 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { budgetLimit, fitsBudget, budgetDescription } from "@/lib/giftBudget";
+import { useEffect, useRef, useState } from "react";
+import { budgetLimit, budgetDescription } from "@/lib/giftBudget";
 import GiftResultCard from "@/components/GiftResultCard";
-import { diversifyGifts, excludesGift } from "@/lib/giftSelection";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { getMatchScore, getGiftText, includesAny, type Gift, type Answers } from "@/lib/giftMatching";
+import GiftPlanPanel from "@/components/GiftPlanPanel";
 import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
-
-type Gift = {
-  id?: string;
-  title?: string;
-  name?: string;
-  category?: string;
-  price_min?: number;
-  price_max?: number;
-  price?: string;
-  budget?: string;
-  description?: string;
-  reason?: string;
-  tags?: string[];
-};
 
 type Question = {
   key: keyof Answers;
@@ -30,51 +19,6 @@ type Question = {
     emoji: string;
   }[];
 };
-
-type Answers = {
-  relation: string;
-  style: string;
-  interest: string;
-  budget: string;
-  urgency: string;
-  occasion: string;
-  exclude: string;
-};
-
-const fallbackGifts: Gift[] = [
-  {
-    id: "fallback-1",
-    title: "Pijama takımı",
-    category: "Ev Giyim / Rahatlık",
-    price: "700–2500 TL",
-    description: "Rahat, kullanışlı ve samimi bir hediye.",
-    tags: ["pijama", "cozy", "ev giyim"],
-  },
-  {
-    id: "fallback-2",
-    title: "Body mist",
-    category: "Bakım / Self-care",
-    price: "300–1500 TL",
-    description: "Parfüme göre daha hafif ve tatlı bir bakım hediyesi.",
-    tags: ["body mist", "bakım", "koku"],
-  },
-  {
-    id: "fallback-3",
-    title: "Kupa",
-    category: "Kahve / Çay / Cozy",
-    price: "200–1000 TL",
-    description: "Samimi, risksiz ve günlük hayatta kullanılabilecek bir hediye.",
-    tags: ["kupa", "kahve", "cozy"],
-  },
-  {
-    id: "fallback-4",
-    title: "Kolye",
-    category: "Aksesuar",
-    price: "400–5000 TL",
-    description: "Kalıcı, zarif ve duygusal bir hediye.",
-    tags: ["kolye", "takı", "romantik"],
-  },
-];
 
 const questions: Question[] = [
   {
@@ -167,103 +111,13 @@ const questions: Question[] = [
   },
 ];
 
-function normalize(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/ı/g, "i")
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c");
-}
-
-function getGiftText(gift: Gift) {
-  return normalize(
-    `${gift.title || ""} ${gift.name || ""} ${gift.category || ""} ${gift.description || ""} ${gift.reason || ""} ${(gift.tags || []).join(" ")}`
-  );
-}
-
-function includesAny(text: string, words: string[]) {
-  return words.some((word) => text.includes(normalize(word)));
-}
-
-function getMatchScore(gift: Gift, answers: Answers) {
-  const text = getGiftText(gift);
-  let score = 62;
-
-  const relation = normalize(answers.relation);
-  const style = normalize(answers.style);
-  const interest = normalize(answers.interest);
-  const urgency = normalize(answers.urgency);
-
-  if (relation.includes("sevgili") || relation.includes("romantik")) {
-    if (includesAny(text, ["kolye", "bileklik", "parfüm", "pijama", "çiçek", "mum"])) score += 12;
-  }
-
-  if (relation.includes("anne")) {
-    if (includesAny(text, ["pijama", "bakım", "krem", "dekor", "kahve", "battaniye", "oda kokusu"])) score += 12;
-  }
-
-  if (relation.includes("arkadas")) {
-    if (includesAny(text, ["kupa", "body mist", "kahve", "çorap", "kitap", "hobi", "çikolata"])) score += 10;
-  }
-
-  if (relation.includes("erkek") || relation.includes("baba")) {
-    if (includesAny(text, ["polo", "sweatshirt", "cüzdan", "kartlık", "saat", "tıraş", "termos", "kulaklık", "kemer"])) score += 14;
-  }
-
-  if (style.includes("cozy") || style.includes("rahat")) {
-    if (includesAny(text, ["pijama", "sabahlık", "terlik", "battaniye", "kupa", "mum", "çorap"])) score += 16;
-  }
-
-  if (style.includes("bakim") || style.includes("self")) {
-    if (includesAny(text, ["body mist", "el kremi", "duş jeli", "losyon", "cilt", "spa", "maske", "bakım"])) score += 16;
-  }
-
-  if (style.includes("romantik")) {
-    if (includesAny(text, ["kolye", "bileklik", "parfüm", "çiçek", "mum", "takı"])) score += 16;
-  }
-
-  if (style.includes("kullanisli")) {
-    if (includesAny(text, ["termos", "kupa", "çanta", "cüzdan", "kartlık", "kulaklık", "powerbank", "saat"])) score += 13;
-  }
-
-  if (interest.includes("kahve")) {
-    if (includesAny(text, ["kahve", "kupa", "termos", "french press", "çay"])) score += 16;
-  }
-
-  if (interest.includes("bakim")) {
-    if (includesAny(text, ["bakım", "body mist", "krem", "spa", "maske", "losyon"])) score += 16;
-  }
-
-  if (interest.includes("dekor") || interest.includes("ev")) {
-    if (includesAny(text, ["mum", "oda kokusu", "vazo", "çerçeve", "battaniye", "abajur", "dekor"])) score += 15;
-  }
-
-  if (interest.includes("moda") || interest.includes("aksesuar")) {
-    if (includesAny(text, ["kolye", "çanta", "saat", "şal", "fular", "cüzdan", "toka", "tişört", "sweatshirt"])) score += 15;
-  }
-
-  if (answers.interest && includesAny(text, answers.interest.split(" "))) score += 15;
-  if (answers.occasion.includes("romantik") && includesAny(text, ["romantik", "kolye", "anı", "çiçek"])) score += 8;
-  if (answers.occasion.includes("ev") && includesAny(text, ["dekor", "kupa", "vazo", "defter"])) score += 8;
-
-  if (urgency.includes("bugun") || urgency.includes("acil")) {
-    if (includesAny(text, ["çiçek", "çikolata", "kupa", "body mist", "el kremi", "kahve", "mum"])) score += 8;
-  }
-
-  if (urgency.includes("yarin")) {
-    if (includesAny(text, ["pijama", "bakım", "kahve", "kolye", "mum"])) score += 7;
-  }
-
-  return score;
-}
-
 export default function GiftFinderPage() {
   const questionHeading = useRef<HTMLHeadingElement>(null);
-  const [gifts, setGifts] = useState<Gift[]>(fallbackGifts);
-  const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState<{gift: Gift; score: number}[]>([]);
+  const [access, setAccess] = useState<{remaining: number; paid: boolean} | null>(null);
+  const [paywall, setPaywall] = useState(false);
+  const searching = useRef(false);
+  const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [replacements, setReplacements] = useState<Record<string, string>>({});
@@ -291,7 +145,7 @@ export default function GiftFinderPage() {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore the browser draft after hydration.
         setAnswers(current => Object.fromEntries(Object.keys(current).map(key => [key, typeof draft.answers[key] === "string" ? draft.answers[key] : ""])) as Answers);
         setStep(Math.max(0, Math.min(questions.length - 1, Number(draft.step) || 0)));
-        setShowResults(draft.showResults === true);
+        // Results are re-authorized by the server; local storage cannot grant searches.
         if (Array.isArray(draft.hiddenIds)) setHiddenIds(draft.hiddenIds.filter((value: unknown) => typeof value === "string"));
         if (draft.replacements && typeof draft.replacements === "object") setReplacements(Object.fromEntries(Object.entries(draft.replacements).filter(([,value]) => typeof value === "string")) as Record<string,string>);
       }
@@ -316,73 +170,51 @@ export default function GiftFinderPage() {
       : [...current, { ...gift, title }].slice(-50));
   }
 
+  async function authHeaders() {
+    const { data: { session } } = await supabase.auth.getSession();
+    return { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}) };
+  }
+
   useEffect(() => {
     let active = true;
-
-    async function loadGifts() {
-      setLoading(true);
-      setLoadError("");
-
+    async function refreshAccess() {
       try {
-        const response = await fetch("/api/gifts", {
-          cache: "no-store",
-        });
-
+        const response = await fetch("/api/gift-search", { headers: await authHeaders(), cache: "no-store" });
         const data = await response.json();
-
-        if (!active) return;
-
-        if (data?.ok && Array.isArray(data.gifts) && data.gifts.length > 0) {
-          const safeGifts = data.gifts
-            .filter(Boolean)
-            .map((gift: Gift, index: number) => ({
-              ...gift,
-              id: gift.id || `gift-${index}`,
-              title: cleanGiftTitle(getRawGiftTitle(gift)),
-              name: cleanGiftTitle(getRawGiftTitle(gift)),
-              category: gift.category || "Genel",
-              price: gift.price || gift.budget || "",
-              budget: gift.budget || gift.price || "",
-              description: gift.description || gift.reason || "",
-              reason: gift.reason || gift.description || "",
-              tags: Array.isArray(gift.tags) ? gift.tags : [],
-            }));
-
-          setGifts(safeGifts);
-        } else {
-          setGifts(fallbackGifts);
-        }
-      } catch {
-        if (!active) return;
-        setLoadError("Hediye listesi yüklenemedi, yedek öneriler gösteriliyor.");
-        setGifts(fallbackGifts);
-      } finally {
-        if (active) setLoading(false);
-      }
+        if (active && response.ok) setAccess(data);
+      } catch { /* A search will retry the access check and show any error. */ }
     }
-
-    loadGifts();
-
-    return () => {
-      active = false;
-    };
+    void refreshAccess();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { void refreshAccess(); });
+    return () => { active = false; subscription.unsubscribe(); };
   }, []);
+
+  async function finishSearch(nextAnswers: Answers = answers) {
+    if (searching.current) return;
+    searching.current = true;
+    setLoading(true);
+    setLoadError("");
+    setPaywall(false);
+    try {
+      const response = await fetch("/api/gift-search", { method: "POST", headers: await authHeaders(), body: JSON.stringify({ answers: nextAnswers }) });
+      const data = await response.json();
+      if (response.status === 402) { setAccess({remaining: 0, paid: false}); setPaywall(true); return; }
+      if (!response.ok) throw new Error(data.error || "Arama tamamlanamadı. Yeniden deneyebilirsin.");
+      setAccess({remaining: data.remaining, paid: data.paid});
+      setResults(data.results);
+      setShowResults(true);
+      setSavedOnly(false);
+      setHiddenIds([]);
+      setReplacements({});
+    } catch (error) { setLoadError(error instanceof Error ? error.message : "Arama tamamlanamadı."); }
+    finally { searching.current = false; setLoading(false); }
+  }
 
   const currentQuestion = questions[step];
 
   const progress = Math.round(((step + 1) / questions.length) * 100);
 
   const limit = budgetLimit(answers.budget);
-
-  const results = useMemo(() => {
-    return diversifyGifts(gifts
-      .filter((gift) => gift && fitsBudget(gift, limit) && !excludesGift(gift, answers.exclude))
-      .map((gift) => ({
-        gift,
-        score: getMatchScore(gift, answers),
-      }))
-      .sort((a, b) => b.score - a.score));
-  }, [gifts, answers, limit]);
 
   const visibleResults = savedOnly
     ? saved.map(gift => ({ gift, score: getMatchScore(gift, answers) }))
@@ -411,7 +243,7 @@ export default function GiftFinderPage() {
       setStep((current) => current + 1);
       requestAnimationFrame(() => questionHeading.current?.focus());
     } else {
-      setShowResults(true);
+      void finishSearch({ ...answers, [currentQuestion.key]: value });
     }
   }
 
@@ -451,7 +283,7 @@ export default function GiftFinderPage() {
             Hediye Bul
           </p>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
+          <h1 className="mt-3 max-w-4xl text-3xl font-black tracking-tight md:text-4xl">
             Birlikte düşünülmüş bir hediye bulalım
           </h1>
 
@@ -466,6 +298,16 @@ export default function GiftFinderPage() {
           )}
         </div>
 
+        <div className="mt-4 rounded-2xl border border-pink-100 bg-white p-4 text-sm" aria-live="polite">
+          {access?.paid ? "Plus özelliklerin açık: hediye aramaları ve kişisel hazırlık planı." : access ? `Bu tarayıcıda ${access.remaining} ücretsiz araman kaldı. Sonrasında Plus 49 TL. Üyelik tek başına ek hak vermez.` : "İlk 3 farklı arama ücretsiz. Sonrasında Plus 49 TL."}
+          <p className="mt-1 text-xs text-[#6b4a4a]">Aynı tercihleri yeniden görmek hak tüketmez. Ücretsiz haklar bu tarayıcıdaki çerezle takip edilir.</p>
+        </div>
+        {paywall && <section className="mt-5 rounded-2xl border border-pink-300 bg-pink-50 p-6" role="alert">
+          <h2 className="text-2xl font-black">Üç ücretsiz aramanı kullandın 🎁</h2>
+          <p className="mt-3 text-sm leading-6">Yeni hediye fikirleri ve kişisel hazırlık planı için Plus’a geç. Önceki tercihlerin korunuyor; üye olmak tek başına arama sınırını kaldırmaz.</p>
+          <Link href="/odeme?plan=plus" className="mt-4 inline-block rounded-full bg-pink-600 px-6 py-3 font-bold text-white">49 TL’lik Plus paketini incele</Link>
+          <Link href="/giris?next=%2Fhediye-bul" className="ml-4 inline-block py-3 text-sm underline">Zaten paketim var, giriş yap</Link>
+        </section>}
         {!showResults ? (
           <div className="mx-auto mt-8 max-w-4xl rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
             <div className="flex items-center justify-between gap-4">
@@ -499,6 +341,7 @@ export default function GiftFinderPage() {
               {currentQuestion.options.map((option) => (
                 <button
                   key={`${currentQuestion.key}-${option.label}`}
+                  disabled={loading || !ready}
                   onClick={() => selectOption(option.value)}
                   aria-pressed={answers[currentQuestion.key] === option.value}
                   className={`rounded-2xl border p-4 text-left transition hover:bg-pink-100 focus-visible:outline-2 focus-visible:outline-pink-600 ${answers[currentQuestion.key] === option.value ? "border-pink-500 bg-pink-100" : "border-pink-100 bg-[#fff4ef]"}`}
@@ -521,7 +364,7 @@ export default function GiftFinderPage() {
               </button>
 
               <button
-                onClick={() => setShowResults(true)}
+                onClick={() => void finishSearch()} disabled={loading || !ready}
                 className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white"
               >
                 Testi Bitir ve Sonuçları Gör
@@ -586,6 +429,7 @@ export default function GiftFinderPage() {
                 <p className="mt-2 text-sm">Testi yeniden başlatıp bütçeni değiştirebilirsin. Bütçeni aşan veya fiyatı bilinmeyen önerileri listelemedik.</p>
               </div>
             )}
+            {!savedOnly && results.length > 0 && <GiftPlanPanel gifts={visibleResults.map(item => item.gift)} answers={answers} paid={access?.paid === true} />}
             <div className="mt-6 grid items-start gap-5 lg:grid-cols-2">
               {visibleResults.map(({ gift, score }, index) => (
                 <GiftResultCard

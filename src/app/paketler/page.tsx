@@ -14,7 +14,7 @@ const packages = [
     tag: "Başlangıç",
     description: "Hızlıca hediye fikri bulmak isteyenler için.",
     features: [
-      "Temel hediye önerileri",
+      "3 farklı hediye araması",
       "Bütçe ve kişi seçimi",
       "Mağaza yönlendirmeleri",
       "Paylaşma seçeneği",
@@ -23,7 +23,7 @@ const packages = [
       "QR hediye notu",
       "Özel mektup",
       "Premium deneyim akışı",
-      "Gelişmiş profil önerileri",
+      "Kişisel hazırlık planı",
     ],
     cta: "Ücretsiz Başla",
     href: "/hediye-bul",
@@ -36,10 +36,11 @@ const packages = [
     tag: "En Dengeli",
     description: "Daha kişisel ve daha özenli hediye önerileri için.",
     features: [
-      "Daha güçlü eşleşme önerileri",
-      "Kaydetme ve favori sistemi",
-      "Profil tercihlerini kullanma",
-      "Premium kilitli alanlara temel erişim",
+      "Arama sınırını kaldırma",
+      "Hediyeye özel kişisel hazırlık planı",
+      "İsim ve anıya göre düzenlenebilir not",
+      "Paketleme ve bütçe dağılımı",
+      "Alternatifler ve indirilebilir hazırlık listesi",
     ],
     locked: ["Tam QR deneyimi", "Tam özel mektup akışı"],
     cta: "Plus Seç",
@@ -84,8 +85,8 @@ const packages = [
 ];
 
 const comparisonRows = [
-  ["Temel hediye önerileri", "✓", "✓", "✓", "✓"],
-  ["Profil tercihleri", "Kısıtlı", "✓", "✓", "✓"],
+  ["Hediye aramaları", "3 farklı arama", "Sınırsız", "3 farklı arama", "Sınırsız"],
+  ["Kişisel hazırlık planı ve indirme", "—", "✓", "—", "✓"],
   ["Kaydet / favori", "✓", "✓", "✓", "✓"],
   ["QR hediye notu", "—", "Kısıtlı", "✓", "✓"],
   ["Özel mektup", "—", "—", "✓", "✓"],
@@ -102,14 +103,12 @@ export default function PackagesPage() {
             NeAlsam Paketleri
           </p>
 
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-4xl md:text-6xl">
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
             Hediyeyi daha özel hale getiren paketler
           </h1>
 
           <p className="mt-5 text-sm leading-7 text-[#6b4a4a] md:text-base">
-            Ücretsiz hediye önerileriyle başlayabilir, istersen QR not, özel
-            mektup ve premium deneyim özellikleriyle hediyeni daha kişisel hale
-            getirebilirsin.
+            İlk 3 farklı arama ücretsiz. Daha fazla arama ve kişisel hazırlık planı Plus’ta 49 TL. Üye olmak tek başına ek arama hakkı vermez. Deneyim paketi QR ve mesaj deneyimine yöneliktir; sınırsız arama Plus ve Premium’a dahildir.
           </p>
         </div>
 
