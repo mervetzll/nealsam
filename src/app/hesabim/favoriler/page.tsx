@@ -13,18 +13,23 @@ type FavoriteGift = {
   gift_search_query: string | null;
   created_at: string;
 };
+type BrowserGift = { title: string; category?: string; description?: string; price?: string };
 
 export default function FavoritesPage() {
   const [items, setItems] = useState<FavoriteGift[]>([]);
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [browserGifts, setBrowserGifts] = useState<BrowserGift[]>([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    loadFavorites();
-  }, []);
-
   async function loadFavorites() {
-    setLoading(true);
+    try {
+      const local = JSON.parse(localStorage.getItem("nealsam.favorites.v1") || "[]");
+      if (Array.isArray(local)) setBrowserGifts(local.filter(item => typeof item?.title === "string"));
+    } catch { /* Local favorites are optional. */ }
+
+    try {
 
     const {
       data: { user },
@@ -46,15 +51,24 @@ export default function FavoritesPage() {
     if (!error && data) {
       setItems(data);
     }
+    if (error) setError("Hesabındaki favoriler yüklenemedi. Sayfayı yenileyerek tekrar deneyebilirsin.");
 
     setLoading(false);
+    } catch {
+      setError("Hesap bağlantısı kurulamadı. Bu tarayıcıdaki kayıtlarını kullanabilirsin.");
+      setLoading(false);
+    }
   }
+
+    void loadFavorites();
+  }, []);
 
   async function deleteFavorite(id: string) {
     const ok = confirm("Bu favoriyi silmek istiyor musun?");
     if (!ok) return;
 
-    await supabase.from("favorite_gifts").delete().eq("id", id);
+    const { error } = await supabase.from("favorite_gifts").delete().eq("id", id);
+    if (error) { setError("Favori silinemedi. Tekrar deneyebilirsin."); return; }
     setItems((current) => current.filter((item) => item.id !== id));
   }
 
@@ -89,6 +103,24 @@ export default function FavoritesPage() {
           </div>
         </div>
 
+        <section className="mt-6 rounded-2xl border border-pink-100 bg-white p-5" aria-label="Bu tarayıcıdaki favoriler">
+          <h2 className="text-xl font-bold">Bu tarayıcıda kaydettiklerin ({browserGifts.length})</h2>
+          <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">Hediye Bul ekranında kaydettiklerin burada görünür. Bu kayıtlar hesabına otomatik aktarılmaz; tarayıcı verilerini silersen silinir.</p>
+          {browserGifts.length === 0 && <p className="mt-4 text-sm">Henüz kayıt yok. Hediye önerilerindeki ♡ Kaydet düğmesini kullanabilirsin.</p>}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">{browserGifts.map(gift => <article key={gift.title} className="rounded-xl bg-[#fff4ef] p-4">
+            <h3 className="font-bold">{gift.title}</h3>
+            <p className="mt-2 text-sm text-[#6b4a4a]">{gift.price ? `Tahmini: ${gift.price}` : gift.category}</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href={`/hediye-karsilastir?gift=${encodeURIComponent(gift.title)}`} className="text-sm font-bold text-pink-700 underline">Karşılaştır</Link>
+              <Link href={`/deneyim?gift=${encodeURIComponent(gift.title)}`} className="text-sm font-bold text-pink-700 underline">Not oluştur</Link>
+              <button type="button" className="text-sm font-bold text-[#6b4a4a] underline" onClick={() => {
+                const next = browserGifts.filter(item => item.title !== gift.title);
+                try { localStorage.setItem("nealsam.favorites.v1", JSON.stringify(next)); setBrowserGifts(next); } catch { setError("Tarayıcı kaydı değiştirilemedi."); }
+              }}>Kaldır</button>
+            </div>
+          </article>)}</div>
+        </section>
+        {error && <p role="alert" className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">{error}</p>}
         {loading && (
           <div className="mt-10 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
             <p className="font-bold text-[#2b1b1b]">Favoriler yükleniyor...</p>
@@ -98,10 +130,10 @@ export default function FavoritesPage() {
         {!loading && !loggedIn && (
           <div className="mt-10 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
             <h2 className="text-2xl font-black text-[#2b1b1b]">
-              Favorileri görmek için giriş yap
+              Hesabındaki favoriler için giriş yap
             </h2>
             <p className="mt-3 text-sm text-[#6b4a4a]">
-              Favori hediyelerin hesabına bağlı tutulur.
+              Daha önce hesabına kaydettiğin favorileri giriş yaptıktan sonra görebilirsin.
             </p>
 
             <Link

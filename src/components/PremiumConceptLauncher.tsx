@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import UnbrandedNoteClient, { type Experience } from "@/app/n/[id]/UnbrandedNoteClient";
 
 import { getFallbackConcepts, buildConceptOutput, type PremiumConcept } from "@/lib/conceptContent";
 
@@ -65,6 +66,8 @@ export default function PremiumConceptLauncher() {
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState("");
   const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState<Experience | null>(null);
+
 
   const selectedConcept = useMemo(() => {
     return concepts.find((concept) => concept.id === selectedConceptId) || concepts[0];
@@ -121,6 +124,25 @@ export default function PremiumConceptLauncher() {
     memoryEnabled, memoryTitle, memoryDetail, memoryEmoji,
   };
   const snapshot = JSON.stringify(savePayload);
+
+  function previewRecipient() {
+    setPreview({
+      id: "preview", concept_key: selectedConcept.id, concept_title: selectedConcept.title,
+      person_name: personName, sender_name: senderName, relation, gift_name: giftName,
+      tone, note_length: noteLength, special_detail: specialDetail, generated_text: generatedText,
+      hunt_location: huntLocation, hunt_steps: huntSteps, hunt_difficulty: huntDifficulty,
+      hunt_style: huntStyle, hunt_detail: huntDetail,
+      lock_enabled: lockEnabled, lock_question: lockQuestion, lock_answer: lockAnswer,
+      unlock_at: savePayload.unlockAt || null,
+      mood_enabled: moodEnabled, mood_happy: moodHappy, mood_emotional: moodEmotional,
+      mood_romantic: moodRomantic, mood_funny: moodFunny, mood_nostalgic: moodNostalgic,
+      surprise_enabled: surpriseEnabled, surprise_boxes: savePayload.surpriseBoxes,
+      quiz_enabled: quizEnabled, quiz_items: savePayload.quizItems,
+      memory_enabled: memoryEnabled, memory_title: memoryTitle, memory_detail: memoryDetail,
+      memory_emoji: memoryEmoji, created_at: new Date().toISOString(),
+    });
+  }
+
 
   useEffect(() => {
     const controller = new AbortController();
@@ -670,6 +692,20 @@ export default function PremiumConceptLauncher() {
               className="mt-3 w-full rounded-3xl border border-pink-100 bg-[#fff4ef] p-5 text-sm font-normal leading-7" />
           </label>
           <p className="mt-3 text-xs leading-6 text-[#6b4a4a]">Detaylarını değiştirirsen yeni bir taslak hazırlanır. Kaydetmeden önce son metni kontrol et.</p>
+          <button type="button" onClick={previewRecipient} className="mt-4 w-full rounded-full border border-pink-300 bg-white px-5 py-3 text-sm font-bold text-pink-700">Alıcının gözünden önizle</button>
+          <p className="mt-2 text-xs text-[#6b4a4a]">Önizleme kaydedilmez. Kilit ve oyun adımlarını göndermeden önce deneyebilirsin.</p>
+          {preview && <div role="dialog" aria-label="Alıcı önizlemesi" aria-modal="true" onKeyDown={event => {
+            if (event.key === "Escape") { setPreview(null); return; }
+            if (event.key !== "Tab") return;
+            const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]')).filter(element => element.getClientRects().length > 0);
+            const first = controls[0];
+            const last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+            if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+          }}>
+            <UnbrandedNoteClient experienceId="preview" initialExperience={preview}/>
+            <button autoFocus type="button" onClick={() => setPreview(null)} className="fixed right-4 top-3 z-[10001] rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white shadow-lg">Önizlemeyi kapat</button>
+          </div>}
           {savedId && savedSnapshot !== snapshot && <p role="status" className="mt-3 text-sm text-amber-800">Deneyim değişti. Güncel kart bağlantısı için yeniden kaydet.</p>}
 
           {message && (

@@ -11,7 +11,7 @@ type QuizItem = {
   answer?: string;
 };
 
-type Experience = {
+export type Experience = {
   id: string;
   concept_key: string;
   concept_title: string;
@@ -128,14 +128,16 @@ function asQuizArray(value: unknown): QuizItem[] {
 
 export default function UnbrandedNoteClient({
   experienceId,
+  initialExperience,
 }: {
   experienceId: string;
+  initialExperience?: Experience;
 }) {
   const searchParams = useSearchParams();
   const shouldPrint = searchParams.get("print") === "1";
 
-  const [experience, setExperience] = useState<Experience | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [experience, setExperience] = useState<Experience | null>(initialExperience || null);
+  const [loading, setLoading] = useState(!initialExperience);
   const [message, setMessage] = useState("");
 
   const [mode, setMode] = useState<TemplateMode>("image");
@@ -230,19 +232,20 @@ export default function UnbrandedNoteClient({
   }, [experience, selectedMood]);
 
   useEffect(() => {
+    if (initialExperience) return;
     loadExperience();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [experienceId]);
+  }, [experienceId, initialExperience]);
 
   useEffect(() => {
-    if (!experience || !shouldPrint) return;
+    if (!experience || !shouldPrint || initialExperience) return;
 
     const timer = window.setTimeout(() => {
       window.print();
     }, 1800);
 
     return () => window.clearTimeout(timer);
-  }, [experience, shouldPrint]);
+  }, [experience, shouldPrint, initialExperience]);
 
   async function loadExperience() {
     setLoading(true);

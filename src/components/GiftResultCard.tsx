@@ -181,11 +181,17 @@ export default function GiftResultCard({
   score,
   budgetNote,
   matchReasons = [],
+  onReplace,
+  onFavorite,
+  isFavorite = false,
 }: {
   gift: Gift;
   score: number;
   budgetNote?: string;
   matchReasons?: string[];
+  onReplace?: () => void;
+  onFavorite?: () => void;
+  isFavorite?: boolean;
 }) {
   const title = cleanGiftTitle(getRawGiftTitle(gift));
   const risk = getRiskInfo(gift);
@@ -194,7 +200,11 @@ export default function GiftResultCard({
 
   return (
     <article className="overflow-hidden rounded-[2rem] border border-pink-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      <div className="bg-gradient-to-br from-pink-50 to-[#fff4ef] p-6">
+      <div className="bg-gradient-to-br from-pink-50 to-[#fff4ef] p-5 md:p-6">
+        <div className="mb-4 flex flex-wrap gap-2">
+          {onFavorite && <button type="button" onClick={onFavorite} aria-pressed={isFavorite} className="rounded-full border border-pink-200 bg-white px-4 py-2 text-sm font-bold text-pink-700">{isFavorite ? "♥ Kaydedildi" : "♡ Kaydet"}</button>}
+          {onReplace && <button type="button" onClick={onReplace} className="rounded-full border border-pink-200 bg-white px-4 py-2 text-sm font-bold text-pink-700">Başka öner</button>}
+        </div>
         <div className="flex flex-wrap gap-3">
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700 shadow-sm">
             {score >= 90 ? "Tercihlerine yakın" : "Değerlendirebileceğin fikir"}
@@ -231,15 +241,19 @@ export default function GiftResultCard({
           </p>
         </div>
 
-        <div className="rounded-2xl bg-[#fff4ef] p-5">
+        <details className="rounded-2xl bg-[#fff4ef] p-5">
+          <summary className="cursor-pointer text-sm font-bold text-pink-700">Seçerken dikkat et</summary>
           <p className="text-xs font-black uppercase tracking-wide text-pink-600">
             Risk seviyesi
           </p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
             <span className="font-black text-[#2b1b1b]">{risk.label}:</span> {risk.text}
           </p>
-        </div>
+        </details>
 
+        <details className="rounded-2xl border border-pink-100 p-4 md:col-span-2">
+          <summary className="cursor-pointer text-sm font-bold text-pink-700">Paketleme ve tamamlayıcı fikirler</summary>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-2xl bg-[#fff4ef] p-5">
           <p className="text-xs font-black uppercase tracking-wide text-pink-600">
             Kimler için uygun?
@@ -280,6 +294,9 @@ export default function GiftResultCard({
             {getPresentationIdea(gift)}
           </p>
         </div>
+
+          </div>
+        </details>
 
         <div className="md:col-span-2">
           <GiftStoreLinks gift={gift} />

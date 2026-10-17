@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { budgetLimit, fitsBudget, budgetDescription } from "@/lib/giftBudget";
 import GiftResultCard from "@/components/GiftResultCard";
+import { diversifyGifts, excludesGift } from "@/lib/giftSelection";
 import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
 
 type Gift = {
@@ -36,6 +37,8 @@ type Answers = {
   interest: string;
   budget: string;
   urgency: string;
+  occasion: string;
+  exclude: string;
 };
 
 const fallbackGifts: Gift[] = [
@@ -83,8 +86,20 @@ const questions: Question[] = [
       { label: "Anne", value: "anne aile", emoji: "🌷" },
       { label: "Arkadaş", value: "arkadaş eğlenceli", emoji: "🫶" },
       { label: "Kardeş", value: "kardeş genç", emoji: "✨" },
-      { label: "Erkek", value: "erkek baba erkek arkadaş", emoji: "🧢" },
+      { label: "Baba", value: "baba aile", emoji: "🧢" },
       { label: "Fark etmez", value: "", emoji: "🎁" },
+    ],
+  },
+  {
+    key: "occasion",
+    title: "Hangi gün için?",
+    subtitle: "Hediyenin anlamını da düşünelim.",
+    options: [
+      { label: "Doğum günü", value: "doğum günü", emoji: "🎂" },
+      { label: "Yıl dönümü", value: "yıl dönümü romantik", emoji: "💞" },
+      { label: "Teşekkür / içimden geldi", value: "teşekkür", emoji: "🌷" },
+      { label: "Yeni iş / yeni ev", value: "yeni iş ev", emoji: "🏡" },
+      { label: "Diğer", value: "", emoji: "🎁" },
     ],
   },
   {
@@ -109,7 +124,9 @@ const questions: Question[] = [
       { label: "Bakım", value: "bakım krem body mist spa cilt", emoji: "🧖‍♀️" },
       { label: "Ev / dekor", value: "ev dekor mum oda kokusu battaniye", emoji: "🏠" },
       { label: "Moda / aksesuar", value: "moda aksesuar çanta kolye saat", emoji: "🛍️" },
-      { label: "Kitap / hobi / teknoloji", value: "kitap hobi kulaklık powerbank teknoloji", emoji: "🎧" },
+      { label: "Kitap / kırtasiye", value: "kitap defter kalem ayraç", emoji: "📚" },
+      { label: "Hobi / oyun", value: "hobi puzzle oyun boya", emoji: "🎨" },
+      { label: "Teknoloji", value: "teknoloji kulaklık powerbank hoparlör", emoji: "🎧" },
       { label: "Fark etmez", value: "", emoji: "🎁" },
     ],
   },
@@ -120,9 +137,21 @@ const questions: Question[] = [
     options: [
       { label: "En fazla 500 TL", value: "500 düşük küçük", emoji: "💸" },
       { label: "En fazla 1000 TL", value: "1000 orta", emoji: "💳" },
-      { label: "2En fazla 500 TL", value: "2500 iyi", emoji: "💎" },
+      { label: "En fazla 2500 TL", value: "2500 iyi", emoji: "💎" },
       { label: "Bütçe sınırım yok", value: "premium yüksek", emoji: "👑" },
       { label: "Fark etmez", value: "", emoji: "🎁" },
+    ],
+  },
+  {
+    key: "exclude",
+    title: "Önermememizi istediğin bir şey var mı?",
+    subtitle: "İstersen bir grubu tamamen eleyebilirsin.",
+    options: [
+      { label: "Koku / parfüm olmasın", value: "parfüm|parfum|body mist|kokulu|oda kokusu", emoji: "🌿" },
+      { label: "Giyim / beden gerektirmesin", value: "pijama|tişört|sweatshirt|giyim|terlik|ayakkabı|yüzük", emoji: "👕" },
+      { label: "Takı olmasın", value: "takı|kolye|bileklik|küpe|yüzük", emoji: "💍" },
+      { label: "Yiyecek olmasın", value: "çikolata|atıştırmalık|kurabiye|tatlı", emoji: "🍫" },
+      { label: "Hepsi olabilir", value: "", emoji: "🎁" },
     ],
   },
   {
@@ -180,7 +209,7 @@ function getMatchScore(gift: Gift, answers: Answers) {
     if (includesAny(text, ["kupa", "body mist", "kahve", "çorap", "kitap", "hobi", "çikolata"])) score += 10;
   }
 
-  if (relation.includes("erkek")) {
+  if (relation.includes("erkek") || relation.includes("baba")) {
     if (includesAny(text, ["polo", "sweatshirt", "cüzdan", "kartlık", "saat", "tıraş", "termos", "kulaklık", "kemer"])) score += 14;
   }
 
@@ -216,9 +245,9 @@ function getMatchScore(gift: Gift, answers: Answers) {
     if (includesAny(text, ["kolye", "çanta", "saat", "şal", "fular", "cüzdan", "toka", "tişört", "sweatshirt"])) score += 15;
   }
 
-  if (interest.includes("hobi") || interest.includes("teknoloji")) {
-    if (includesAny(text, ["kitap", "defter", "kalem", "puzzle", "kulaklık", "powerbank", "hoparlör", "hobi"])) score += 15;
-  }
+  if (answers.interest && includesAny(text, answers.interest.split(" "))) score += 15;
+  if (answers.occasion.includes("romantik") && includesAny(text, ["romantik", "kolye", "anı", "çiçek"])) score += 8;
+  if (answers.occasion.includes("ev") && includesAny(text, ["dekor", "kupa", "vazo", "defter"])) score += 8;
 
   if (urgency.includes("bugun") || urgency.includes("acil")) {
     if (includesAny(text, ["çiçek", "çikolata", "kupa", "body mist", "el kremi", "kahve", "mum"])) score += 8;
@@ -232,9 +261,16 @@ function getMatchScore(gift: Gift, answers: Answers) {
 }
 
 export default function GiftFinderPage() {
+  const questionHeading = useRef<HTMLHeadingElement>(null);
   const [gifts, setGifts] = useState<Gift[]>(fallbackGifts);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+  const [replacements, setReplacements] = useState<Record<string, string>>({});
+  const [saved, setSaved] = useState<Gift[]>([]);
+  const [ready, setReady] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [savedOnly, setSavedOnly] = useState(false);
   const [step, setStep] = useState(0);
   const [showResults, setShowResults] = useState(false);
 
@@ -244,7 +280,41 @@ export default function GiftFinderPage() {
     interest: "",
     budget: "",
     urgency: "",
+    occasion: "",
+    exclude: "",
   });
+
+  useEffect(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem("nealsam.finder.v2") || "null");
+      if (draft?.answers && typeof draft.answers === "object") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore the browser draft after hydration.
+        setAnswers(current => Object.fromEntries(Object.keys(current).map(key => [key, typeof draft.answers[key] === "string" ? draft.answers[key] : ""])) as Answers);
+        setStep(Math.max(0, Math.min(questions.length - 1, Number(draft.step) || 0)));
+        setShowResults(draft.showResults === true);
+        if (Array.isArray(draft.hiddenIds)) setHiddenIds(draft.hiddenIds.filter((value: unknown) => typeof value === "string"));
+        if (draft.replacements && typeof draft.replacements === "object") setReplacements(Object.fromEntries(Object.entries(draft.replacements).filter(([,value]) => typeof value === "string")) as Record<string,string>);
+      }
+      const favorites = JSON.parse(localStorage.getItem("nealsam.favorites.v1") || "[]");
+      if (Array.isArray(favorites)) setSaved(favorites.filter(g => g && typeof g.title === "string").slice(0, 50));
+    } catch { /* A missing or invalid draft starts a fresh test. */ }
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      localStorage.setItem("nealsam.finder.v2", JSON.stringify({ answers, step, showResults, hiddenIds, replacements }));
+      localStorage.setItem("nealsam.favorites.v1", JSON.stringify(saved));
+    } catch { /* The test remains usable when browser storage is unavailable. */ }
+  }, [answers, step, showResults, saved, ready, hiddenIds, replacements]);
+
+  function toggleSaved(gift: Gift) {
+    const title = cleanGiftTitle(getRawGiftTitle(gift));
+    setSaved(current => current.some(item => item.title === title)
+      ? current.filter(item => item.title !== title)
+      : [...current, { ...gift, title }].slice(-50));
+  }
 
   useEffect(() => {
     let active = true;
@@ -305,17 +375,33 @@ export default function GiftFinderPage() {
   const limit = budgetLimit(answers.budget);
 
   const results = useMemo(() => {
-    return gifts
-      .filter((gift) => gift && fitsBudget(gift, limit))
+    return diversifyGifts(gifts
+      .filter((gift) => gift && fitsBudget(gift, limit) && !excludesGift(gift, answers.exclude))
       .map((gift) => ({
         gift,
         score: getMatchScore(gift, answers),
       }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8);
+      .sort((a, b) => b.score - a.score));
   }, [gifts, answers, limit]);
 
+  const visibleResults = savedOnly
+    ? saved.map(gift => ({ gift, score: getMatchScore(gift, answers) }))
+    : results.slice(0, 4).map(item => results.find(candidate => (candidate.gift.id || getRawGiftTitle(candidate.gift)) === replacements[item.gift.id || getRawGiftTitle(item.gift)]) || item);
+
+  function replaceGift(gift: Gift) {
+    const next = results.slice(4).find(({ gift: item }) => !hiddenIds.includes(item.id || getRawGiftTitle(item)) && !visibleResults.some(visible => visible.gift.id === item.id));
+    if (!next) { setNotice("Bu seçimler için başka öneri kalmadı. Tercihlerini değiştirerek yeni fikirler bulabilirsin."); return; }
+    const currentId = gift.id || getRawGiftTitle(gift);
+    const originalId = Object.keys(replacements).find(key => replacements[key] === currentId) || currentId;
+    setReplacements(current => ({ ...current, [originalId]: next.gift.id || getRawGiftTitle(next.gift) }));
+    setHiddenIds(current => [...current, gift.id || getRawGiftTitle(gift)]);
+    setNotice("Bir öneri yenilendi; diğer seçimlerin korundu.");
+  }
+
   function selectOption(value: string) {
+    setHiddenIds([]);
+    setReplacements({});
+    setSavedOnly(false);
     setAnswers((current) => ({
       ...current,
       [currentQuestion.key]: value,
@@ -323,6 +409,7 @@ export default function GiftFinderPage() {
 
     if (step < questions.length - 1) {
       setStep((current) => current + 1);
+      requestAnimationFrame(() => questionHeading.current?.focus());
     } else {
       setShowResults(true);
     }
@@ -331,7 +418,7 @@ export default function GiftFinderPage() {
   function goBack() {
     if (showResults) {
       setShowResults(false);
-      setStep(questions.length - 1);
+      setStep(0);
       return;
     }
 
@@ -339,32 +426,38 @@ export default function GiftFinderPage() {
   }
 
   function restart() {
+    setHiddenIds([]);
+    setReplacements({});
+    setSavedOnly(false);
+    setNotice("");
     setAnswers({
       relation: "",
       style: "",
       interest: "",
       budget: "",
       urgency: "",
+    occasion: "",
+    exclude: "",
     });
     setStep(0);
     setShowResults(false);
   }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-4 py-6 text-[#2b1b1b] md:py-8">
       <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
+        <div className={`rounded-2xl border border-pink-100 bg-white shadow-sm ${showResults ? "p-4 md:p-5" : "p-5 md:p-7"}`}>
           <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
             Hediye Bul
           </p>
 
           <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Mini testi çöz, en uygun hediyeleri bulalım
+            Birlikte düşünülmüş bir hediye bulalım
           </h1>
 
-          <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
+          {!showResults && <p className="mt-3 max-w-3xl text-sm font-normal leading-6 text-[#6b4a4a]">
             Kime, hangi tarzda ve hangi bütçeyle hediye alacağını seç. Sonuçta mağaza linkleri, risk yorumu ve özel not önerisi de çıkacak.
-          </p>
+          </p>}
 
           {loadError && (
             <p className="mt-5 rounded-2xl bg-red-50 p-4 text-sm font-black text-red-600">
@@ -377,7 +470,7 @@ export default function GiftFinderPage() {
           <div className="mx-auto mt-8 max-w-4xl rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
             <div className="flex items-center justify-between gap-4">
               <p className="text-sm font-black text-pink-600">
-                Soru {step + 1} / {questions.length}
+                Adım {step + 1} / {questions.length}
               </p>
 
               {loading && (
@@ -394,7 +487,7 @@ export default function GiftFinderPage() {
               />
             </div>
 
-            <h2 className="mt-8 text-3xl font-black md:text-5xl">
+            <h2 ref={questionHeading} tabIndex={-1} className="mt-6 text-3xl font-black outline-none md:text-5xl">
               {currentQuestion.title}
             </h2>
 
@@ -402,15 +495,16 @@ export default function GiftFinderPage() {
               {currentQuestion.subtitle}
             </p>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="mt-6 grid grid-cols-2 gap-3">
               {currentQuestion.options.map((option) => (
                 <button
                   key={`${currentQuestion.key}-${option.label}`}
                   onClick={() => selectOption(option.value)}
-                  className="rounded-[1.5rem] border border-pink-100 bg-[#fff4ef] p-5 text-left transition hover:-translate-y-1 hover:bg-pink-100 hover:shadow-sm"
+                  aria-pressed={answers[currentQuestion.key] === option.value}
+                  className={`rounded-2xl border p-4 text-left transition hover:bg-pink-100 focus-visible:outline-2 focus-visible:outline-pink-600 ${answers[currentQuestion.key] === option.value ? "border-pink-500 bg-pink-100" : "border-pink-100 bg-[#fff4ef]"}`}
                 >
                   <span className="text-3xl">{option.emoji}</span>
-                  <p className="mt-3 text-xl font-black text-[#2b1b1b]">
+                  <p className="mt-2 text-sm font-bold text-[#2b1b1b] md:text-base">
                     {option.label}
                   </p>
                 </button>
@@ -456,7 +550,7 @@ export default function GiftFinderPage() {
                   onClick={goBack}
                   className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
                 >
-                  Son Soruyu Değiştir
+                  Tercihleri Düzenle
                 </button>
 
                 <button
@@ -468,6 +562,19 @@ export default function GiftFinderPage() {
               </div>
             </div>
 
+            <div className="mt-5 flex flex-wrap gap-2">
+              {questions.map((question, index) => {
+                const label = question.options.find(option => option.value === answers[question.key])?.label;
+                return label ? <button key={question.key} onClick={() => { setStep(index); setShowResults(false); }} className="rounded-full border border-pink-200 bg-white px-3 py-2 text-xs font-semibold" aria-label={`${question.title}: ${label}. Değiştir`}>{label} ✎</button> : null;
+              })}
+            </div>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button onClick={() => setSavedOnly(false)} aria-pressed={!savedOnly} className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-bold">Öneriler</button>
+              <button onClick={() => setSavedOnly(true)} aria-pressed={savedOnly} className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-bold">♥ Kaydettiklerim ({saved.length})</button>
+            </div>
+            <p className="mt-3 text-xs text-[#6b4a4a]">Seçimlerin ve kaydettiklerin bu tarayıcıda saklanır. Tarayıcı verilerini silersen bu kayıtlar da silinir.</p>
+            <p role="status" className="mt-3 text-sm text-pink-700">{notice}</p>
+            {savedOnly && saved.length === 0 && <p className="mt-5 rounded-2xl bg-white p-5">Henüz kaydettiğin bir hediye yok. Önerilerdeki ♡ Kaydet düğmesini kullanabilirsin.</p>}
             {answers.urgency && answers.urgency !== "normal" && (
               <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
                 Acil hediye için mağazadan teslim veya dijital seçenekleri değerlendir. Stok ve teslimat süresini doğrulayamıyoruz; siparişten önce mağazada kontrol et.
@@ -479,17 +586,20 @@ export default function GiftFinderPage() {
                 <p className="mt-2 text-sm">Testi yeniden başlatıp bütçeni değiştirebilirsin. Bütçeni aşan veya fiyatı bilinmeyen önerileri listelemedik.</p>
               </div>
             )}
-            <div className="mt-6 grid gap-6">
-              {results.map(({ gift, score }, index) => (
+            <div className="mt-6 grid items-start gap-5 lg:grid-cols-2">
+              {visibleResults.map(({ gift, score }, index) => (
                 <GiftResultCard
                   key={gift.id || `${gift.title || gift.name || "gift"}-${index}`}
                   gift={gift}
                   score={score}
-                  budgetNote={budgetDescription(gift, limit)}
+                  onReplace={savedOnly ? undefined : () => replaceGift(gift)}
+                  onFavorite={() => toggleSaved(gift)}
+                  isFavorite={saved.some(item => item.title === cleanGiftTitle(getRawGiftTitle(gift)))}
+                  budgetNote={savedOnly ? undefined : budgetDescription(gift, limit)}
                   matchReasons={[
                     ...(answers.interest && includesAny(getGiftText(gift), answers.interest.split(" ")) ? ["Seçtiğin ilgi alanıyla ilişkili"] : []),
                     ...(answers.style && includesAny(getGiftText(gift), answers.style.split(" ")) ? ["Seçtiğin tarza yakın"] : []),
-                    ...(limit ? ["Başlangıç fiyatı bütçe sınırının içinde"] : []),
+                    ...(!savedOnly && limit ? ["Başlangıç fiyatı bütçe sınırının içinde"] : []),
                   ]}
                 />
               ))}
