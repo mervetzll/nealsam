@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {safeReturnPath, authErrorMessage} from '../src/lib/authPresentation.ts';
+assert.equal(safeReturnPath('/blog/yeni'),'/blog/yeni');
+assert.equal(safeReturnPath('/blog/yeni?from=blog'),'/blog/yeni?from=blog');
+for (const value of [null,'https://evil.example','//evil.example','/\\evil.example','/giris','/\nevil']) assert.equal(safeReturnPath(value),'/hesabim');
+assert.match(authErrorMessage({code:'invalid_credentials'}),/E-posta veya şifre/);
+assert.match(authErrorMessage({code:'email_not_confirmed'}),/doğrulama/);
+assert.match(authErrorMessage({status:429}),/bekleyip/);
+assert.ok(!authErrorMessage({message:'internal SQL information'}).includes('SQL'));
+console.log('12 yönlendirme ve hesap mesajı kontrolü geçti.');

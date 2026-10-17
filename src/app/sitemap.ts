@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { editorialPosts } from "@/data/editorialPosts";
 
 const siteUrl = "https://www.nealsamhediye.com";
 
@@ -57,5 +58,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: route === "" ? 1 : 0.8,
     })),
     ...dynamicBlogRoutes,
+    ...editorialPosts.map(post => ({ url: `${siteUrl}/blog/${post.slug}`, changeFrequency: "monthly" as const, priority: 0.7 })),
   ];
 }

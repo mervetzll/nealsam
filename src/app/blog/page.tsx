@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BlogDynamicPosts from "./BlogDynamicPosts";
+import { editorialPosts } from "@/data/editorialPosts";
 
 export const metadata = {
   title: "Rehber / Blog | NeAlsam Hediye",
@@ -49,19 +50,17 @@ export default function BlogPage() {
   return (
     <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
       <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
+        <div className="rounded-3xl border border-pink-100 bg-white p-5 shadow-sm md:p-7">
           <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
             Rehber / Blog
           </p>
 
           <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Hediye fikirleri, rehberler ve topluluk yazıları
+            Her hediyenin bir hikâyesi var
           </h1>
 
           <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
-            NeAlsam Hediye’de özel günlere, kişilere ve bütçeye göre hediye
-            fikirlerini okuyabilir; üye olarak kendi blog yazını da
-            gönderebilirsin.
+            Küçük sürprizleri, işe yarayan fikirleri ve hediye seçerken öğrendiklerimizi paylaşalım. Önce bir yazıya göz at, sonra kendi hikâyeni ekle.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -69,7 +68,7 @@ export default function BlogPage() {
               href="/blog/yeni"
               className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
             >
-              Blog Yazısı Gönder
+              Hikâyemi Yaz
             </Link>
 
             <Link
@@ -88,6 +87,17 @@ export default function BlogPage() {
           </div>
         </div>
 
+        <section className="mt-8" aria-label="Editörden yeni yazılar">
+          <p className="text-xs font-bold uppercase tracking-widest text-pink-600">Sohbeti başlatalım</p>
+          <h2 className="mt-2 text-2xl font-bold">Editörden iki küçük başlangıç</h2>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">{editorialPosts.map(post => <Link key={post.slug} href={`/blog/${post.slug}`} className="rounded-3xl border border-pink-100 bg-white p-6 shadow-sm transition hover:border-pink-300">
+            <span aria-hidden="true" className="text-4xl">{post.emoji}</span>
+            <p className="mt-4 text-xs font-bold text-pink-700">{post.category} · NeAlsam Editör</p>
+            <h3 className="mt-3 text-xl font-bold">{post.title}</h3>
+            <p className="mt-3 text-sm leading-7 text-[#6b4a4a]">{post.excerpt}</p>
+            <p className="mt-4 text-sm font-bold text-pink-700">{post.readingMinutes} dk · Yazıyı oku →</p>
+          </Link>)}</div>
+        </section>
         <section className="mt-10">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
@@ -96,7 +106,7 @@ export default function BlogPage() {
               </p>
 
               <h2 className="mt-2 text-3xl font-black">
-                En çok okunan hediye rehberleri
+                Hediye seçmeye buradan başla
               </h2>
             </div>
           </div>

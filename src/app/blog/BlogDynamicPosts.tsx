@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-type BlogPost = Record<string, any>;
+type BlogPost = { id: string; slug: string; title: string; excerpt?: string; content?: string; category?: string; cover_image_url?: string; published_at?: string; created_at?: string };
 
 function formatDate(value?: string) {
   if (!value) return "";
@@ -20,11 +20,12 @@ export default function BlogDynamicPosts() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const categories = useMemo(() => {
     const values = posts
       .map((post) => post.category)
-      .filter(Boolean)
+      .filter((value): value is string => Boolean(value))
       .filter((value, index, array) => array.indexOf(value) === index);
 
     return values;
@@ -41,28 +42,28 @@ export default function BlogDynamicPosts() {
   }, [posts, search, category]);
 
   useEffect(() => {
-    loadPosts();
-  }, []);
-
+    const controller = new AbortController();
   async function loadPosts() {
-    setLoading(true);
-
     try {
       const response = await fetch("/api/blog-posts?scope=published", {
         cache: "no-store",
+        signal: controller.signal,
       });
 
       const data = await response.json();
 
-      if (data?.ok) {
+      if (response.ok && data?.ok) {
         setPosts(data.posts || []);
-      }
+      } else setError("Topluluk yazıları şu anda yüklenemedi. Editör yazılarını okuyabilir veya daha sonra tekrar deneyebilirsin.");
     } catch {
-      setPosts([]);
+      if (!controller.signal.aborted) setError("Topluluk yazılarına bağlantı kurulamadı. Biraz sonra tekrar deneyebilirsin.");
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }
+    void loadPosts();
+    return () => controller.abort();
+  }, []);
 
   return (
     <section className="mt-12">
@@ -87,6 +88,7 @@ export default function BlogDynamicPosts() {
 
       <div className="mt-6 grid gap-3 rounded-[2rem] border border-pink-100 bg-white p-4 shadow-sm md:grid-cols-[1fr_auto]">
         <input
+          aria-label="Topluluk yazılarında ara"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Topluluk yazılarında ara..."
@@ -94,6 +96,7 @@ export default function BlogDynamicPosts() {
         />
 
         <select
+          aria-label="Yazı kategorisi"
           value={category}
           onChange={(event) => setCategory(event.target.value)}
           className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
@@ -113,7 +116,7 @@ export default function BlogDynamicPosts() {
             Topluluk yazıları yükleniyor...
           </p>
         </div>
-      ) : filteredPosts.length === 0 ? (
+      ) : error ? <p role="status" className="mt-6 rounded-2xl border border-amber-100 bg-white p-5 text-sm leading-7 text-[#6b4a4a]">{error}</p> : filteredPosts.length === 0 ? (
         <div className="mt-6 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
           <h3 className="text-2xl font-black text-[#2b1b1b]">
             Henüz uygun topluluk yazısı yok.
