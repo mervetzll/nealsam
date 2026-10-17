@@ -1,245 +1,70 @@
 "use client";
-
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-
-const packageDetails = {
-  free: {
-    name: "Ücretsiz",
-    price: 0,
-    description: "Temel hediye önerileriyle başlamak için.",
-  },
-  plus: {
-    name: "Plus",
-    price: 49,
-    description: "Arama sınırını kaldır; kişisel not, paketleme fikri, bütçe dağılımı, alternatifler ve indirilebilir hazırlık planını kullan.",
-  },
-  experience: {
-    name: "Deneyim",
-    price: 79,
-    description: "QR not ve özel hediye deneyimi için.",
-  },
-  premium: {
-    name: "Premium",
-    price: 99,
-    description: "Tüm premium özellikleri açmak için.",
-  },
-};
-
-type PlanId = keyof typeof packageDetails;
+import {useRouter, useSearchParams} from "next/navigation";
+import {useEffect, useState} from "react";
+import {supabase} from "@/lib/supabase";
+import {isPaymentPlan, PAYMENT_PLANS, parseBuyer, type BuyerDetails} from "@/lib/paymentRules";
 
 export default function OdemeClient() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const selectedPlan = (searchParams.get("plan") || "premium") as PlanId;
-
-  const plan = packageDetails[selectedPlan] || packageDetails.premium;
-
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-
+  const params = useSearchParams();
+  const selected = params.get("plan") || "plus";
+  const valid = isPaymentPlan(selected);
+  const plan = valid ? PAYMENT_PLANS[selected] : null;
+  const [config,setConfig] = useState<{mode: string; ready: boolean} | null>(null);
+  const [loading,setLoading] = useState(false);
+  const [message,setMessage] = useState("");
+  const [buyer,setBuyer] = useState<BuyerDetails>({name:"",surname:"",phone:"",identityNumber:"",address:"",city:""});
+  useEffect(() => { let active = true; fetch("/api/payment-config", {cache:"no-store"}).then(response=>response.json()).then(data=>{if(active) setConfig(data);}).catch(()=>{if(active) setMessage("Ödeme bilgisi alınamadı. Sayfayı yenileyebilirsin.");}); return ()=>{active=false;}; },[]);
   async function startPayment() {
-    setLoading(true);
-    setMessage("");
-
+    if (loading || !valid || !config?.ready) return;
+    setLoading(true); setMessage("");
     try {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session?.access_token) {
-      router.push(`/giris?mode=register&next=${encodeURIComponent("/odeme?plan=" + selectedPlan)}`);
-      setLoading(false);
-      return;
-    }
-
-    const response = await fetch("/api/create-checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify({
-        plan: selectedPlan,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!data.ok) {
-      setMessage(data.error || "Ödeme başlatılamadı.");
-      setLoading(false);
-      return;
-    }
-
-    if (data.paymentPageUrl) {
-      window.location.href = data.paymentPageUrl;
-      return;
-    }
-
-    setMessage("Ödeme sayfası alınamadı.");
-    } catch { setMessage("Ödeme bağlantısı kurulamadı. Biraz sonra tekrar dene."); }
-    finally { setLoading(false); }
+      const {data:{session}} = await supabase.auth.getSession();
+      if (!session) {router.push(`/giris?mode=register&next=${encodeURIComponent(`/odeme?plan=${selected}`)}`);return;}
+      if (!parseBuyer(buyer)) {setMessage("Ad, soyad, telefon, T.C. kimlik numarası ve fatura adresini eksiksiz doldur.");return;}
+      const response = await fetch("/api/create-checkout",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${session.access_token}`},body:JSON.stringify({plan:selected,buyer})});
+      const data = await response.json();
+      if (!response.ok || !data.ok) {setMessage(data.error || "Ödeme başlatılamadı.");return;}
+      const url = new URL(data.paymentPageUrl);
+      if (url.protocol !== "https:" || !["cpp.iyzipay.com","sandbox-cpp.iyzipay.com"].includes(url.hostname)) throw new Error("Invalid payment URL");
+      setBuyer({name:"",surname:"",phone:"",identityNumber:"",address:"",city:""});
+      window.location.assign(url.toString());
+    } catch {setMessage("Ödeme bağlantısı kurulamadı. Biraz sonra tekrar dene.");}
+    finally {setLoading(false);}
   }
-
-  return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-14">
-      <section className="mx-auto max-w-5xl">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="mb-6 rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-        >
-          ← Geri Dön
-        </button>
-
-        <div className="grid gap-8 lg:grid-cols-[1fr_0.8fr]">
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-wide text-pink-600">
-              Güvenli Ödeme
-            </p>
-
-            <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
-              {plan.name} Paketi
-            </h1>
-
-            <p className="mt-4 text-sm leading-6 text-[#6b4a4a]">
-              {plan.description}
-            </p>
-
-            <div className="mt-8 rounded-2xl bg-[#fff0f7] p-6">
-              <p className="text-sm font-black text-[#6b4a4a]">Paket Fiyatı</p>
-              <p className="mt-2 text-5xl font-black text-[#2b1b1b]">
-                {plan.price} TL
-              </p>
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-pink-100 bg-[#fff4ef] p-5">
-              <p className="text-sm font-black text-[#2b1b1b]">
-                Önemli güvenlik notu
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
-                Kart bilgileri NeAlsam Hediye üzerinde alınmaz ve saklanmaz.
-                Ödeme, iyzico güvenli ödeme sayfası üzerinden tamamlanır.
-              </p>
-            </div>
-
-            {message && (
-              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-black text-amber-800">
-                {message}
-              </div>
-            )}
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              {selectedPlan === "free" ? (
-                <Link
-                  href="/hediye-bul"
-                  className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white transition hover:opacity-90"
-                >
-                  Ücretsiz Başla
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={startPayment}
-                  disabled={loading}
-                  className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white transition hover:bg-pink-700 disabled:opacity-60"
-                >
-                  {loading ? "Ödeme başlatılıyor..." : "iyzico ile Güvenli Öde"}
-                </button>
-              )}
-
-              <Link
-                href="/paketler"
-                className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-              >
-                Paketi Değiştir
-              </Link>
-            </div>
+  if (!plan) return <main className="mx-auto max-w-3xl px-5 py-12"><h1 className="text-2xl font-black">Paket seçimini doğrulayamadık</h1><Link href="/paketler" className="mt-5 inline-block underline">Paketlere dön</Link></main>;
+  return <main className="min-h-screen bg-[#fff4ef] px-5 py-8 text-[#2b1b1b]">
+    <section className="mx-auto max-w-5xl">
+      <Link href="/paketler" className="text-sm font-bold text-pink-700">← Paketlere dön</Link>
+      <div className="mt-5 grid items-start gap-6 lg:grid-cols-[1fr_0.7fr]">
+        <section className="rounded-2xl border border-pink-100 bg-white p-6 md:p-8">
+          <p className="text-xs font-black uppercase tracking-wide text-pink-600">NeAlsam Hediye</p>
+          <h1 className="mt-3 text-3xl font-black">{plan.name} paketi · {plan.price} TL</h1>
+          <p className="mt-3 text-sm leading-6">Paket, doğrulanmış ödeme sonrasında giriş yaptığın hesaba tanımlanır. Bu işlem otomatik yenilenen abonelik oluşturmaz.</p>
+          <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6" role="status">
+            {!config ? "Ödeme durumu kontrol ediliyor…" : !config.ready ? "Ödeme henüz kullanıma açılmadı. Şu anda bu sayfadan ücret tahsil edilmez." : config.mode === "sandbox" ? "Test ortamı: gerçek ücret tahsil edilmez. Yalnızca izin verilen test hesapları ve iyzico test kartları kullanılabilir. Gerçek kart bilgisi girme." : "Ödeme iyzico’nun güvenli sayfasında tamamlanır."}
           </div>
-
-          <aside className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
-            <h2 className="text-2xl font-black text-[#2b1b1b]">
-              Hesap Özeti
-            </h2>
-
-            <div className="mt-6 space-y-4">
-              <Row label="Paket" value={plan.name} />
-              <Row label="Paket Bedeli" value={`${plan.price} TL`} />
-              <Row label="Hizmet Bedeli" value="0 TL" />
-              <Row label="İndirim" value="0 TL" />
-            </div>
-
-            <div className="mt-6 border-t border-pink-100 pt-6">
-              <Row label="Ödenecek Toplam" value={`${plan.price} TL`} strong />
-            </div>
-
-            <div className="mt-6 rounded-2xl bg-[#fff0f7] p-5">
-              <p className="text-sm font-black text-[#2b1b1b]">
-                Test / Sandbox modu
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
-                Şu anda iyzico sandbox bilgileriyle test ediyorsan gerçek ücret
-                tahsil edilmez.
-              </p>
-            </div>
-
-            <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff4ef] p-4">
-              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
-                Test ödeme akışı
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                <a
-                  href="/odeme/basarili"
-                  className="rounded-full bg-[#2b1b1b] px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
-                >
-                  Başarılı Test
-                </a>
-
-                <a
-                  href="/odeme/basarisiz"
-                  className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-                >
-                  Başarısız Test
-                </a>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-    </main>
-  );
-}
-
-function Row({
-  label,
-  value,
-  strong,
-}: {
-  label: string;
-  value: string;
-  strong?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <span
-        className={`text-sm ${
-          strong ? "font-black text-[#2b1b1b]" : "font-semibold text-[#6b4a4a]"
-        }`}
-      >
-        {label}
-      </span>
-
-      <span
-        className={`text-sm ${
-          strong ? "font-black text-[#2b1b1b]" : "font-bold text-[#2b1b1b]"
-        }`}
-      >
-        {value}
-      </span>
-    </div>
-  );
+          {config?.ready && <div className="mt-6">
+            <h2 className="text-xl font-black">Fatura bilgilerin</h2>
+            <p className="mt-2 text-xs leading-5 text-[#6b4a4a]">Bu bilgiler ödeme işlemi için iyzico’ya iletilir. T.C. kimlik numaranı ve adresini NeAlsam veritabanına kaydetmeyiz. Kart bilgileri yalnızca iyzico sayfasında girilir.</p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">{([
+              ["name","Ad","given-name"],["surname","Soyad","family-name"],["phone","Telefon","tel"],["identityNumber","T.C. kimlik numarası","off"],["city","Şehir","address-level2"],["address","Fatura adresi","street-address"],
+            ] as const).map(([key,label,auto])=><label key={key} className="text-sm font-bold">{label}<input value={buyer[key]} disabled={loading} maxLength={key==="identityNumber"?11:key==="address"?500:100} inputMode={key==="identityNumber"?"numeric":key==="phone"?"tel":"text"} autoComplete={auto} onChange={event=>setBuyer(current=>({...current,[key]:event.target.value}))} className="mt-2 block w-full rounded-xl border border-pink-200 p-3 font-normal" /></label>)}</div>
+          </div>}
+          <p role="alert" className="mt-4 text-sm leading-6 text-red-700">{message}</p>
+          <button onClick={()=>void startPayment()} disabled={loading || !config?.ready} className="mt-5 w-full rounded-full bg-pink-600 px-6 py-4 font-bold text-white disabled:opacity-50">{loading?"Bağlantı hazırlanıyor…":config?.mode==="sandbox" && config.ready?"iyzico test ödemesine geç":config?.ready?`${plan.price} TL için iyzico’ya geç`:"Ödeme hazırlığı sürüyor"}</button>
+          <Link href={`/giris?next=${encodeURIComponent(`/odeme?plan=${selected}`)}`} className="mt-4 block text-center text-sm text-pink-700 underline">Paketin bağlanacağı hesapla giriş yap</Link>
+        </section>
+        <aside className="rounded-2xl border border-pink-100 bg-white p-6">
+          <h2 className="text-xl font-black">Sipariş özeti</h2>
+          <p className="mt-4 flex justify-between text-sm"><span>{plan.name} paketi</span><strong>{plan.price} TL</strong></p>
+          <p className="mt-3 flex justify-between text-sm"><span>Ek hizmet bedeli</span><span>0 TL</span></p>
+          <p className="mt-5 flex justify-between border-t border-pink-100 pt-5 font-black"><span>Toplam</span><span>{plan.price} TL</span></p>
+          {(selected==="plus" || selected==="premium") && <ul className="mt-5 list-inside list-disc space-y-2 text-sm leading-6"><li>Hediye arama sınırını kaldırma</li><li>Kişisel not ve sunum planı</li><li>Bütçe dağılımı ve alternatifler</li><li>İndirilebilir hazırlık listesi</li></ul>}
+          <p className="mt-5 text-xs leading-5 text-[#6b4a4a]">İşlem sonrası sonuç sayfası ödeme kaydını kontrol eder. Sayfayı açmak tek başına paket erişimi vermez.</p>
+        </aside>
+      </div>
+    </section>
+  </main>;
 }
