@@ -1,26 +1,44 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Gift, Heart, House, User } from "lucide-react";
 
 const items = [
-  { href: "/", label: "Ana Sayfa", icon: "⌂" },
-  { href: "/hediye-bul", label: "Hediye Bul", icon: "🎁" },
-  { href: "/hesabim/favoriler", label: "Favoriler", icon: "♡" },
-  { href: "/hesabim", label: "Hesabım", icon: "☻" },
+  { href: "/", label: "Ana Sayfa", icon: House },
+  { href: "/hediye-bul", label: "Hediye Bul", icon: Gift },
+  { href: "/hesabim/favoriler", label: "Favoriler", icon: Heart },
+  { href: "/hesabim", label: "Hesabım", icon: User },
 ];
 
 export default function MobileBottomNav() {
+  const pathname = usePathname() ?? "/";
+  const activeHref = items
+    .filter((i) => (i.href === "/" ? pathname === "/" : pathname === i.href || pathname.startsWith(`${i.href}/`)))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-pink-100 bg-white/95 px-3 py-2 shadow-[0_-8px_30px_rgba(43,27,27,0.08)] backdrop-blur md:hidden">
+    <nav
+      aria-label="Alt menü"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-pink-100 bg-white/90 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_30px_rgba(43,27,27,0.06)] backdrop-blur-xl md:hidden"
+    >
       <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex flex-col items-center justify-center rounded-2xl px-2 py-2 text-center text-[11px] font-black text-[#6b4a4a] transition active:bg-pink-50"
-          >
-            <span className="text-lg leading-none">{item.icon}</span>
-            <span className="mt-1 leading-none">{item.label}</span>
-          </Link>
-        ))}
+        {items.map(({ href, label, icon: Icon }) => {
+          const active = href === activeHref;
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={`flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1.5 text-[11px] font-bold transition ${
+                active ? "text-pink-600" : "text-[#8a6a6a] active:bg-pink-50"
+              }`}
+            >
+              <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
+              <span className="leading-none">{label}</span>
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );

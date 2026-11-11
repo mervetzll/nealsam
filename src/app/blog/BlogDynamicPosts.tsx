@@ -68,7 +68,7 @@ export default function BlogDynamicPosts() {
     <section className="mt-12">
       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Topluluk Blogları
           </p>
 
@@ -79,24 +79,24 @@ export default function BlogDynamicPosts() {
 
         <Link
           href="/blog/yeni"
-          className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+          className="rounded-full bg-pink-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
         >
           Ben de Yazmak İstiyorum
         </Link>
       </div>
 
-      <div className="mt-6 grid gap-3 rounded-[2rem] border border-pink-100 bg-white p-4 shadow-sm md:grid-cols-[1fr_auto]">
+      <div className="mt-6 grid gap-3 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-4 md:grid-cols-[1fr_auto]">
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Topluluk yazılarında ara..."
-          className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+          className="rounded-2xl bg-[#fff8f5] ring-1 ring-pink-100 px-4 py-3 text-sm font-bold outline-none"
         />
 
         <select
           value={category}
           onChange={(event) => setCategory(event.target.value)}
-          className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-bold outline-none"
+          className="rounded-2xl bg-[#fff8f5] ring-1 ring-pink-100 px-4 py-3 text-sm font-bold outline-none"
         >
           <option value="all">Tüm Kategoriler</option>
           {categories.map((item) => (
@@ -108,13 +108,13 @@ export default function BlogDynamicPosts() {
       </div>
 
       {loading ? (
-        <div className="mt-6 rounded-[2rem] bg-white p-8 text-center shadow-sm">
+        <div className="mt-6 rounded-[2rem] bg-white p-8 text-center">
           <p className="font-black text-[#6b4a4a]">
             Topluluk yazıları yükleniyor...
           </p>
         </div>
       ) : filteredPosts.length === 0 ? (
-        <div className="mt-6 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+        <div className="mt-6 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
           <h3 className="text-2xl font-black text-[#2b1b1b]">
             Henüz uygun topluluk yazısı yok.
           </h3>
@@ -126,7 +126,7 @@ export default function BlogDynamicPosts() {
 
           <Link
             href="/blog/yeni"
-            className="mt-5 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+            className="mt-5 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
           >
             Blog Yazısı Gönder
           </Link>
@@ -137,7 +137,7 @@ export default function BlogDynamicPosts() {
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}
-              className="overflow-hidden rounded-[2rem] border border-pink-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className="overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-pink-100 transition hover:-translate-y-1 hover:shadow-md"
             >
               {post.cover_image_url ? (
                 <img
@@ -146,14 +146,14 @@ export default function BlogDynamicPosts() {
                   className="h-48 w-full object-cover"
                 />
               ) : (
-                <div className="flex h-48 items-center justify-center bg-[#fff0f7]">
+                <div className="flex h-48 items-center justify-center bg-pink-50">
                   <span className="text-5xl">🎁</span>
                 </div>
               )}
 
               <div className="p-6">
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-black text-pink-700">
+                  <span className="rounded-full bg-pink-50 px-4 py-2 text-xs font-black text-pink-700">
                     {post.category || "Genel"}
                   </span>
 

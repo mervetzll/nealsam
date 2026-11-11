@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Check, Copy, Package as PackageIcon, PenLine, QrCode, Sparkles } from "lucide-react";
+import PageHero from "@/components/ui/PageHero";
+import { ui } from "@/components/ui/styles";
 
 type PackageItem = {
   name: string;
@@ -118,11 +121,65 @@ function buildPackage({
   };
 }
 
+const styleOptions = [
+  { value: "cozy", label: "Cozy / ev giyim" },
+  { value: "selfcare", label: "Bakım / self-care" },
+  { value: "coffee", label: "Kahve / çay" },
+  { value: "romantic", label: "Romantik" },
+  { value: "simple", label: "Küçük ama tatlı" },
+];
+
+const budgetOptions = [
+  { value: "low", label: "500–1000 TL" },
+  { value: "mid", label: "1000–2500 TL" },
+  { value: "high", label: "2500 TL+" },
+  { value: "flex", label: "Esnek" },
+];
+
+function ChoiceGroup({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <fieldset>
+      <legend className="text-sm font-bold text-[#2b1b1b]">{label}</legend>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {options.map((option) => {
+          const active = option.value === value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              aria-pressed={active}
+              className={`rounded-full px-4 py-2.5 text-sm font-bold transition ${
+                active
+                  ? "bg-[#2b1b1b] text-white"
+                  : "bg-[#fff8f5] text-[#6b4a4a] ring-1 ring-pink-100 hover:bg-white hover:ring-pink-200"
+              }`}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
 export default function GiftPackageClient() {
   const [person, setPerson] = useState("");
   const [relation, setRelation] = useState("");
   const [style, setStyle] = useState("cozy");
   const [budget, setBudget] = useState("mid");
+  const [copied, setCopied] = useState(false);
 
   const result = useMemo(
     () => buildPackage({ person, relation, style, budget }),
@@ -145,139 +202,111 @@ ${result.note}`;
 
     try {
       await navigator.clipboard.writeText(text);
-      alert("Paket kopyalandı.");
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
     } catch {
       alert("Kopyalanamadı.");
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
-      <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-            Hediye Paketi Oluşturucu
-          </p>
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
+      <section className="mx-auto max-w-6xl">
+        <PageHero
+          eyebrow="Hediye paketi oluşturucu"
+          title="Tek hediye yerine"
+          accent="hazır bir paket."
+          description="Ana hediye, yan ürün, not ve sunum önerisini birlikte hazırla. Seçimlerini değiştirdikçe paket anında güncellenir."
+        >
+          <Link href="/hediye-bul" className={ui.btnLink}>
+            Önce hediye bul
+          </Link>
+        </PageHero>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Tek hediye yerine hazır bir hediye paketi oluştur
-          </h1>
+        <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+          <div className={`${ui.card} p-6 md:p-8`}>
+            <h2 className="text-3xl">Paket bilgileri</h2>
+            <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">İsim ve yakınlık isteğe bağlı; nota eklenir.</p>
 
-          <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
-            Ana hediye, yan ürün, not ve sunum önerisini birlikte hazırla.
-          </p>
+            <div className="mt-7 grid gap-5">
+              <label className="grid gap-2">
+                <span className="text-sm font-bold">Kime?</span>
+                <input
+                  value={person}
+                  onChange={(event) => setPerson(event.target.value)}
+                  placeholder="Ayşe"
+                  className={ui.input}
+                />
+              </label>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/hediye-bul" className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white">
-              Hediye Bul
-            </Link>
-            <Link href="/deneyim" className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white">
-              QR Not Oluştur
-            </Link>
-          </div>
-        </div>
+              <label className="grid gap-2">
+                <span className="text-sm font-bold">Yakınlığınız</span>
+                <input
+                  value={relation}
+                  onChange={(event) => setRelation(event.target.value)}
+                  placeholder="sevgilim, annem, arkadaşım"
+                  className={ui.input}
+                />
+              </label>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black">Paket bilgileri</h2>
-
-            <div className="mt-5 grid gap-4">
-              <input
-                value={person}
-                onChange={(event) => setPerson(event.target.value)}
-                placeholder="Kime? Örn: Ayşe"
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
-              />
-
-              <input
-                value={relation}
-                onChange={(event) => setRelation(event.target.value)}
-                placeholder="Yakınlık? Örn: sevgilim, annem, arkadaşım"
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
-              />
-
-              <select
-                value={style}
-                onChange={(event) => setStyle(event.target.value)}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
-              >
-                <option value="cozy">Cozy / ev giyim paketi</option>
-                <option value="selfcare">Bakım / self-care paketi</option>
-                <option value="coffee">Kahve / çay paketi</option>
-                <option value="romantic">Romantik paket</option>
-                <option value="simple">Küçük ama tatlı paket</option>
-              </select>
-
-              <select
-                value={budget}
-                onChange={(event) => setBudget(event.target.value)}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
-              >
-                <option value="low">500–1000 TL</option>
-                <option value="mid">1000–2500 TL</option>
-                <option value="high">2500 TL+</option>
-                <option value="flex">Esnek</option>
-              </select>
+              <ChoiceGroup label="Paket tarzı" options={styleOptions} value={style} onChange={setStyle} />
+              <ChoiceGroup label="Bütçe" options={budgetOptions} value={budget} onChange={setBudget} />
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-              Önerilen Paket
-            </p>
+          <div className={`${ui.card} overflow-hidden shadow-xl shadow-pink-900/5 lg:sticky lg:top-28`}>
+            <div className="bg-gradient-to-br from-pink-100 via-[#ffe9e0] to-[#fff4ef] px-6 pb-7 pt-6 md:px-8">
+              <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-pink-700">
+                <PackageIcon className="h-4 w-4" />
+                Önerilen paket · {getBudgetText(budget)}
+              </p>
+              <h2 key={result.title} className="fade-in-up mt-4 text-4xl">
+                {result.title}
+              </h2>
+              <p className="mt-3 leading-7 text-[#6b4a4a]">{result.description}</p>
+            </div>
 
-            <h2 className="mt-3 text-3xl font-black">{result.title}</h2>
+            <div className="px-6 py-6 md:px-8">
+              <ol className="divide-y divide-pink-100">
+                {result.items.map((item, i) => (
+                  <li key={item.name} className="flex items-center gap-4 py-4">
+                    <span className="font-display text-2xl italic text-pink-300">{String(i + 1).padStart(2, "0")}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold">{item.name}</p>
+                      <p className="mt-0.5 text-sm text-[#8a6a6a]">{item.price}</p>
+                    </div>
+                    <span className={ui.tagAccent}>{item.role}</span>
+                  </li>
+                ))}
+              </ol>
 
-            <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
-              {result.description}
-            </p>
-
-            <div className="mt-5 grid gap-3">
-              {result.items.map((item) => (
-                <div key={item.name} className="rounded-2xl bg-[#fff4ef] p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-black">{item.name}</p>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-pink-700">
-                      {item.role}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm font-semibold text-[#6b4a4a]">{item.price}</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div className={`${ui.inset} p-5`}>
+                  <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-pink-600">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Nasıl sunulur?
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">{result.presentation}</p>
                 </div>
-              ))}
-            </div>
+                <div className={`${ui.inset} p-5`}>
+                  <p className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-pink-600">
+                    <PenLine className="h-3.5 w-3.5" />
+                    Pakete eklenecek not
+                  </p>
+                  <p className="mt-2 font-display text-lg italic leading-7 text-[#2b1b1b]">“{result.note}”</p>
+                </div>
+              </div>
 
-            <div className="mt-5 rounded-2xl bg-[#fff4ef] p-5">
-              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
-                Nasıl sunulur?
-              </p>
-              <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
-                {result.presentation}
-              </p>
-            </div>
-
-            <div className="mt-4 rounded-2xl bg-[#fff4ef] p-5">
-              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
-                Pakete eklenecek not
-              </p>
-              <p className="mt-2 text-sm font-black leading-7 text-[#2b1b1b]">
-                {result.note}
-              </p>
-            </div>
-
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <button
-                onClick={copyPackage}
-                className="rounded-full bg-pink-600 px-5 py-4 text-sm font-black text-white"
-              >
-                Paketi Kopyala
-              </button>
-
-              <Link
-                href={`/deneyim?gift=${encodeURIComponent(result.title)}`}
-                className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-black text-white"
-              >
-                Bu Paket İçin Not Oluştur
-              </Link>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button onClick={copyPackage} className={`${ui.btnPrimary} flex-1`}>
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? "Kopyalandı" : "Paketi kopyala"}
+                </button>
+                <Link href={`/deneyim?gift=${encodeURIComponent(result.title)}`} className={`${ui.btnDark} flex-1`}>
+                  <QrCode className="h-4 w-4" />
+                  Bu paket için QR not
+                </Link>
+              </div>
             </div>
           </div>
         </div>

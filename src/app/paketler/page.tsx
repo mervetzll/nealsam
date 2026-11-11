@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { ArrowRight, Check, Info, Minus, Sparkles } from "lucide-react";
+import PageHero from "@/components/ui/PageHero";
+import { ui } from "@/components/ui/styles";
 
 export const metadata = {
   title: "Paketler | NeAlsam Hediye",
@@ -93,178 +96,142 @@ const comparisonRows = [
   ["Tam erişim", "—", "—", "—", "✓"],
 ];
 
+function Cell({ value }: { value: string }) {
+  if (value === "✓") return <Check className="mx-auto h-5 w-5 text-pink-600" aria-label="Var" />;
+  if (value === "—") return <Minus className="mx-auto h-4 w-4 text-[#d9c3c3]" aria-label="Yok" />;
+  return <span className={ui.tag}>{value}</span>;
+}
+
 export default function PackagesPage() {
   return (
-    <main className="min-h-screen bg-[#fff4ef]">
-      <section className="mx-auto max-w-7xl px-5 py-14">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-black uppercase tracking-wide text-pink-600">
-            NeAlsam Paketleri
-          </p>
+    <main className="min-h-screen bg-[#fff4ef] text-[#2b1b1b]">
+      <section className="mx-auto max-w-7xl px-5 pb-24">
+        <PageHero
+          align="center"
+          eyebrow="Premium paketler"
+          title="Hediyeyi daha"
+          accent="özel kılan paketler."
+          description="Ücretsiz önerilerle başla; istersen QR not, özel mektup ve premium deneyimle hediyeni kişiselleştir."
+        />
 
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-4xl md:text-6xl">
-            Hediyeyi daha özel hale getiren paketler
-          </h1>
+        <p className="mx-auto flex max-w-2xl items-start gap-3 rounded-2xl bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900 ring-1 ring-amber-200">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            <strong className="font-bold">Ödeme sistemi hazırlık modunda.</strong> Gerçek ödeme sağlayıcı
+            bağlanana kadar kart bilgisi alınmaz ve ödeme tamamlanmaz.
+          </span>
+        </p>
 
-          <p className="mt-5 text-sm leading-7 text-[#6b4a4a] md:text-base">
-            Ücretsiz hediye önerileriyle başlayabilir, istersen QR not, özel
-            mektup ve premium deneyim özellikleriyle hediyeni daha kişisel hale
-            getirebilirsin.
-          </p>
-        </div>
-
-        <div className="mx-auto mt-8 max-w-4xl rounded-[1.5rem] md:rounded-[2rem] border border-amber-200 bg-amber-50 p-5 text-center shadow-sm">
-          <p className="text-sm font-black text-amber-800">
-            Ödeme sistemi şu an hazırlık modunda
-          </p>
-          <p className="mt-2 text-sm leading-6 text-amber-800">
-            Bu sayfada paket akışı test ediliyor. Gerçek ödeme sağlayıcı
-            bağlanana kadar kart bilgisi alınmaz ve ödeme işlemi tamamlanmaz.
-          </p>
-        </div>
-
-        <div className="mt-10 grid gap-5 lg:grid-cols-4">
-          {packages.map((item) => (
-            <article
-              key={item.id}
-              className={`relative rounded-[1.5rem] md:rounded-[2rem] border bg-white p-6 shadow-sm ${
-                item.popular
-                  ? "border-pink-300 ring-4 ring-pink-100"
-                  : "border-pink-100"
-              }`}
-            >
-              {item.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-pink-600 px-4 py-2 text-xs font-black text-white shadow-sm">
-                  En Popüler
+        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4 lg:items-stretch">
+          {packages.map((item) => {
+            const dark = item.popular;
+            return (
+              <article
+                key={item.id}
+                className={`relative flex flex-col rounded-[1.75rem] p-7 ${
+                  dark
+                    ? "dark-surface bg-[#2b1b1b] text-white shadow-2xl shadow-pink-900/20 lg:-my-3 lg:py-10"
+                    : "bg-white ring-1 ring-pink-100"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className={`text-xs font-bold uppercase tracking-[0.18em] ${dark ? "text-pink-300" : "text-pink-600"}`}>
+                    {item.tag}
+                  </p>
+                  {item.popular && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-pink-600 px-3 py-1 text-xs font-bold text-white">
+                      <Sparkles className="h-3 w-3" />
+                      En popüler
+                    </span>
+                  )}
                 </div>
-              )}
 
-              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
-                {item.tag}
-              </p>
+                <h2 className="mt-5 text-3xl">{item.name}</h2>
 
-              <h2 className="mt-3 text-2xl font-black text-[#2b1b1b]">
-                {item.name}
-              </h2>
-
-              <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
-                {item.description}
-              </p>
-
-              <div className="mt-5 rounded-2xl bg-[#fff0f7] p-4">
-                <p className="text-sm font-bold text-[#6b4a4a]">Paket Fiyatı</p>
-                <p className="mt-1 text-4xl font-black text-[#2b1b1b]">
-                  {item.price}
-                </p>
-              </div>
-
-              <div className="mt-5">
-                <p className="text-sm font-black text-[#2b1b1b]">
-                  Pakete dahil:
+                <p className="mt-4 flex items-baseline gap-1.5">
+                  <span className="font-display text-5xl tracking-tight">{item.price.replace(" TL", "")}</span>
+                  <span className={`text-sm font-bold ${dark ? "text-white/60" : "text-[#8a6a6a]"}`}>TL</span>
                 </p>
 
-                <ul className="mt-3 space-y-2">
+                <p className={`mt-3 text-sm leading-6 ${dark ? "text-white/70" : "text-[#6b4a4a]"}`}>{item.description}</p>
+
+                <ul className={`mt-6 space-y-3 border-t pt-6 ${dark ? "border-white/10" : "border-pink-100"}`}>
                   {item.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-3 text-sm leading-6">
+                      <Check className={`mt-0.5 h-4 w-4 shrink-0 ${dark ? "text-pink-300" : "text-pink-600"}`} />
+                      {feature}
+                    </li>
+                  ))}
+                  {item.locked.map((feature) => (
                     <li
                       key={feature}
-                      className="text-sm font-semibold leading-6 text-[#6b4a4a]"
+                      className={`flex items-start gap-3 text-sm leading-6 ${dark ? "text-white/40" : "text-[#b39a9a]"}`}
                     >
-                      ✓ {feature}
+                      <Minus className="mt-0.5 h-4 w-4 shrink-0" />
+                      {feature}
                     </li>
                   ))}
                 </ul>
-              </div>
 
-              {item.locked.length > 0 && (
-                <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff4ef] p-4">
-                  <p className="text-sm font-black text-[#2b1b1b]">
-                    Bu pakette sınırlı:
-                  </p>
-
-                  <ul className="mt-3 space-y-2">
-                    {item.locked.map((feature) => (
-                      <li
-                        key={feature}
-                        className="text-sm font-semibold leading-6 text-[#6b4a4a]"
-                      >
-                        ○ {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <Link
-                href={item.href}
-                className={`mt-6 inline-flex w-full justify-center rounded-full px-5 py-4 text-sm font-black transition ${
-                  item.popular
-                    ? "bg-pink-600 text-white hover:bg-pink-700"
-                    : "bg-[#2b1b1b] text-white hover:opacity-90"
-                }`}
-              >
-                {item.cta}
-              </Link>
-            </article>
-          ))}
+                <Link
+                  href={item.href}
+                  className={`mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3.5 text-sm font-bold transition ${
+                    dark
+                      ? "bg-pink-600 text-white hover:bg-pink-500"
+                      : "bg-[#fff4ef] text-[#2b1b1b] ring-1 ring-pink-100 hover:bg-[#2b1b1b] hover:text-white"
+                  } mt-auto`}
+                >
+                  {item.cta}
+                </Link>
+              </article>
+            );
+          })}
         </div>
 
-        <section className="mt-14 rounded-[1.5rem] md:rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <section className="mt-24">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-black text-pink-600">
-                Paket Karşılaştırması
-              </p>
-
-              <h2 className="mt-2 text-3xl font-black text-[#2b1b1b]">
-                Hangi pakette ne var?
+              <p className={ui.eyebrow}>Karşılaştırma</p>
+              <h2 className="mt-3 text-4xl md:text-5xl">
+                Hangi pakette <em>ne var?</em>
               </h2>
             </div>
-
-            <Link
-              href="/hediye-bul"
-              className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-            >
-              Önce Ücretsiz Dene
+            <Link href="/hediye-bul" className={ui.btnLink}>
+              Önce ücretsiz dene
             </Link>
           </div>
 
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[760px] border-separate border-spacing-y-2 text-left">
+          <div className={`${ui.card} mt-8 overflow-x-auto`}>
+            <table className="w-full min-w-[680px] text-left">
               <thead>
-                <tr>
-                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
-                    Özellik
-                  </th>
-                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
-                    Free
-                  </th>
-                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
-                    Plus
-                  </th>
-                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
-                    Deneyim
-                  </th>
-                  <th className="px-4 py-3 text-sm font-black text-[#2b1b1b]">
-                    Premium
-                  </th>
+                <tr className="border-b border-pink-100">
+                  {["Özellik", "Ücretsiz", "Plus", "Deneyim", "Premium"].map((h, i) => (
+                    <th
+                      key={h}
+                      scope="col"
+                      className={`px-6 py-5 text-sm font-bold ${i === 0 ? "" : "text-center"} ${
+                        h === "Plus" ? "text-pink-600" : "text-[#2b1b1b]"
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-
-              <tbody>
+              <tbody className="divide-y divide-pink-50">
                 {comparisonRows.map((row) => (
-                  <tr key={row[0]} className="rounded-2xl bg-[#fff4ef]">
-                    {row.map((cell, index) => (
-                      <td
-                        key={`${row[0]}-${index}`}
-                        className={`px-4 py-4 text-sm ${
-                          index === 0
-                            ? "font-black text-[#2b1b1b]"
-                            : "font-bold text-[#6b4a4a]"
-                        }`}
-                      >
-                        {cell}
-                      </td>
-                    ))}
+                  <tr key={row[0]} className="transition hover:bg-[#fff8f5]">
+                    {row.map((cell, index) =>
+                      index === 0 ? (
+                        <th key={index} scope="row" className="px-6 py-4 text-sm font-bold text-[#2b1b1b]">
+                          {cell}
+                        </th>
+                      ) : (
+                        <td key={index} className="px-6 py-4 text-center text-sm">
+                          <Cell value={cell} />
+                        </td>
+                      ),
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -272,29 +239,20 @@ export default function PackagesPage() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-[1.5rem] md:rounded-[2rem] border border-pink-100 bg-[#2b1b1b] p-8 text-center shadow-sm">
-          <h2 className="text-3xl font-black text-white">
-            Kararsız kaldıysan ücretsiz başla
+        <section className="dark-surface mt-24 rounded-[2.5rem] bg-[#2b1b1b] px-8 py-16 text-center text-white">
+          <h2 className="mx-auto max-w-2xl text-4xl md:text-5xl">
+            Kararsız mısın? <em>Ücretsiz başla.</em>
           </h2>
-
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-pink-100">
-            Önce hediye önerilerini dene. Sonra hediyeyi daha özel hale getirmek
-            istersen Plus, Deneyim veya Premium pakete geçebilirsin.
+          <p className="mx-auto mt-5 max-w-xl leading-7 text-white/70">
+            Önce hediye önerilerini dene. Hediyeyi daha özel yapmak istersen istediğin zaman pakete geçebilirsin.
           </p>
-
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/hediye-bul"
-              className="rounded-full bg-white px-6 py-4 text-sm font-black text-[#2b1b1b] transition hover:bg-pink-50"
-            >
-              Hediye Bul
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
+            <Link href="/hediye-bul" className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-4 text-sm font-bold text-[#2b1b1b] transition hover:bg-pink-50">
+              Hediye bul
+              <ArrowRight className="h-4 w-4" />
             </Link>
-
-            <Link
-              href="/deneyim"
-              className="rounded-full border border-white/30 px-6 py-4 text-sm font-black text-white transition hover:bg-white/10"
-            >
-              Deneyimi Gör
+            <Link href="/deneyim" className="text-sm font-bold text-white underline decoration-pink-400 decoration-2 underline-offset-[6px]">
+              Deneyimi gör
             </Link>
           </div>
         </section>

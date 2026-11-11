@@ -108,11 +108,11 @@ export default function BloglarimClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
       <section className="mx-auto max-w-6xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
               Hesabım
             </p>
 
@@ -128,14 +128,14 @@ export default function BloglarimClient() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/blog/yeni"
-              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
             >
               Yeni Blog Yaz
             </Link>
 
             <Link
               href="/hesabim"
-              className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
+              className="rounded-full bg-white ring-1 ring-pink-200 px-5 py-3 text-sm font-bold text-pink-700 transition hover:bg-pink-50"
             >
               Hesabıma Dön
             </Link>
@@ -143,22 +143,22 @@ export default function BloglarimClient() {
         </div>
 
         {message && (
-          <p className="mt-6 rounded-2xl bg-white p-5 text-sm font-black text-pink-700 shadow-sm">
+          <p className="mt-6 rounded-2xl bg-white p-5 text-sm font-black text-pink-700">
             {message}
           </p>
         )}
 
         {loading ? (
-          <div className="mt-8 rounded-[2rem] bg-white p-8 text-center shadow-sm">
+          <div className="mt-8 rounded-[2rem] bg-white p-8 text-center">
             <p className="font-black">Bloglar yükleniyor...</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="mt-8 rounded-[2rem] bg-white p-8 text-center shadow-sm">
+          <div className="mt-8 rounded-[2rem] bg-white p-8 text-center">
             <h2 className="text-2xl font-black">Henüz blog yazın yok.</h2>
 
             <Link
               href="/blog/yeni"
-              className="mt-5 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+              className="mt-5 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
             >
               İlk Blogunu Yaz
             </Link>
@@ -168,7 +168,7 @@ export default function BloglarimClient() {
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm"
+                className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6"
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
@@ -203,7 +203,7 @@ export default function BloglarimClient() {
                     {post.status === "published" && (
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
+                        className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white transition hover:bg-black"
                       >
                         Gör
                       </Link>
@@ -211,7 +211,7 @@ export default function BloglarimClient() {
 
                     <Link
                       href={`/blog/duzenle/${post.id}`}
-                      className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+                      className="rounded-full bg-pink-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
                     >
                       Düzenle
                     </Link>

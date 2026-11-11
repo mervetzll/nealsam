@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -65,32 +66,45 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#fff4ef]">
-      <section className="mx-auto grid max-w-6xl gap-8 px-5 py-14 lg:grid-cols-[0.9fr_1.1fr]">
-        <aside className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold text-pink-600">NeAlsam Hesabı</p>
-
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
-            Profilini oluştur, tercihlerini kaydet
-          </h1>
-
-          <p className="mt-4 text-sm leading-6 text-[#6b4a4a]">
-            Kayıt olduktan sonra hediye profilini Supabase üzerinde saklayabilir,
-            bütçeni ve hediye tercihlerini düzenleyebilirsin.
+      <section className="mx-auto grid max-w-6xl gap-6 px-5 pb-24 pt-8 lg:grid-cols-2 lg:pt-12">
+        <aside className="dark-surface relative isolate flex flex-col overflow-hidden rounded-[2rem] bg-[#2b1b1b] p-8 text-white md:p-10">
+          <div
+            aria-hidden="true"
+            className="glow-spin pointer-events-none absolute -bottom-1/2 -right-1/3 -z-10 h-[28rem] w-[28rem] rounded-full opacity-40 blur-3xl"
+            style={{ background: "conic-gradient(from 0deg, #db2777, transparent 40%, #f472b6, transparent 80%, #db2777)" }}
+          />
+          <p className="inline-flex items-center gap-2 text-sm font-bold text-pink-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-pink-400" />
+            NeAlsam hesabı
           </p>
 
-          <div className="mt-6 rounded-2xl bg-pink-50 p-5">
-            <h2 className="font-black text-[#2b1b1b]">Hesapla ne olacak?</h2>
-            <ul className="mt-3 space-y-2 text-sm font-semibold text-[#6b4a4a]">
-              <li>• Profil bilgilerini kaydedebileceksin.</li>
-              <li>• Varsayılan bütçe ve ilgi alanları tutabilecek.</li>
-              <li>• Sonraki adımda öneri geçmişi eklenebilecek.</li>
-              <li>• Premium deneyimler kullanıcıya bağlanabilecek.</li>
-            </ul>
-          </div>
+          <h1 className="mt-6 text-5xl md:text-6xl">
+            Tercihlerini kaydet, <em>hediyeni hatırla.</em>
+          </h1>
+
+          <p className="mt-5 max-w-md leading-7 text-white/70">
+            Hesabınla bütçeni ve hediye tarzını saklar, beğendiğin önerilere istediğin zaman geri dönersin.
+          </p>
+
+          <ul className="mt-auto space-y-3 pt-10 text-sm text-white/85">
+            {[
+              "Profil ve bütçe tercihlerin kayıtlı kalır",
+              "Favori ve kaydettiğin öneriler tek yerde",
+              "Premium deneyimler hesabına bağlanır",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-3">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
+                  <Check className="h-3.5 w-3.5 text-pink-300" />
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
         </aside>
 
-        <section className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
-          <div className="flex rounded-full bg-[#fff0f7] p-1">
+        <section className="rounded-[2rem] bg-white p-8 ring-1 ring-pink-100 md:p-10">
+          <h2 className="mb-6 text-3xl text-[#2b1b1b]">{mode === "login" ? "Tekrar hoş geldin" : "Hesap oluştur"}</h2>
+          <div className="flex rounded-full bg-pink-50 p-1">
             <button
               type="button"
               onClick={() => setMode("login")}
@@ -118,24 +132,24 @@ export default function LoginPage() {
 
           <div className="mt-7 space-y-4">
             <label className="block">
-              <span className="text-sm font-black text-[#2b1b1b]">E-posta</span>
+              <span className="text-sm font-bold text-[#2b1b1b]">E-posta</span>
               <input
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="ornek@mail.com"
-                className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none focus:border-pink-400 focus:bg-white"
+                className="mt-2 w-full rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] text-[#2b1b1b] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               />
             </label>
 
             <label className="block">
-              <span className="text-sm font-black text-[#2b1b1b]">Şifre</span>
+              <span className="text-sm font-bold text-[#2b1b1b]">Şifre</span>
               <input
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="En az 6 karakter"
-                className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none focus:border-pink-400 focus:bg-white"
+                className="mt-2 w-full rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] text-[#2b1b1b] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               />
             </label>
 
@@ -149,7 +163,7 @@ export default function LoginPage() {
               type="button"
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white transition hover:bg-pink-700 disabled:opacity-50"
+              className="w-full rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700 disabled:opacity-50"
             >
               {loading
                 ? "İşleniyor..."
@@ -160,9 +174,9 @@ export default function LoginPage() {
 
             <Link
               href="/hediye-bul"
-              className="inline-flex w-full justify-center rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+              className="inline-flex w-full justify-center py-2 text-sm font-bold text-[#6b4a4a] underline decoration-pink-300 decoration-2 underline-offset-[6px] transition hover:text-[#2b1b1b]"
             >
-              Üye olmadan Hediye Bul
+              Üye olmadan devam et
             </Link>
           </div>
         </section>

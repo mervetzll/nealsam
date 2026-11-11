@@ -226,7 +226,7 @@ function GiftCard({ title, gift }: { title: string; gift: string }) {
   const score = getGiftScore(gift);
 
   return (
-    <article className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
+    <article className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6">
       <p className="text-sm font-black uppercase tracking-[0.22em] text-pink-600">
         {title}
       </p>
@@ -276,65 +276,65 @@ export default function GiftCompareClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
       <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+        <div className="max-w-4xl pb-10 pt-6 md:pb-14 md:pt-10">
+          <p className="inline-flex items-center gap-2 text-sm font-bold text-pink-700"><span className="h-1.5 w-1.5 rounded-full bg-pink-600" />
             Hediye Karşılaştırma
           </p>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            İki hediye arasında kaldıysan birlikte karar verelim
+          <h1 className="mt-5 text-[2.75rem] sm:text-6xl lg:text-7xl">
+            İki hediye arasında kaldıysan <em>birlikte seçelim.</em>
           </h1>
 
-          <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#6b4a4a]">
             Hediyeleri kişisellik, anlam, risk, kullanışlılık ve sürpriz etkisine göre karşılaştır.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/hediye-bul"
-              className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+              className="rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
             >
               Hediye Bul
             </Link>
 
             <Link
               href="/hediye-araclari"
-              className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white"
+              className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-bold text-white transition hover:bg-black"
             >
               Hediye Araçları
             </Link>
           </div>
         </div>
 
-        <div className="mt-8 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6">
           <div className="grid gap-4 md:grid-cols-2">
             <input
               value={giftA}
               onChange={(event) => setGiftA(event.target.value)}
               placeholder="1. hediye: Örn: parfüm"
-              className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+              className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
             />
 
             <input
               value={giftB}
               onChange={(event) => setGiftB(event.target.value)}
               placeholder="2. hediye: Örn: kolye"
-              className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+              className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
             />
 
             <input
               value={person}
               onChange={(event) => setPerson(event.target.value)}
               placeholder="Kime alınacak? Örn: sevgilim, annem, arkadaşım"
-              className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+              className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
             />
 
             <select
               value={context}
               onChange={(event) => setContext(event.target.value)}
-              className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+              className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
             >
               <option value="birthday">Doğum günü</option>
               <option value="anniversary">Yıl dönümü</option>
@@ -350,8 +350,8 @@ export default function GiftCompareClient() {
           <GiftCard title="Seçenek 2" gift={giftB} />
         </div>
 
-        <div className="mt-8 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+        <div className="mt-8 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6 md:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Son Karar
           </p>
 
@@ -371,14 +371,14 @@ export default function GiftCompareClient() {
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               onClick={copyDecision}
-              className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+              className="rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
             >
               Kararı Kopyala
             </button>
 
             <Link
               href={`/deneyim?gift=${encodeURIComponent(giftA || giftB || "hediye")}`}
-              className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white"
+              className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-bold text-white transition hover:bg-black"
             >
               Bu Hediye İçin Not Oluştur
             </Link>

@@ -29,7 +29,7 @@ export default function HediyeNotuClient() {
         </div>
       )}
 
-      <section className="mx-auto max-w-3xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+      <section className="mx-auto max-w-3xl rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
         <p className="text-sm font-black text-pink-600">NeAlsam Hediye</p>
 
         <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
@@ -42,8 +42,8 @@ export default function HediyeNotuClient() {
         </p>
 
         {isPremium ? (
-          <div className="mt-8 rounded-2xl bg-[#fff0f7] p-6 text-left">
-            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          <div className="mt-8 rounded-2xl bg-pink-50 p-6 text-left">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
               Premium aktif
             </p>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
@@ -52,8 +52,8 @@ export default function HediyeNotuClient() {
             </p>
           </div>
         ) : (
-          <div className="mt-8 rounded-2xl bg-[#fff0f7] p-6 text-left">
-            <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          <div className="mt-8 rounded-2xl bg-pink-50 p-6 text-left">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
               Önizleme
             </p>
             <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">

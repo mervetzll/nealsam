@@ -160,24 +160,24 @@ export default function GiftCalendarClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
       <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+        <div className="max-w-4xl pb-10 pt-6 md:pb-14 md:pt-10">
+          <p className="inline-flex items-center gap-2 text-sm font-bold text-pink-700"><span className="h-1.5 w-1.5 rounded-full bg-pink-600" />
             Hediye Takvimi
           </p>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Özel günleri kaydet, hediye almayı unutma
+          <h1 className="mt-5 text-[2.75rem] sm:text-6xl lg:text-7xl">
+            Özel günleri kaydet, <em>hediyeyi unutma.</em>
           </h1>
 
-          <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#6b4a4a]">
             Doğum günü, yıl dönümü ve önemli tarihleri sakla. Yaklaşan tarihlere göre hızlı hediye fikri üret.
           </p>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
+          <div className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6">
             <h2 className="text-2xl font-black">Yeni tarih ekle</h2>
 
             <div className="mt-5 grid gap-4">
@@ -185,20 +185,20 @@ export default function GiftCalendarClient() {
                 value={personName}
                 onChange={(event) => setPersonName(event.target.value)}
                 placeholder="Kişi adı"
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+                className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               />
 
               <input
                 value={relation}
                 onChange={(event) => setRelation(event.target.value)}
                 placeholder="Yakınlık: sevgilim, annem, arkadaşım"
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+                className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               />
 
               <select
                 value={eventTitle}
                 onChange={(event) => setEventTitle(event.target.value)}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+                className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               >
                 <option>Doğum günü</option>
                 <option>Yıl dönümü</option>
@@ -213,7 +213,7 @@ export default function GiftCalendarClient() {
                 type="date"
                 value={eventDate}
                 onChange={(event) => setEventDate(event.target.value)}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+                className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               />
 
               <textarea
@@ -221,12 +221,12 @@ export default function GiftCalendarClient() {
                 onChange={(event) => setNotes(event.target.value)}
                 placeholder="Not: sevdiği şeyler, alınmayacak hediyeler..."
                 rows={4}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold leading-6 outline-none"
+                className="rounded-2xl bg-[#fff8f5] ring-1 ring-pink-100 px-4 py-4 text-sm font-bold leading-6 outline-none"
               />
 
               <button
                 onClick={addEvent}
-                className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+                className="rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
               >
                 Takvime Ekle
               </button>
@@ -239,8 +239,8 @@ export default function GiftCalendarClient() {
             )}
           </div>
 
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+          <div className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
               Yaklaşan Tarihler
             </p>
 
@@ -290,14 +290,14 @@ export default function GiftCalendarClient() {
                       <div className="mt-4 flex flex-wrap gap-3">
                         <Link
                           href={`/hediye-bul?person=${encodeURIComponent(event.person_name)}`}
-                          className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+                          className="rounded-full bg-pink-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
                         >
                           Hediye Bul
                         </Link>
 
                         <Link
                           href={`/hediye-paketi?person=${encodeURIComponent(event.person_name)}`}
-                          className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
+                          className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white transition hover:bg-black"
                         >
                           Paket Oluştur
                         </Link>

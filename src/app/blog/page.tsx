@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { ArrowRight, PenLine } from "lucide-react";
+import PageHero from "@/components/ui/PageHero";
+import { ui } from "@/components/ui/styles";
 import BlogDynamicPosts from "./BlogDynamicPosts";
 
 export const metadata = {
@@ -45,84 +48,79 @@ const guidePosts = [
   },
 ];
 
+const covers = [
+  "from-pink-200 via-rose-100 to-[#fff4ef]",
+  "from-[#ffe1d1] via-[#fff0e8] to-[#fff8f5]",
+  "from-rose-200 via-pink-100 to-[#fff4ef]",
+  "from-[#f7d9e4] via-[#fcebf1] to-white",
+  "from-[#ffd9cc] via-[#ffece4] to-[#fff8f5]",
+];
+
 export default function BlogPage() {
+  const [featured, ...rest] = guidePosts;
+
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
       <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-            Rehber / Blog
-          </p>
+        <PageHero
+          eyebrow="Rehber ve blog"
+          title="Hediye fikirleri,"
+          accent="rehberler ve hikâyeler."
+          description="Özel günlere, kişilere ve bütçeye göre hediye rehberlerini oku; üye olarak kendi yazını da gönderebilirsin."
+        >
+          <Link href="/blog/yeni" className={ui.btnPrimary}>
+            <PenLine className="h-4 w-4" />
+            Yazı gönder
+          </Link>
+          <Link href="/hesabim/bloglarim" className={ui.btnLink}>
+            Yazılarım
+          </Link>
+        </PageHero>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Hediye fikirleri, rehberler ve topluluk yazıları
-          </h1>
-
-          <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
-            NeAlsam Hediye’de özel günlere, kişilere ve bütçeye göre hediye
-            fikirlerini okuyabilir; üye olarak kendi blog yazını da
-            gönderebilirsin.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href="/blog/yeni"
-              className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
-            >
-              Blog Yazısı Gönder
-            </Link>
-
-            <Link
-              href="/hesabim/bloglarim"
-              className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700"
-            >
-              Bloglarım
-            </Link>
-
-            <Link
-              href="/hediye-bul"
-              className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white"
-            >
-              Hediye Bul
-            </Link>
-          </div>
-        </div>
-
-        <section className="mt-10">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-                Rehber Yazıları
-              </p>
-
-              <h2 className="mt-2 text-3xl font-black">
-                En çok okunan hediye rehberleri
-              </h2>
-            </div>
+        <section>
+          <div className="flex items-end justify-between gap-4 border-b border-pink-100 pb-5">
+            <h2 className="text-3xl md:text-4xl">
+              En çok <em>okunanlar</em>
+            </h2>
+            <p className="hidden text-sm text-[#8a6a6a] sm:block">{guidePosts.length} rehber</p>
           </div>
 
-          <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {guidePosts.map((post) => (
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {featured && (
               <Link
-                key={post.href}
-                href={post.href}
-                className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                href={featured.href}
+                className={`${ui.cardInteractive} group grid overflow-hidden md:col-span-2 md:grid-cols-2`}
               >
-                <span className="rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-black text-pink-700">
-                  {post.category}
-                </span>
+                <div className={`relative flex min-h-56 items-end bg-gradient-to-br ${covers[0]} p-7`}>
+                  <span className="font-display text-6xl italic leading-none text-pink-600/80 md:text-7xl">
+                    {featured.category}
+                  </span>
+                </div>
+                <div className="flex flex-col p-7 md:p-8">
+                  <span className={ui.tagAccent}>Öne çıkan</span>
+                  <h3 className="mt-5 font-display text-3xl font-normal leading-tight md:text-4xl">{featured.title}</h3>
+                  <p className="mt-4 flex-1 leading-7 text-[#6b4a4a]">{featured.description}</p>
+                  <p className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-pink-700">
+                    Yazıyı oku
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </p>
+                </div>
+              </Link>
+            )}
 
-                <h3 className="mt-5 text-2xl font-black text-[#2b1b1b]">
-                  {post.title}
-                </h3>
-
-                <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
-                  {post.description}
-                </p>
-
-                <p className="mt-5 text-sm font-black text-pink-600">
-                  Yazıyı Oku →
-                </p>
+            {rest.map((post, i) => (
+              <Link key={post.href} href={post.href} className={`${ui.cardInteractive} group flex flex-col overflow-hidden`}>
+                <div className={`flex h-36 items-end bg-gradient-to-br ${covers[(i + 1) % covers.length]} px-6 pb-4`}>
+                  <span className="font-display text-3xl italic text-pink-600/80">{post.category}</span>
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="font-display text-2xl font-normal leading-snug">{post.title}</h3>
+                  <p className="mt-3 flex-1 text-sm leading-6 text-[#6b4a4a]">{post.description}</p>
+                  <p className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-pink-700">
+                    Yazıyı oku
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </p>
+                </div>
               </Link>
             ))}
           </div>

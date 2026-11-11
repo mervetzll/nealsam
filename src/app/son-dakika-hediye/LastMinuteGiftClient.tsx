@@ -82,24 +82,24 @@ ${result.tip}`;
   }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
       <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+        <div className="max-w-4xl pb-10 pt-6 md:pb-14 md:pt-10">
+          <p className="inline-flex items-center gap-2 text-sm font-bold text-pink-700"><span className="h-1.5 w-1.5 rounded-full bg-pink-600" />
             Son Dakika Hediye Kurtarıcı
           </p>
 
-          <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Az zaman kaldıysa paniğe gerek yok
+          <h1 className="mt-5 text-[2.75rem] sm:text-6xl lg:text-7xl">
+            Az zaman kaldıysa <em>paniğe gerek yok.</em>
           </h1>
 
-          <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#6b4a4a]">
             Bugün, yarın veya 3 gün içinde alınabilecek hızlı ve risksiz hediye fikirleri.
           </p>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
+          <div className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6">
             <h2 className="text-2xl font-black">Durumu seç</h2>
 
             <div className="mt-5 grid gap-4">
@@ -107,20 +107,20 @@ ${result.tip}`;
                 value={person}
                 onChange={(event) => setPerson(event.target.value)}
                 placeholder="Kime? Örn: Ayşe"
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+                className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               />
 
               <input
                 value={relation}
                 onChange={(event) => setRelation(event.target.value)}
                 placeholder="Yakınlık? Örn: arkadaşım, sevgilim, annem"
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+                className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               />
 
               <select
                 value={urgency}
                 onChange={(event) => setUrgency(event.target.value)}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-4 text-sm font-bold outline-none"
+                className="rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
               >
                 <option value="today">Bugün lazım</option>
                 <option value="tomorrow">Yarın lazım</option>
@@ -129,8 +129,8 @@ ${result.tip}`;
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+          <div className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
               Kurtarıcı Liste
             </p>
 
@@ -153,7 +153,7 @@ ${result.tip}`;
             </div>
 
             <div className="mt-5 rounded-2xl bg-[#fff4ef] p-5">
-              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
                 İpucu
               </p>
               <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
@@ -164,14 +164,14 @@ ${result.tip}`;
             <div className="mt-5 grid gap-3 md:grid-cols-2">
               <button
                 onClick={copyResult}
-                className="rounded-full bg-pink-600 px-5 py-4 text-sm font-black text-white"
+                className="rounded-full bg-pink-600 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
               >
                 Listeyi Kopyala
               </button>
 
               <Link
                 href="/hediye-paketi"
-                className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-black text-white"
+                className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-bold text-white transition hover:bg-black"
               >
                 Paket Oluştur
               </Link>

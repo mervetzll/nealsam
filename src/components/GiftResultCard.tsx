@@ -189,18 +189,18 @@ export default function GiftResultCard({
   const addOns = getAddOns(gift);
 
   return (
-    <article className="overflow-hidden rounded-[2rem] border border-pink-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+    <article className="overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-pink-100 transition hover:-translate-y-1 hover:shadow-md">
       <div className="bg-gradient-to-br from-pink-50 to-[#fff4ef] p-6">
         <div className="flex flex-wrap gap-3">
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700 shadow-sm">
+          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700">
             %{score} eşleşme
           </span>
 
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm">
+          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a]">
             {score >= 90 ? "Çok güçlü eşleşme" : score >= 80 ? "Güçlü eşleşme" : "Uygun seçenek"}
           </span>
 
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm">
+          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a]">
             {risk.label}
           </span>
         </div>
@@ -220,7 +220,7 @@ export default function GiftResultCard({
 
       <div className="grid gap-4 p-6 md:grid-cols-2">
         <div className="rounded-2xl bg-[#fff4ef] p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Neden önerildi?
           </p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
@@ -229,7 +229,7 @@ export default function GiftResultCard({
         </div>
 
         <div className="rounded-2xl bg-[#fff4ef] p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Risk seviyesi
           </p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
@@ -238,7 +238,7 @@ export default function GiftResultCard({
         </div>
 
         <div className="rounded-2xl bg-[#fff4ef] p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Kimler için uygun?
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -254,7 +254,7 @@ export default function GiftResultCard({
         </div>
 
         <div className="rounded-2xl bg-[#fff4ef] p-5">
-          <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Yanına ne eklenir?
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -270,7 +270,7 @@ export default function GiftResultCard({
         </div>
 
         <div className="rounded-2xl bg-[#fff4ef] p-5 md:col-span-2">
-          <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Nasıl sunulur?
           </p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
@@ -285,21 +285,21 @@ export default function GiftResultCard({
         <div className="grid gap-3 md:col-span-2 md:grid-cols-3">
           <Link
             href={`/deneyim?gift=${encodeURIComponent(title)}`}
-            className="flex items-center justify-center rounded-full bg-pink-600 px-5 py-4 text-sm font-black text-white"
+            className="flex items-center justify-center rounded-full bg-pink-600 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
           >
             Özel Not Oluştur
           </Link>
 
           <Link
             href={`/hediye-paketi?gift=${encodeURIComponent(title)}`}
-            className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-black text-white"
+            className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-bold text-white transition hover:bg-black"
           >
             Pakete Çevir
           </Link>
 
           <Link
             href={`/hediye-karsilastir?gift=${encodeURIComponent(title)}`}
-            className="flex items-center justify-center rounded-full border border-pink-200 bg-white px-5 py-4 text-sm font-black text-pink-700"
+            className="flex items-center justify-center rounded-full bg-white ring-1 ring-pink-200 px-5 py-4 text-sm font-bold text-pink-700 transition hover:bg-pink-50"
           >
             Karşılaştır
           </Link>

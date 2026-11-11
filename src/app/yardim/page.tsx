@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
 
 export const metadata = {
   title: "Yardım ve SSS | NeAlsam Hediye",
@@ -69,11 +70,14 @@ export default function HelpPage() {
     <main className="min-h-screen bg-[#fff4ef]">
       <section className="mx-auto max-w-7xl px-5 py-16">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold text-pink-600">Yardım Merkezi</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b] md:text-5xl">
-            NeAlsam hakkında merak edilenler
+          <p className="inline-flex items-center gap-2 text-sm font-bold text-pink-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-pink-600" />
+            Yardım merkezi
+          </p>
+          <h1 className="mt-5 text-[2.75rem] text-[#2b1b1b] sm:text-6xl lg:text-7xl">
+            NeAlsam hakkında <em>merak edilenler</em>
           </h1>
-          <p className="mt-5 text-base leading-7 text-[#6b4a4a]">
+          <p className="mt-6 text-lg leading-8 text-[#6b4a4a]">
             Hediye önerilerinin nasıl çalıştığını, risk seviyelerini, premium
             deneyimi ve mağaza yönlendirmelerini burada bulabilirsin.
           </p>
@@ -88,7 +92,7 @@ export default function HelpPage() {
 
             <Link
               href="/paketler"
-              className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+              className="rounded-full bg-white ring-1 ring-pink-200 px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
             >
               Paketleri İncele
             </Link>
@@ -99,9 +103,9 @@ export default function HelpPage() {
           {supportCards.map((card) => (
             <article
               key={card.title}
-              className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm"
+              className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6"
             >
-              <h2 className="text-xl font-black text-[#2b1b1b]">
+              <h2 className="text-2xl text-[#2b1b1b]">
                 {card.title}
               </h2>
               <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
@@ -111,33 +115,35 @@ export default function HelpPage() {
           ))}
         </div>
 
-        <section className="mt-14 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-          <p className="text-sm font-bold text-pink-600">Sık Sorulan Sorular</p>
-          <h2 className="mt-2 text-3xl font-black text-[#2b1b1b]">
-            Kısa cevaplarla NeAlsam
-          </h2>
+        <section className="mt-20 grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Sık sorulan sorular</p>
+            <h2 className="mt-3 text-4xl text-[#2b1b1b] md:text-5xl">
+              Kısa cevaplarla <em>NeAlsam</em>
+            </h2>
+          </div>
 
-          <div className="mt-7 grid gap-4">
+          <div className="divide-y divide-pink-100 rounded-[1.75rem] bg-white px-6 ring-1 ring-pink-100 md:px-8">
             {faqs.map((faq) => (
-              <article
-                key={faq.question}
-                className="rounded-2xl border border-pink-100 bg-[#fff4ef] p-5"
-              >
-                <h3 className="font-black text-[#2b1b1b]">{faq.question}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
-                  {faq.answer}
-                </p>
-              </article>
+              <details key={faq.question} className="group py-5 [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[17px] font-bold text-[#2b1b1b]">
+                  {faq.question}
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pink-50 text-pink-600 transition group-open:rotate-45">
+                    <Plus className="h-4 w-4" />
+                  </span>
+                </summary>
+                <p className="mt-3 pr-12 leading-7 text-[#6b4a4a]">{faq.answer}</p>
+              </details>
             ))}
           </div>
         </section>
 
-        <section className="mt-12 rounded-[2rem] bg-[#2b1b1b] p-8 text-white">
-          <p className="text-sm font-bold text-pink-200">
+        <section className="dark-surface mt-20 rounded-[2.5rem] bg-[#2b1b1b] px-8 py-14 text-white md:px-14">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-300">
             Hâlâ karar veremedin mi?
           </p>
-          <h2 className="mt-2 text-3xl font-black">
-            En hızlı yol testi başlatmak
+          <h2 className="mt-3 text-4xl md:text-5xl">
+            En hızlı yol: <em>testi başlat.</em>
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-white/75">
             Kime hediye alacağını, bütçeni ve özel günü seç; NeAlsam sana daha

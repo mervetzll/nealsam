@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight, Bookmark, ChevronRight, Crown, Heart, History, Loader2, LogOut, PenLine, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -98,8 +99,11 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#fff4ef] px-5 py-16 text-center">
-        <p className="font-bold text-[#2b1b1b]">Hesap yükleniyor...</p>
+      <main className="flex min-h-[60vh] items-center justify-center bg-[#fff4ef] px-5 py-16">
+        <p className="inline-flex items-center gap-2 text-sm font-bold text-[#6b4a4a]">
+          <Loader2 className="h-4 w-4 animate-spin text-pink-600" />
+          Hesap yükleniyor
+        </p>
       </main>
     );
   }
@@ -107,38 +111,32 @@ export default function AccountPage() {
   if (!user) {
     return (
       <main className="min-h-screen bg-[#fff4ef]">
-        <section className="mx-auto max-w-3xl px-5 py-16 text-center">
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
-            <p className="text-sm font-bold text-pink-600">Hesabım</p>
-            <h1 className="mt-3 text-4xl font-black text-[#2b1b1b]">
-              Profilini görmek için giriş yap
-            </h1>
-            <p className="mt-4 text-sm leading-6 text-[#6b4a4a]">
-              Kayıt olup giriş yaptıktan sonra hediye tercihlerini Supabase
-              profilinde saklayabilirsin.
-            </p>
+        <section className="mx-auto max-w-2xl px-5 pb-24 pt-14 text-center">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-pink-600 ring-1 ring-pink-100">
+            <UserRound className="h-7 w-7" strokeWidth={1.75} />
+          </span>
+          <h1 className="mt-6 text-5xl text-[#2b1b1b] md:text-6xl">
+            Profilini görmek için <em>giriş yap.</em>
+          </h1>
+          <p className="mx-auto mt-5 max-w-md text-lg leading-8 text-[#6b4a4a]">
+            Giriş yaptıktan sonra hediye tercihlerin, favorilerin ve kaydettiğin öneriler burada olur.
+          </p>
 
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
             <Link
               href="/giris"
-              className="mt-7 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white transition hover:bg-pink-700"
+              className="inline-flex items-center gap-2 rounded-full bg-pink-600 px-7 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
             >
-              Giriş Yap / Kayıt Ol
+              Giriş yap veya kayıt ol
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/hesabim/bloglarim"
+              className="text-sm font-bold text-[#2b1b1b] underline decoration-pink-300 decoration-2 underline-offset-[6px]"
+            >
+              Bloglarım
             </Link>
           </div>
-        
-          <Link
-            href="/hesabim/bloglarim"
-            className="rounded-[1.5rem] border border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-          >
-            <p className="text-sm font-black text-pink-600">Blog</p>
-            <h3 className="mt-2 text-xl font-black text-[#2b1b1b]">
-              Bloglarım
-            </h3>
-            <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">
-              Gönderdiğin blog yazılarını takip et.
-            </p>
-          </Link>
-
         </section>
       </main>
     );
@@ -146,95 +144,81 @@ export default function AccountPage() {
 
   return (
     <main className="min-h-screen bg-[#fff4ef]">
-      <section className="mx-auto max-w-6xl px-5 py-14">
-        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <aside className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-            <p className="text-sm font-bold text-pink-600">Hesabım</p>
-
-            <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
-              Hediye profilin
-            </h1>
-
-            <p className="mt-4 text-sm leading-6 text-[#6b4a4a]">
-              Bu bilgiler Supabase hesabına bağlı olarak saklanır.
-            </p>
-
-            <div className="mt-6 rounded-2xl bg-pink-50 p-5">
-              <p className="text-sm font-black text-[#2b1b1b]">Giriş yapılan hesap</p>
-              <p className="mt-2 break-all text-sm font-semibold text-[#6b4a4a]">
-                {user.email}
+      <section className="mx-auto max-w-6xl px-5 pb-24 pt-10">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12">
+          <aside className="grid content-start gap-6">
+            <div>
+              <p className="inline-flex items-center gap-2 text-sm font-bold text-pink-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-pink-600" />
+                Hesabım
               </p>
+              <h1 className="mt-5 text-5xl text-[#2b1b1b] md:text-6xl">
+                Merhaba{profile.name ? `, ${profile.name}` : ""}<em>.</em>
+              </h1>
+              <p className="mt-3 break-all text-[#6b4a4a]">{user.email}</p>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-pink-100 bg-[#fff0f7] p-5">
-              <p className="text-sm font-black text-[#2b1b1b]">
-                Paket Durumu
-              </p>
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700 shadow-sm">
+            <div
+              className={`rounded-[1.75rem] p-6 ${
+                isPremiumPlan(currentPlan) ? "dark-surface bg-[#2b1b1b] text-white" : "bg-white ring-1 ring-pink-100"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className={`text-xs font-bold uppercase tracking-[0.2em] ${isPremiumPlan(currentPlan) ? "text-pink-300" : "text-pink-600"}`}>
+                  Paket durumu
+                </p>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-pink-600 px-3 py-1 text-xs font-bold text-white">
+                  <Crown className="h-3 w-3" />
                   {currentPlan.toUpperCase()}
                 </span>
-
-                <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a] shadow-sm">
-                  {isPremiumPlan(currentPlan)
-                    ? "Premium özellikler açık"
-                    : "Ücretsiz hesap"}
-                </span>
               </div>
-
-              <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
+              <p className="mt-4 font-display text-2xl">
+                {isPremiumPlan(currentPlan) ? "Premium özellikler açık" : "Ücretsiz hesap"}
+              </p>
+              <p className={`mt-2 text-sm leading-6 ${isPremiumPlan(currentPlan) ? "text-white/70" : "text-[#6b4a4a]"}`}>
                 {isPremiumPlan(currentPlan)
                   ? "QR not, özel mektup ve premium deneyim özelliklerini kullanabilirsin."
-                  : "Premium özellikler için Plus, Deneyim veya Premium paketlerinden birini seçebilirsin."}
+                  : "QR not ve özel mektup için Plus, Deneyim veya Premium paketlerinden birini seçebilirsin."}
               </p>
-
               {!isPremiumPlan(currentPlan) && (
                 <Link
                   href="/paketler"
-                  className="mt-4 inline-flex rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white transition hover:bg-black"
                 >
-                  Paketleri İncele
+                  Paketleri incele
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               )}
             </div>
 
+            <nav className="divide-y divide-pink-100 overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-pink-100" aria-label="Hesap menüsü">
+              {[
+                { href: "/hesabim/kaydettiklerim", label: "Kaydettiklerim", icon: Bookmark },
+                { href: "/hesabim/gecmis", label: "Geçmiş önerilerim", icon: History },
+                { href: "/hesabim/favoriler", label: "Favorilerim", icon: Heart },
+                { href: "/hesabim/bloglarim", label: "Bloglarım", icon: PenLine },
+              ].map(({ href, label, icon: Icon }) => (
+                <Link key={href} href={href} className="group flex items-center gap-4 px-6 py-4 transition hover:bg-[#fff8f5]">
+                  <Icon className="h-5 w-5 text-pink-600" strokeWidth={1.75} />
+                  <span className="flex-1 font-bold text-[#2b1b1b]">{label}</span>
+                  <ChevronRight className="h-4 w-4 text-[#c9a9a9] transition group-hover:translate-x-0.5 group-hover:text-pink-600" />
+                </Link>
+              ))}
+            </nav>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/hediye-bul"
-                className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white transition hover:opacity-90"
-              >
-                Hediye Bul
-              </Link>
-
-              <Link
-                href="/hesabim/gecmis"
-                className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-              >
-                Geçmiş Önerilerim
-              </Link>
-
-              <Link
-                href="/hesabim/kaydettiklerim"
-                className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
-              >
-                Kaydettiklerim
-              </Link>
-
-              <button
-                type="button"
-                onClick={logout}
-                className="rounded-full border border-red-200 bg-white px-5 py-3 text-sm font-black text-red-600 transition hover:bg-red-50"
-              >
-                Çıkış Yap
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="inline-flex items-center gap-2 justify-self-start text-sm font-bold text-[#8a6a6a] transition hover:text-red-600"
+            >
+              <LogOut className="h-4 w-4" />
+              Çıkış yap
+            </button>
           </aside>
 
-          <section className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
-            <h2 className="text-2xl font-black text-[#2b1b1b]">
-              Profil Bilgileri
+          <section className="self-start rounded-[1.75rem] bg-white p-6 ring-1 ring-pink-100 md:p-10">
+            <h2 className="text-3xl text-[#2b1b1b] md:text-4xl">
+              Profil <em>bilgilerin</em>
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
@@ -279,7 +263,7 @@ export default function AccountPage() {
             </div>
 
             {message && (
-              <div className="mt-6 rounded-2xl bg-emerald-50 p-4 text-sm font-black text-emerald-800">
+              <div className="mt-6 rounded-2xl bg-emerald-50 p-4 text-sm font-bold text-emerald-800 ring-1 ring-emerald-100">
                 {message}
               </div>
             )}
@@ -288,9 +272,9 @@ export default function AccountPage() {
               type="button"
               onClick={saveProfile}
               disabled={saving}
-              className="mt-7 rounded-full bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700 disabled:opacity-50"
+              className="mt-8 rounded-full bg-pink-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700 disabled:opacity-50"
             >
-              {saving ? "Kaydediliyor..." : "Profili Kaydet"}
+              {saving ? "Kaydediliyor..." : "Profili kaydet"}
             </button>
           </section>
         </div>
@@ -312,12 +296,12 @@ function Input({
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-black text-[#2b1b1b]">{label}</span>
+      <span className="text-sm font-bold text-[#2b1b1b]">{label}</span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none transition placeholder:text-[#9b7b7b] focus:border-pink-400 focus:bg-white"
+        className="mt-2 w-full rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] text-[#2b1b1b] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
       />
     </label>
   );
@@ -336,13 +320,13 @@ function TextArea({
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-black text-[#2b1b1b]">{label}</span>
+      <span className="text-sm font-bold text-[#2b1b1b]">{label}</span>
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         rows={4}
-        className="mt-2 w-full rounded-2xl border border-pink-100 bg-[#fff4ef] px-4 py-3 text-sm font-semibold text-[#2b1b1b] outline-none transition placeholder:text-[#9b7b7b] focus:border-pink-400 focus:bg-white"
+        className="mt-2 w-full rounded-2xl bg-[#fff8f5] px-4 py-3.5 text-[15px] text-[#2b1b1b] ring-1 ring-pink-100 outline-none transition placeholder:text-[#b39a9a] focus:bg-white focus:ring-2 focus:ring-pink-400"
       />
     </label>
   );

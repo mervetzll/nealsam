@@ -205,11 +205,11 @@ export default function KaydettiklerimClient() {
         : savedGiftResults;
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
       <section className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
               Hesabım
             </p>
 
@@ -226,21 +226,21 @@ export default function KaydettiklerimClient() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/hediye-bul"
-              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
             >
               Hediye Bul
             </Link>
 
             <Link
               href="/deneyim"
-              className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
+              className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white transition hover:bg-black"
             >
               Deneyim Oluştur
             </Link>
 
             <Link
               href="/hesabim"
-              className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
+              className="rounded-full bg-white ring-1 ring-pink-200 px-5 py-3 text-sm font-bold text-pink-700 transition hover:bg-pink-50"
             >
               Hesabıma Dön
             </Link>
@@ -248,12 +248,12 @@ export default function KaydettiklerimClient() {
         </div>
 
         {message && (
-          <div className="mt-6 rounded-2xl border border-pink-100 bg-white p-5 text-sm font-black text-[#6b4a4a] shadow-sm">
+          <div className="mt-6 rounded-2xl border border-pink-100 bg-white p-5 text-sm font-black text-[#6b4a4a]">
             {message}
           </div>
         )}
 
-        <div className="mt-8 grid gap-3 rounded-[2rem] border border-pink-100 bg-white p-3 shadow-sm md:grid-cols-3">
+        <div className="mt-8 grid gap-3 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-3 md:grid-cols-3">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -262,7 +262,7 @@ export default function KaydettiklerimClient() {
               className={`rounded-[1.4rem] px-5 py-4 text-left transition ${
                 activeTab === tab.key
                   ? "bg-[#2b1b1b] text-white"
-                  : "bg-[#fff4ef] text-[#6b4a4a] hover:bg-[#fff0f7]"
+                  : "bg-[#fff4ef] text-[#6b4a4a] hover:bg-pink-50"
               }`}
             >
               <p className="text-sm font-black">{tab.label}</p>
@@ -274,7 +274,7 @@ export default function KaydettiklerimClient() {
         </div>
 
         {loading ? (
-          <div className="mt-8 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <div className="mt-8 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
             <p className="font-black text-[#2b1b1b]">Kaydedilenler yükleniyor...</p>
           </div>
         ) : activeItems.length === 0 ? (
@@ -310,7 +310,7 @@ function EmptyState({ activeTab }: { activeTab: TabKey }) {
   const button = activeTab === "premium" ? "Deneyim Oluştur" : "Hediye Bul";
 
   return (
-    <div className="mt-8 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+    <div className="mt-8 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
       <h2 className="text-2xl font-black text-[#2b1b1b]">{text}</h2>
 
       <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-7 text-[#6b4a4a]">
@@ -319,7 +319,7 @@ function EmptyState({ activeTab }: { activeTab: TabKey }) {
 
       <Link
         href={href}
-        className="mt-6 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
+        className="mt-6 inline-flex rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
       >
         {button}
       </Link>
@@ -345,11 +345,11 @@ function SavedCard({
   const description = getDescription(item);
 
   return (
-    <article className="rounded-[2rem] border border-pink-100 bg-white p-5 shadow-sm md:p-7">
+    <article className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-5 md:p-7">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-[#fff0f7] px-4 py-2 text-xs font-black text-pink-700">
+            <span className="rounded-full bg-pink-50 px-4 py-2 text-xs font-black text-pink-700">
               {activeTab === "premium"
                 ? item.concept_title || "Premium Deneyim"
                 : activeTab === "favorites"
@@ -383,7 +383,7 @@ function SavedCard({
           {activeTab === "premium" && item.id && (
             <Link
               href={`/deneyim/paylas/${item.id}`}
-              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white"
+              className="rounded-full bg-pink-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
             >
               Kartı Aç / QR Oluştur
             </Link>
@@ -392,7 +392,7 @@ function SavedCard({
           {description && (
             <button
               onClick={() => onCopy(description)}
-              className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
+              className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-bold text-white transition hover:bg-black"
             >
               Metni Kopyala
             </button>
@@ -400,7 +400,7 @@ function SavedCard({
 
           <Link
             href={activeTab === "premium" ? "/deneyim" : "/hediye-bul"}
-            className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
+            className="rounded-full bg-white ring-1 ring-pink-200 px-5 py-3 text-sm font-bold text-pink-700 transition hover:bg-pink-50"
           >
             Yeni Oluştur
           </Link>

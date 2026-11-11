@@ -12,7 +12,7 @@ export const metadata = {
 export default function PaymentSuccessPage() {
   return (
     <main className="min-h-screen bg-[#fff4ef] px-5 py-16">
-      <section className="mx-auto max-w-3xl rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+      <section className="mx-auto max-w-3xl rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-3xl">
           ✓
         </div>
@@ -31,7 +31,7 @@ export default function PaymentSuccessPage() {
           yapılacaktır.
         </p>
 
-        <div className="mt-8 rounded-2xl bg-[#fff0f7] p-5 text-left">
+        <div className="mt-8 rounded-2xl bg-pink-50 p-5 text-left">
           <p className="text-sm font-black text-[#2b1b1b]">
             Şu anda hazırlık modu
           </p>
@@ -51,7 +51,7 @@ export default function PaymentSuccessPage() {
 
           <Link
             href="/deneyim"
-            className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+            className="rounded-full bg-white ring-1 ring-pink-200 px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
           >
             Premium Deneyimi Aç
           </Link>

@@ -7,25 +7,28 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-14">
-      <section className="mx-auto max-w-4xl rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-        <p className="text-sm font-black text-pink-600">NeAlsam Hediye</p>
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
+      <article className="mx-auto max-w-3xl">
+        <p className="inline-flex items-center gap-2 pt-10 text-sm font-bold text-pink-700 md:pt-14">
+          <span className="h-1.5 w-1.5 rounded-full bg-pink-600" />
+          Yasal · Kullanım şartları
+        </p>
 
-        <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
+        <h1 className="mt-5 text-5xl text-[#2b1b1b] md:text-6xl">
           Kullanım Şartları
         </h1>
 
-        <p className="mt-4 text-sm leading-7 text-[#6b4a4a]">
+        <p className="mt-6 border-b border-pink-100 pb-10 text-lg leading-8 text-[#6b4a4a]">
           NeAlsam Hediye’yi kullanarak bu kullanım şartlarını kabul etmiş
           sayılırsınız.
         </p>
 
-        <div className="mt-8 space-y-7 text-sm leading-7 text-[#6b4a4a]">
+        <div className="mt-10 space-y-10 text-[16px] leading-8 text-[#5a3b3b]">
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Hizmetin Kapsamı
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               NeAlsam Hediye, kullanıcının verdiği cevaplara göre hediye fikri,
               mağaza yönlendirmesi, hediye notu ve deneyim önerileri sunan bir
               platformdur. Sunulan öneriler tavsiye niteliğindedir.
@@ -33,10 +36,10 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Kullanıcı Sorumluluğu
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               Kullanıcı, platformu doğru ve hukuka uygun şekilde kullanmakla
               sorumludur. Yanlış, yanıltıcı veya üçüncü kişilerin haklarını
               ihlal eden kullanım kabul edilmez.
@@ -44,10 +47,10 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Mağaza Yönlendirmeleri
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               Platformda yer alan mağaza bağlantıları kullanıcıyı üçüncü taraf
               sitelere yönlendirebilir. Ürün fiyatı, stok, teslimat ve iade
               koşulları ilgili mağazanın sorumluluğundadır.
@@ -55,10 +58,10 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Premium Özellikler
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               Premium özellikler paket içeriğine göre değişebilir. Ödeme sistemi
               aktif hale getirildiğinde paket kapsamı ödeme ekranında açıkça
               gösterilir.
@@ -66,10 +69,10 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Değişiklikler
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               NeAlsam Hediye, kullanım şartlarında değişiklik yapma hakkını
               saklı tutar. Güncel şartlar bu sayfada yayımlanır.
             </p>
@@ -82,7 +85,7 @@ export default function TermsPage() {
         >
           Ana Sayfaya Dön
         </Link>
-      </section>
+      </article>
     </main>
   );
 }

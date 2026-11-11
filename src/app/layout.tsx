@@ -1,13 +1,25 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import AutoReveal from "@/components/motion/AutoReveal";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Body text
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+});
+
+// Headlines (serif, with italic for accent words)
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin", "latin-ext"],
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -75,8 +87,8 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="tr"
+      className={`${inter.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <script
@@ -99,7 +111,9 @@ export default function RootLayout({
 <Navbar />
         {children}
         <Footer />
-        <MobileBottomNav /></body>
+        <MobileBottomNav />
+        <AutoReveal />
+      </body>
     </html>
   );
 }

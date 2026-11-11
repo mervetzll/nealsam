@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { AlertCircle, ArrowLeft, ChevronRight, Loader2, RotateCcw } from "lucide-react";
+import PageHero from "@/components/ui/PageHero";
+import { ui } from "@/components/ui/styles";
 import GiftResultCard from "@/components/GiftResultCard";
 import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
 
@@ -357,124 +359,121 @@ export default function GiftFinderPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-10 text-[#2b1b1b]">
-      <section className="mx-auto max-w-7xl">
-        <div className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-            Hediye Bul
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
+      <section className="mx-auto max-w-6xl">
+        <PageHero
+          eyebrow="Hediye bul"
+          title="Mini testi çöz,"
+          accent="doğru hediyeyi bulalım."
+          description="Kime, hangi tarzda ve hangi bütçeyle alacağını seç. Sonuçta mağaza linkleri, risk yorumu ve not önerisi de çıkacak."
+        />
+
+        {loadError && (
+          <p className="mb-6 flex items-center gap-2 rounded-2xl bg-red-50 px-5 py-4 text-sm font-bold text-red-700 ring-1 ring-red-100">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {loadError}
           </p>
-
-          <h1 className="mt-3 max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Mini testi çöz, en uygun hediyeleri bulalım
-          </h1>
-
-          <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a] md:text-base">
-            Kime, hangi tarzda ve hangi bütçeyle hediye alacağını seç. Sonuçta mağaza linkleri, risk yorumu ve özel not önerisi de çıkacak.
-          </p>
-
-          {loadError && (
-            <p className="mt-5 rounded-2xl bg-red-50 p-4 text-sm font-black text-red-600">
-              {loadError}
-            </p>
-          )}
-        </div>
+        )}
 
         {!showResults ? (
-          <div className="mx-auto mt-8 max-w-4xl rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-8">
+          <div data-no-reveal className={`${ui.card} max-w-4xl p-6 shadow-xl shadow-pink-900/5 md:p-10`}>
             <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-black text-pink-600">
-                Soru {step + 1} / {questions.length}
+              <p className="text-sm font-bold text-[#8a6a6a]">
+                Soru <span className="text-[#2b1b1b]">{step + 1}</span> / {questions.length}
               </p>
 
               {loading && (
-                <span className="rounded-full bg-[#fff4ef] px-4 py-2 text-xs font-black text-pink-700">
-                  Hediyeler yükleniyor...
+                <span className="inline-flex items-center gap-2 text-xs font-bold text-pink-700">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Hediyeler yükleniyor
                 </span>
               )}
             </div>
 
-            <div className="mt-4 h-3 overflow-hidden rounded-full bg-pink-100">
-              <div
-                className="h-full rounded-full bg-pink-500 transition-all"
-                style={{ width: `${progress}%` }}
-              />
+            <div className="mt-4 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${questions.length}, minmax(0, 1fr))` }}>
+              {questions.map((q, i) => (
+                <span
+                  key={q.key}
+                  className={`h-1.5 rounded-full transition-colors duration-500 ${i <= step ? "bg-pink-600" : "bg-pink-100"}`}
+                />
+              ))}
             </div>
+            <span className="sr-only">İlerleme: %{progress}</span>
 
-            <h2 className="mt-8 text-3xl font-black md:text-5xl">
+            <h2 key={`title-${step}`} className="fade-in-up mt-10 text-4xl md:text-5xl">
               {currentQuestion.title}
             </h2>
 
-            <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
+            <p key={`sub-${step}`} className="fade-in-up mt-3 leading-7 text-[#6b4a4a]" style={{ "--delay": "80ms" } as CSSProperties}>
               {currentQuestion.subtitle}
             </p>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              {currentQuestion.options.map((option) => (
-                <button
-                  key={`${currentQuestion.key}-${option.label}`}
-                  onClick={() => selectOption(option.value)}
-                  className="rounded-[1.5rem] border border-pink-100 bg-[#fff4ef] p-5 text-left transition hover:-translate-y-1 hover:bg-pink-100 hover:shadow-sm"
-                >
-                  <span className="text-3xl">{option.emoji}</span>
-                  <p className="mt-3 text-xl font-black text-[#2b1b1b]">
-                    {option.label}
-                  </p>
-                </button>
-              ))}
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {currentQuestion.options.map((option, optionIndex) => {
+                const selected = answers[currentQuestion.key] === option.value && option.value !== "";
+                return (
+                  <button
+                    key={`${currentQuestion.key}-${option.label}`}
+                    onClick={() => selectOption(option.value)}
+                    style={{ "--delay": `${140 + optionIndex * 60}ms` } as CSSProperties}
+                    className={`fade-in-up group flex items-center gap-4 rounded-2xl p-4 text-left transition duration-300 ${
+                      selected
+                        ? "bg-pink-50 ring-2 ring-pink-500"
+                        : "bg-[#fff8f5] ring-1 ring-pink-100 hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-pink-900/5 hover:ring-pink-200"
+                    }`}
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-2xl ring-1 ring-pink-100 transition group-hover:scale-105">
+                      {option.emoji}
+                    </span>
+                    <span className="flex-1 text-[17px] font-bold text-[#2b1b1b]">{option.label}</span>
+                    <ChevronRight className="h-5 w-5 text-[#c9a9a9] transition group-hover:translate-x-0.5 group-hover:text-pink-600" />
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="mt-8 flex flex-wrap justify-between gap-3">
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-pink-100 pt-6">
               <button
                 onClick={goBack}
                 disabled={step === 0}
-                className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 text-sm font-bold text-[#6b4a4a] transition hover:text-[#2b1b1b] disabled:opacity-30"
               >
+                <ArrowLeft className="h-4 w-4" />
                 Geri
               </button>
 
-              <button
-                onClick={() => setShowResults(true)}
-                className="rounded-full bg-[#2b1b1b] px-6 py-4 text-sm font-black text-white"
-              >
-                Testi Bitir ve Sonuçları Gör
+              <button onClick={() => setShowResults(true)} className={ui.btnLink}>
+                Testi bitir, sonuçları gör
               </button>
             </div>
           </div>
         ) : (
-          <section className="mt-8">
-            <div className="flex flex-col gap-4 rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:flex-row md:items-end md:justify-between md:p-8">
+          <section>
+            <div className="flex flex-col gap-6 border-b border-pink-100 pb-8 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.25em] text-pink-600">
-                  Sonuçlar
-                </p>
-
-                <h2 className="mt-2 text-4xl font-black">
-                  Sana en uygun hediyeler
+                <p className={ui.eyebrow}>Sonuçlar</p>
+                <h2 className="mt-3 text-4xl md:text-5xl">
+                  Sana en uygun <em>hediyeler</em>
                 </h2>
-
-                <p className="mt-3 text-sm font-semibold leading-7 text-[#6b4a4a]">
+                <p className="mt-3 leading-7 text-[#6b4a4a]">
                   Seçimlerine göre en güçlü eşleşmeleri sıraladık.
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={goBack}
-                  className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700"
-                >
-                  Son Soruyu Değiştir
+                <button onClick={goBack} className={ui.btnSecondary}>
+                  <ArrowLeft className="h-4 w-4" />
+                  Son soruyu değiştir
                 </button>
 
-                <button
-                  onClick={restart}
-                  className="rounded-full bg-[#2b1b1b] px-5 py-3 text-sm font-black text-white"
-                >
-                  Testi Yeniden Başlat
+                <button onClick={restart} className={ui.btnDark}>
+                  <RotateCcw className="h-4 w-4" />
+                  Yeniden başlat
                 </button>
               </div>
             </div>
 
-            <div className="mt-6 grid gap-6">
+            <div className="mt-8 grid gap-6">
               {results.map(({ gift, score }, index) => (
                 <GiftResultCard
                   key={gift.id || `${gift.title || gift.name || "gift"}-${index}`}

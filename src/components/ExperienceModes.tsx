@@ -78,29 +78,25 @@ export default function ExperienceModes() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-14 text-[#2b1b1b]">
-      <div className="rounded-[2rem] bg-white p-7 shadow-sm md:p-10">
-        <div className="max-w-3xl">
-          <p className="text-sm font-bold uppercase tracking-[0.3em] text-[#b83280]">
-            Deneyim Modları
-          </p>
-          <h1 className="mt-4 text-4xl font-extrabold md:text-5xl">
-            Hediyeyi sadece ürün değil, özel bir deneyim yap.
-          </h1>
-          <p className="mt-5 text-lg leading-8 text-[#6b4b4b]">
-            Kişiye özel not, QR mesaj, hikaye, bulmaca ve hediye fikri önerilerini
-            tek yerden hazırla. QR kod artık bütün notları değil, sadece seçtiğin
-            özel notu açar.
+    <section className="mx-auto max-w-6xl px-5 pb-10 text-[#2b1b1b]">
+      <div className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-10">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Adım 1</p>
+            <h2 className="mt-2 text-3xl md:text-4xl">Kime hazırlıyorsun?</h2>
+          </div>
+          <p className="max-w-sm text-sm leading-6 text-[#6b4a4a]">
+            Bilgileri değiştirdikçe notlar, hikâye ve bulmaca anında güncellenir.
           </p>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-4">
           <label className="block">
-            <span className="text-sm font-bold text-[#6b4b4b]">Kime?</span>
+            <span className="text-sm font-bold text-[#6b4a4a]">Kime?</span>
             <select
               value={relationship}
               onChange={(event) => setRelationship(event.target.value as Relationship)}
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
             >
               {relationships.map((item) => (
                 <option key={item}>{item}</option>
@@ -109,11 +105,11 @@ export default function ExperienceModes() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-bold text-[#6b4b4b]">Tarz</span>
+            <span className="text-sm font-bold text-[#6b4a4a]">Tarz</span>
             <select
               value={mood}
               onChange={(event) => setMood(event.target.value as Mood)}
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
             >
               {moods.map((item) => (
                 <option key={item}>{item}</option>
@@ -122,40 +118,40 @@ export default function ExperienceModes() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-bold text-[#6b4b4b]">Adı</span>
+            <span className="text-sm font-bold text-[#6b4a4a]">Adı</span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Örn: Ayşe"
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
             />
           </label>
 
           <label className="block">
-            <span className="text-sm font-bold text-[#6b4b4b]">Özel anı</span>
+            <span className="text-sm font-bold text-[#6b4a4a]">Özel anı</span>
             <input
               value={memory}
               onChange={(event) => setMemory(event.target.value)}
               placeholder="Örn: ilk kahvemiz"
-              className="mt-2 w-full rounded-2xl border border-[#f0d7df] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#b83280]"
+              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
             />
           </label>
         </div>
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-[2rem] bg-white p-7 shadow-sm">
+        <section className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-[#b83280]">Özel Notlar</p>
-              <h2 className="mt-2 text-3xl font-extrabold">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Özel Notlar</p>
+              <h2 className="mt-2 text-3xl">
                 Sadece seçtiğin not QR’a gider
               </h2>
             </div>
 
             <button
               onClick={copySelectedNote}
-              className="rounded-full bg-[#fff0f7] px-5 py-3 text-sm font-bold text-[#b83280]"
+              className="shrink-0 rounded-full bg-pink-50 px-5 py-3 text-sm font-bold text-pink-700 ring-1 ring-pink-100 transition hover:bg-pink-100"
             >
               {copied ? "Kopyalandı" : "Notu kopyala"}
             </button>
@@ -175,12 +171,12 @@ export default function ExperienceModes() {
                   }}
                   className={`rounded-3xl border p-5 text-left transition ${
                     selected
-                      ? "border-[#b83280] bg-[#fff0f7]"
-                      : "border-[#f0d7df] bg-[#fff4ef] hover:border-[#b83280]"
+                      ? "border-[#db2777] bg-[#fdf2f8]"
+                      : "border-[#fce7f3] bg-[#fff4ef] hover:border-[#db2777]"
                   }`}
                 >
                   <p className="font-extrabold">{note.title}</p>
-                  <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+                  <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
                     {note.text}
                   </p>
                 </button>
@@ -188,29 +184,29 @@ export default function ExperienceModes() {
             })}
           </div>
 
-          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-5">
-            <p className="text-sm font-bold text-[#b83280]">Seçili not</p>
-            <p className="mt-3 text-lg leading-8">{selectedNote.text}</p>
+          <div className="mt-6 rounded-3xl bg-[#fff8f5] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Seçili not</p>
+            <p className="mt-3 font-display text-xl italic leading-8">“{selectedNote.text}”</p>
           </div>
         </section>
 
-        <aside className="rounded-[2rem] bg-white p-7 shadow-sm">
-          <p className="text-sm font-bold text-[#b83280]">QR Kodlu Mesaj</p>
-          <h2 className="mt-2 text-3xl font-extrabold">Özel not linki</h2>
-          <p className="mt-4 text-sm leading-6 text-[#6b4b4b]">
+        <aside className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">QR Kodlu Mesaj</p>
+          <h2 className="mt-2 text-3xl">Özel not linki</h2>
+          <p className="mt-4 text-sm leading-6 text-[#6b4a4a]">
             Bu QR kodu hediyenin içine koyabilirsin. Karşı taraf okuttuğunda
             sadece seçili not açılır.
           </p>
 
           <button
             onClick={createQrForSelectedNote}
-            className="mt-6 w-full rounded-full bg-[#b83280] px-6 py-4 text-sm font-bold text-white"
+            className="mt-6 w-full rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
           >
             Seçili not için QR oluştur
           </button>
 
           {qrCode && (
-            <div className="mt-6 rounded-3xl border border-[#f0d7df] bg-[#fff4ef] p-5 text-center">
+            <div className="mt-6 rounded-3xl border border-[#fce7f3] bg-[#fff4ef] p-5 text-center">
               <img
                 src={qrCode}
                 alt="Seçili özel not QR kodu"
@@ -221,7 +217,7 @@ export default function ExperienceModes() {
                   href={noteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-5 block break-words rounded-2xl bg-white p-4 text-xs font-bold text-[#b83280]"
+                  className="mt-5 block break-words rounded-2xl bg-white p-4 text-xs font-bold text-[#db2777]"
                 >
                   Not linkini test et
                 </a>
@@ -240,19 +236,19 @@ export default function ExperienceModes() {
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <section className="rounded-[2rem] bg-white p-7 shadow-sm">
-          <p className="text-sm font-bold text-[#b83280]">Hikaye Modu</p>
-          <h2 className="mt-2 text-3xl font-extrabold">Hediyenin hikayesi</h2>
-          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-6">
+        <section className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Hikaye Modu</p>
+          <h2 className="mt-2 text-3xl">Hediyenin hikayesi</h2>
+          <div className="mt-6 rounded-3xl bg-[#fff8f5] p-6">
             <p className="text-base leading-8 text-[#2b1b1b]">{story}</p>
           </div>
         </section>
 
-        <section className="rounded-[2rem] bg-white p-7 shadow-sm">
-          <p className="text-sm font-bold text-[#b83280]">Bulmaca / Hediye Avı</p>
-          <h2 className="mt-2 text-3xl font-extrabold">İpucu kartları</h2>
+        <section className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Bulmaca / Hediye Avı</p>
+          <h2 className="mt-2 text-3xl">İpucu kartları</h2>
 
-          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-6">
+          <div className="mt-6 rounded-3xl bg-[#fff8f5] p-6">
             <p className="font-extrabold">{riddle.question}</p>
             <div className="mt-4 space-y-3">
               {riddle.clues.map((clue) => (
@@ -261,28 +257,28 @@ export default function ExperienceModes() {
                 </p>
               ))}
             </div>
-            <p className="mt-5 rounded-2xl bg-[#fff0f7] p-4 text-sm font-bold text-[#b83280]">
+            <p className="mt-5 rounded-2xl bg-pink-50 p-4 text-sm font-bold text-pink-700">
               {riddle.answer}
             </p>
           </div>
         </section>
       </div>
 
-      <section className="mt-8 rounded-[2rem] bg-white p-7 shadow-sm">
-        <p className="text-sm font-bold text-[#b83280]">Hediye Fikirleri</p>
-        <h2 className="mt-2 text-3xl font-extrabold">Bu kişiye uygun öneriler</h2>
+      <section className="mt-8 rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Hediye Fikirleri</p>
+        <h2 className="mt-2 text-3xl">Bu kişiye uygun öneriler</h2>
 
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           {giftIdeas.map((gift) => (
             <article
               key={gift.title}
-              className="rounded-3xl border border-[#f0d7df] bg-[#fff4ef] p-5"
+              className="rounded-3xl border border-[#fce7f3] bg-[#fff4ef] p-5"
             >
-              <span className="rounded-full bg-[#fff0f7] px-3 py-1 text-xs font-bold text-[#b83280]">
+              <span className="rounded-full bg-[#fdf2f8] px-3 py-1 text-xs font-bold text-[#db2777]">
                 {gift.tag}
               </span>
               <h3 className="mt-4 text-xl font-extrabold">{gift.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-[#6b4b4b]">
+              <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
                 {gift.reason}
               </p>
 
@@ -291,7 +287,7 @@ export default function ExperienceModes() {
                   href={makeStoreUrl("google", gift.searchQuery)}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold"
+                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
                 >
                   Google
                 </a>
@@ -299,7 +295,7 @@ export default function ExperienceModes() {
                   href={makeStoreUrl("trendyol", gift.searchQuery)}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold"
+                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
                 >
                   Trendyol
                 </a>
@@ -307,7 +303,7 @@ export default function ExperienceModes() {
                   href={makeStoreUrl("amazon", gift.searchQuery)}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold"
+                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
                 >
                   Amazon
                 </a>
@@ -315,7 +311,7 @@ export default function ExperienceModes() {
                   href={makeStoreUrl("hepsiburada", gift.searchQuery)}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold"
+                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
                 >
                   Hepsiburada
                 </a>

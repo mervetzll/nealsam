@@ -8,8 +8,21 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono);
+}
+
+/*
+ * Type scale: the pages use font-black almost everywhere, which made
+ * every line shout. These tokens calm the whole site in one place:
+ * buttons/labels stay firm, body copy (font-semibold) becomes regular.
+ */
+@theme {
+  --font-weight-black: 650;
+  --font-weight-extrabold: 620;
+  --font-weight-bold: 600;
+  --font-weight-semibold: 450;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,7 +35,42 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* Headlines use the serif display face across the whole site */
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 450;
+  letter-spacing: -0.025em;
+  font-variation-settings: "SOFT" 50;
+  text-wrap: balance;
+}
+h1 {
+  line-height: 1.02;
+}
+/* <em> inside a headline = italic accent word */
+h1 em,
+h2 em {
+  font-style: italic;
+  color: #db2777;
+}
+.dark-surface h1 em,
+.dark-surface h2 em {
+  color: #f9a8d4;
+}
+h3 {
+  letter-spacing: -0.01em;
+}
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: #fbcfe8;
+  color: #2b1b1b;
 }
 
 
@@ -35,5 +83,149 @@ body {
 @media (max-width: 767px) {
   body {
     padding-bottom: 76px;
+  }
+}
+
+/* ───────── Scroll & entrance animations ───────── */
+
+/* Reveal: only hide content when JS can run, so it never stays invisible */
+@media (scripting: enabled) {
+  .reveal {
+    opacity: 0;
+    transition:
+      opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal-up { transform: translateY(40px); }
+  .reveal-left { transform: translateX(-48px); }
+  .reveal-right { transform: translateX(48px); }
+  .reveal-scale { transform: scale(0.94); }
+  .reveal-blur { filter: blur(12px); transform: translateY(16px); }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Hero headline: words rise in one by one */
+.word-rise {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+}
+.word-rise > span {
+  display: inline-block;
+  animation: word-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--word-delay, 0ms);
+}
+@keyframes word-rise {
+  from { transform: translateY(110%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* Simple load-in fade for hero pieces */
+.fade-in-up {
+  animation: fade-in-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Chips that pop in */
+.pop-in {
+  animation: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Gently floating card */
+.float-soft {
+  animation: float-soft 6s ease-in-out infinite;
+}
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(-0.6deg); }
+}
+
+/* Emoji bounce when its card is revealed */
+.is-visible .bounce-on-reveal {
+  animation: bounce-once 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 250ms);
+}
+@keyframes bounce-once {
+  0% { transform: scale(0.4) rotate(-12deg); }
+  60% { transform: scale(1.15) rotate(6deg); }
+  100% { transform: none; }
+}
+
+/* Step numbers light up when revealed */
+.step-dot {
+  transition: background-color 0.5s, box-shadow 0.5s, transform 0.5s;
+  transition-delay: calc(var(--reveal-delay, 0ms) + 200ms);
+}
+.reveal:not(.is-visible) .step-dot {
+  background-color: #f9c4d8;
+  transform: scale(0.8);
+}
+.is-visible .step-dot {
+  box-shadow: 0 0 0 8px rgb(219 39 119 / 0.15);
+}
+
+/* Rotating glow behind the dark CTA */
+.glow-spin {
+  animation: glow-spin 14s linear infinite;
+}
+@keyframes glow-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Marquee strip */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Every page fades in on navigation (main remounts per route) */
+main {
+  animation: page-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main { animation: none !important; }
+  .reveal,
+  .reveal.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .word-rise > span,
+  .fade-in-up,
+  .pop-in,
+  .float-soft,
+  .bounce-on-reveal,
+  .glow-spin,
+  .marquee-track {
+    animation: none !important;
   }
 }

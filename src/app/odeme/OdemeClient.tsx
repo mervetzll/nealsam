@@ -88,14 +88,14 @@ export default function OdemeClient() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="mb-6 rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+          className="mb-6 rounded-full bg-white ring-1 ring-pink-200 px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
         >
           ← Geri Dön
         </button>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_0.8fr]">
-          <div className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-wide text-pink-600">
+          <div className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
               Güvenli Ödeme
             </p>
 
@@ -107,14 +107,14 @@ export default function OdemeClient() {
               {plan.description}
             </p>
 
-            <div className="mt-8 rounded-2xl bg-[#fff0f7] p-6">
+            <div className="mt-8 rounded-2xl bg-pink-50 p-6">
               <p className="text-sm font-black text-[#6b4a4a]">Paket Fiyatı</p>
               <p className="mt-2 text-5xl font-black text-[#2b1b1b]">
                 {plan.price} TL
               </p>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-pink-100 bg-[#fff4ef] p-5">
+            <div className="mt-8 rounded-2xl bg-[#fff8f5] ring-1 ring-pink-100 p-5">
               <p className="text-sm font-black text-[#2b1b1b]">
                 Önemli güvenlik notu
               </p>
@@ -151,14 +151,14 @@ export default function OdemeClient() {
 
               <Link
                 href="/paketler"
-                className="rounded-full border border-pink-200 bg-white px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+                className="rounded-full bg-white ring-1 ring-pink-200 px-6 py-4 text-sm font-black text-pink-700 transition hover:bg-pink-50"
               >
                 Paketi Değiştir
               </Link>
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-pink-100 bg-white p-8 shadow-sm">
+          <aside className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8">
             <h2 className="text-2xl font-black text-[#2b1b1b]">
               Hesap Özeti
             </h2>
@@ -174,7 +174,7 @@ export default function OdemeClient() {
               <Row label="Ödenecek Toplam" value={`${plan.price} TL`} strong />
             </div>
 
-            <div className="mt-6 rounded-2xl bg-[#fff0f7] p-5">
+            <div className="mt-6 rounded-2xl bg-pink-50 p-5">
               <p className="text-sm font-black text-[#2b1b1b]">
                 Test / Sandbox modu
               </p>
@@ -184,8 +184,8 @@ export default function OdemeClient() {
               </p>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-pink-100 bg-[#fff4ef] p-4">
-              <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+            <div className="mt-5 rounded-2xl bg-[#fff8f5] ring-1 ring-pink-100 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
                 Test ödeme akışı
               </p>
 
@@ -199,7 +199,7 @@ export default function OdemeClient() {
 
                 <a
                   href="/odeme/basarisiz"
-                  className="rounded-full border border-pink-200 bg-white px-4 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+                  className="rounded-full bg-white ring-1 ring-pink-200 px-4 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
                 >
                   Başarısız Test
                 </a>

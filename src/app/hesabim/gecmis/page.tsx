@@ -75,7 +75,7 @@ export default function GiftHistoryPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/hesabim"
-              className="rounded-full border border-pink-200 bg-white px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
+              className="rounded-full bg-white ring-1 ring-pink-200 px-5 py-3 text-sm font-black text-pink-700 transition hover:bg-pink-50"
             >
               Profilime Dön
             </Link>
@@ -90,13 +90,13 @@ export default function GiftHistoryPage() {
         </div>
 
         {loading && (
-          <div className="mt-10 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <div className="mt-10 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
             <p className="font-bold text-[#2b1b1b]">Geçmiş yükleniyor...</p>
           </div>
         )}
 
         {!loading && !loggedIn && (
-          <div className="mt-10 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <div className="mt-10 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
             <h2 className="text-2xl font-black text-[#2b1b1b]">
               Geçmişi görmek için giriş yap
             </h2>
@@ -114,7 +114,7 @@ export default function GiftHistoryPage() {
         )}
 
         {!loading && loggedIn && items.length === 0 && (
-          <div className="mt-10 rounded-[2rem] border border-pink-100 bg-white p-8 text-center shadow-sm">
+          <div className="mt-10 rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-8 text-center">
             <h2 className="text-2xl font-black text-[#2b1b1b]">
               Henüz kayıtlı önerin yok
             </h2>
@@ -136,11 +136,11 @@ export default function GiftHistoryPage() {
             {items.map((item) => (
               <article
                 key={item.id}
-                className="rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm"
+                className="rounded-[1.75rem] bg-white ring-1 ring-pink-100 p-6"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
                       {item.gift_category || "Hediye"}
                     </p>
                     <h2 className="mt-2 text-2xl font-black text-[#2b1b1b]">
@@ -164,8 +164,8 @@ export default function GiftHistoryPage() {
                 )}
 
                 {item.gift_note && (
-                  <div className="mt-4 rounded-2xl bg-[#fff0f7] p-4">
-                    <p className="text-xs font-black uppercase tracking-wide text-pink-600">
+                  <div className="mt-4 rounded-2xl bg-pink-50 p-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
                       Not fikri
                     </p>
                     <p className="mt-2 text-sm font-semibold leading-6 text-[#6b4a4a]">

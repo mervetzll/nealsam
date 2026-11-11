@@ -7,26 +7,29 @@ export const metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen bg-[#fff4ef] px-5 py-14">
-      <section className="mx-auto max-w-4xl rounded-[2rem] border border-pink-100 bg-white p-6 shadow-sm md:p-10">
-        <p className="text-sm font-black text-pink-600">NeAlsam Hediye</p>
+    <main className="min-h-screen bg-[#fff4ef] px-5 pb-24 text-[#2b1b1b]">
+      <article className="mx-auto max-w-3xl">
+        <p className="inline-flex items-center gap-2 pt-10 text-sm font-bold text-pink-700 md:pt-14">
+          <span className="h-1.5 w-1.5 rounded-full bg-pink-600" />
+          Yasal · Gizlilik
+        </p>
 
-        <h1 className="mt-3 text-4xl font-black tracking-tight text-[#2b1b1b]">
+        <h1 className="mt-5 text-5xl text-[#2b1b1b] md:text-6xl">
           Gizlilik Politikası
         </h1>
 
-        <p className="mt-4 text-sm leading-7 text-[#6b4a4a]">
+        <p className="mt-6 border-b border-pink-100 pb-10 text-lg leading-8 text-[#6b4a4a]">
           Bu sayfa, NeAlsam Hediye platformunu kullanırken hangi bilgilerin
           işlendiğini ve bu bilgilerin hangi amaçlarla kullanılabileceğini
           açıklamak amacıyla hazırlanmıştır.
         </p>
 
-        <div className="mt-8 space-y-7 text-sm leading-7 text-[#6b4a4a]">
+        <div className="mt-10 space-y-10 text-[16px] leading-8 text-[#5a3b3b]">
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Toplanan Bilgiler
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               Kullanıcı hesabı oluşturduğunuzda e-posta adresiniz, profil
               tercihleriniz, hediye bütçesi, ilgi alanları ve hediye tarzı gibi
               bilgiler işlenebilir. Hediye önerisi oluştururken verdiğiniz
@@ -35,10 +38,10 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Kullanım Amacı
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               Bilgileriniz; hediye önerileri sunmak, hesabınızı yönetmek,
               favori ve kaydedilen önerilerinizi göstermek, premium özellikleri
               çalıştırmak ve kullanıcı deneyimini geliştirmek amacıyla
@@ -47,10 +50,10 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Ödeme Bilgileri
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               NeAlsam Hediye kart bilgisi saklamaz. Gerçek ödeme sistemi aktif
               edildiğinde ödeme işlemleri güvenli ödeme sağlayıcısı üzerinden
               yürütülür.
@@ -58,10 +61,10 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               Üçüncü Taraf Bağlantılar
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               Platformda mağaza yönlendirmeleri bulunabilir. Bu bağlantılar
               üçüncü taraf web sitelerine yönlendirebilir. Bu sitelerin gizlilik
               uygulamalarından ilgili üçüncü taraflar sorumludur.
@@ -69,10 +72,10 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-black text-[#2b1b1b]">
+            <h2 className="text-2xl text-[#2b1b1b] md:text-3xl">
               İletişim
             </h2>
-            <p className="mt-2">
+            <p className="mt-3">
               Gizlilik politikasıyla ilgili sorularınız için iletişim
               kanallarımız üzerinden bize ulaşabilirsiniz.
             </p>
@@ -85,7 +88,7 @@ export default function PrivacyPolicyPage() {
         >
           Ana Sayfaya Dön
         </Link>
-      </section>
+      </article>
     </main>
   );
 }
