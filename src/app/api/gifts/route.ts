@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { expandedGiftCatalog } from "@/data/expandedGiftCatalog";
+import { giftCatalog } from "@/data/giftCatalog";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -99,7 +99,7 @@ export async function GET() {
   const rawGifts =
     result.gifts.length > 0
       ? result.gifts
-      : expandedGiftCatalog;
+      : giftCatalog;
 
   const gifts = rawGifts.map(normalizeGift);
 
@@ -108,7 +108,7 @@ export async function GET() {
     source: result.gifts.length > 0 ? "supabase" : "fallback",
     count: gifts.length,
     supabaseCount: result.gifts.length,
-    fallbackCount: expandedGiftCatalog.length,
+    fallbackCount: giftCatalog.length,
     error: result.error || null,
     gifts,
   });

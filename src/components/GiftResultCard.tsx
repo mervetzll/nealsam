@@ -207,7 +207,7 @@ export default function GiftResultCard({
         </div>
         <div className="flex flex-wrap gap-3">
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700">
-            {score >= 90 ? "Tercihlerine yakın" : "Değerlendirebileceğin fikir"}
+            {score >= 70 ? "Tercihlerine çok yakın" : score >= 55 ? "Tercihlerine yakın" : "Değerlendirebileceğin fikir"}
           </span>
 
 

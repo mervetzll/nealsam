@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
 import { GET as getCatalog } from "../gifts/route";
 import { allowSearch, readAllowance, searchHash, signAllowance } from "@/lib/searchAllowance";
-import { getMatchScore, type Answers, type Gift } from "@/lib/giftMatching";
+import { matchGift, type Answers, type Gift } from "@/lib/giftMatching";
 import { budgetLimit, fitsBudget } from "@/lib/giftBudget";
 import { diversifyGifts, excludesGift } from "@/lib/giftSelection";
 import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     if (!isPlan && !allowSearch(hashes, hash, paid).allowed) return json({error: "Ücretsiz arama hakkın doldu.", checkout: "/odeme?plan=plus"}, 402);
     const catalog = await (await getCatalog()).json();
     const gifts: Gift[] = catalog.gifts.map((gift: Gift) => ({...gift, title: cleanGiftTitle(getRawGiftTitle(gift))}));
-    const results = diversifyGifts(gifts.filter(gift => fitsBudget(gift, budgetLimit(answers.budget)) && !excludesGift(gift, answers.exclude)).map(gift => ({gift, score: getMatchScore(gift, answers)})).sort((a,b) => b.score-a.score));
+    const results = diversifyGifts(gifts.filter(gift => fitsBudget(gift, budgetLimit(answers.budget)) && !excludesGift(gift, answers.exclude)).map(gift => ({gift, ...matchGift(gift, answers)})).sort((a,b) => b.score-a.score));
     if (isPlan) {
       const selected = results.find(({gift}) => gift.id === body.giftId);
       if (!selected) return json({error: "Bu tercihlere uygun bir hediye seç."}, 400);

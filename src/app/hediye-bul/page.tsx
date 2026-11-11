@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { AlertCircle, ArrowLeft, ChevronRight, Heart, Info, Loader2, Pencil, RotateCcw, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowLeft, ChevronRight, Info, Loader2, Pencil, RotateCcw, Sparkles, type LucideIcon } from "lucide-react";
+import { Banknote, BookOpen, Cake, CalendarDays, CalendarHeart, Check, CircleCheck, Clock, Coffee, Cookie, Crown, Droplets, Flower, Flower2, Gem, HandHeart, Headphones, Heart, HeartHandshake, House, Lamp, Leaf, Palette, Shirt, ShoppingBag, Shuffle, Smile, Sofa, SprayCan, UserRound, Users, Wallet, Wrench, Zap } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import { ui } from "@/components/ui/styles";
 import { budgetLimit, budgetDescription } from "@/lib/giftBudget";
 import GiftResultCard from "@/components/GiftResultCard";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { getMatchScore, getGiftText, includesAny, type Gift, type Answers } from "@/lib/giftMatching";
+import { matchGift, getGiftText, includesAny, type Gift, type Answers } from "@/lib/giftMatching";
 import GiftPlanPanel from "@/components/GiftPlanPanel";
 import { cleanGiftTitle, getRawGiftTitle } from "@/lib/giftPresentation";
 
@@ -19,7 +20,8 @@ type Question = {
   options: {
     label: string;
     value: string;
-    emoji: string;
+    icon: LucideIcon;
+    hint: string;
   }[];
 };
 
@@ -29,12 +31,12 @@ const questions: Question[] = [
     title: "Kime hediye alıyorsun?",
     subtitle: "Kişiye göre önerileri daha doğru sıralayalım.",
     options: [
-      { label: "Sevgili / eş", value: "sevgili eş romantik", emoji: "💘" },
-      { label: "Anne", value: "anne aile", emoji: "🌷" },
-      { label: "Arkadaş", value: "arkadaş eğlenceli", emoji: "🫶" },
-      { label: "Kardeş", value: "kardeş genç", emoji: "✨" },
-      { label: "Baba", value: "baba aile", emoji: "🧢" },
-      { label: "Fark etmez", value: "", emoji: "🎁" },
+      { label: "Sevgili / eş", value: "sevgili eş romantik", icon: Heart, hint: "Romantik ve kişisel" },
+      { label: "Anne", value: "anne aile", icon: Flower2, hint: "Özenli ve sıcak" },
+      { label: "Arkadaş", value: "arkadaş eğlenceli", icon: Smile, hint: "Eğlenceli ve samimi" },
+      { label: "Kardeş", value: "kardeş genç", icon: Users, hint: "Genç ve enerjik" },
+      { label: "Baba", value: "baba aile", icon: UserRound, hint: "Kullanışlı ve klasik" },
+      { label: "Fark etmez", value: "", icon: Shuffle, hint: "Hepsine açığım" },
     ],
   },
   {
@@ -42,11 +44,11 @@ const questions: Question[] = [
     title: "Hangi gün için?",
     subtitle: "Hediyenin anlamını da düşünelim.",
     options: [
-      { label: "Doğum günü", value: "doğum günü", emoji: "🎂" },
-      { label: "Yıl dönümü", value: "yıl dönümü romantik", emoji: "💞" },
-      { label: "Teşekkür / içimden geldi", value: "teşekkür", emoji: "🌷" },
-      { label: "Yeni iş / yeni ev", value: "yeni iş ev", emoji: "🏡" },
-      { label: "Diğer", value: "", emoji: "🎁" },
+      { label: "Doğum günü", value: "doğum günü", icon: Cake, hint: "Yeni yaşına özel" },
+      { label: "Yıl dönümü", value: "yıl dönümü romantik", icon: HeartHandshake, hint: "Birlikte geçen zamana" },
+      { label: "Teşekkür / içimden geldi", value: "teşekkür", icon: HandHeart, hint: "Sebepsiz bir jest" },
+      { label: "Yeni iş / yeni ev", value: "yeni iş ev", icon: House, hint: "Yeni bir başlangıç" },
+      { label: "Diğer", value: "", icon: CalendarHeart, hint: "Başka bir gün" },
     ],
   },
   {
@@ -54,12 +56,12 @@ const questions: Question[] = [
     title: "Hediye nasıl hissettirsin?",
     subtitle: "Hediyenin havasını seç.",
     options: [
-      { label: "Cozy / rahat", value: "cozy rahat ev giyim pijama", emoji: "🧸" },
-      { label: "Bakım / self-care", value: "bakım self-care spa krem body mist", emoji: "🧴" },
-      { label: "Romantik", value: "romantik takı parfüm kolye", emoji: "💌" },
-      { label: "Kullanışlı", value: "kullanışlı termos kupa çanta cüzdan", emoji: "👜" },
-      { label: "Şık / premium", value: "premium şık saat parfüm aksesuar", emoji: "✨" },
-      { label: "Fark etmez", value: "", emoji: "🎀" },
+      { label: "Cozy / rahat", value: "cozy rahat ev giyim pijama", icon: Sofa, hint: "Sıcak, yumuşak, evde" },
+      { label: "Bakım / self-care", value: "bakım self-care spa krem body mist", icon: Droplets, hint: "Kendine vakit" },
+      { label: "Romantik", value: "romantik takı parfüm kolye", icon: Heart, hint: "Duygu ve anı odaklı" },
+      { label: "Kullanışlı", value: "kullanışlı termos kupa çanta cüzdan", icon: Wrench, hint: "Her gün işe yarasın" },
+      { label: "Şık / premium", value: "premium şık saat parfüm aksesuar", icon: Gem, hint: "Özenli ve değerli" },
+      { label: "Fark etmez", value: "", icon: Shuffle, hint: "Hepsine açığım" },
     ],
   },
   {
@@ -67,14 +69,14 @@ const questions: Question[] = [
     title: "Neye ilgisi var?",
     subtitle: "İlgi alanı öneriyi güçlendirir.",
     options: [
-      { label: "Kahve / çay", value: "kahve çay kupa termos french press", emoji: "☕" },
-      { label: "Bakım", value: "bakım krem body mist spa cilt", emoji: "🧖‍♀️" },
-      { label: "Ev / dekor", value: "ev dekor mum oda kokusu battaniye", emoji: "🏠" },
-      { label: "Moda / aksesuar", value: "moda aksesuar çanta kolye saat", emoji: "🛍️" },
-      { label: "Kitap / kırtasiye", value: "kitap defter kalem ayraç", emoji: "📚" },
-      { label: "Hobi / oyun", value: "hobi puzzle oyun boya", emoji: "🎨" },
-      { label: "Teknoloji", value: "teknoloji kulaklık powerbank hoparlör", emoji: "🎧" },
-      { label: "Fark etmez", value: "", emoji: "🎁" },
+      { label: "Kahve / çay", value: "kahve çay kupa termos french press", icon: Coffee, hint: "Kupa, demleme, tadım" },
+      { label: "Bakım", value: "bakım krem body mist spa cilt", icon: Flower, hint: "Krem, spa, saç bakımı" },
+      { label: "Ev / dekor", value: "ev dekor mum oda kokusu battaniye", icon: Lamp, hint: "Mum, vazo, battaniye" },
+      { label: "Moda / aksesuar", value: "moda aksesuar çanta kolye saat", icon: ShoppingBag, hint: "Takı, çanta, saat" },
+      { label: "Kitap / kırtasiye", value: "kitap defter kalem ayraç", icon: BookOpen, hint: "Kitap, defter, kalem" },
+      { label: "Hobi / oyun", value: "hobi puzzle oyun boya", icon: Palette, hint: "Puzzle, boyama, oyun" },
+      { label: "Teknoloji", value: "teknoloji kulaklık powerbank hoparlör", icon: Headphones, hint: "Kulaklık, şarj, hoparlör" },
+      { label: "Fark etmez", value: "", icon: Shuffle, hint: "Hepsine açığım" },
     ],
   },
   {
@@ -82,11 +84,11 @@ const questions: Question[] = [
     title: "Bütçen yaklaşık ne kadar?",
     subtitle: "Başlangıç fiyatı bütçeni aşan fikirleri eleyelim. Fiyatlar tahminidir.",
     options: [
-      { label: "En fazla 500 TL", value: "500 düşük küçük", emoji: "💸" },
-      { label: "En fazla 1000 TL", value: "1000 orta", emoji: "💳" },
-      { label: "En fazla 2500 TL", value: "2500 iyi", emoji: "💎" },
-      { label: "Bütçe sınırım yok", value: "premium yüksek", emoji: "👑" },
-      { label: "Fark etmez", value: "", emoji: "🎁" },
+      { label: "En fazla 500 TL", value: "500 düşük küçük", icon: Wallet, hint: "Küçük ama anlamlı" },
+      { label: "En fazla 1000 TL", value: "1000 orta", icon: Banknote, hint: "Dengeli bir bütçe" },
+      { label: "En fazla 2500 TL", value: "2500 iyi", icon: Gem, hint: "Özel bir hediye" },
+      { label: "Bütçe sınırım yok", value: "premium yüksek", icon: Crown, hint: "En iyisi olsun" },
+      { label: "Fark etmez", value: "", icon: Shuffle, hint: "Hepsine açığım" },
     ],
   },
   {
@@ -94,11 +96,11 @@ const questions: Question[] = [
     title: "Önermememizi istediğin bir şey var mı?",
     subtitle: "İstersen bir grubu tamamen eleyebilirsin.",
     options: [
-      { label: "Koku / parfüm olmasın", value: "parfüm|parfum|body mist|kokulu|oda kokusu", emoji: "🌿" },
-      { label: "Giyim / beden gerektirmesin", value: "pijama|tişört|sweatshirt|giyim|terlik|ayakkabı|yüzük", emoji: "👕" },
-      { label: "Takı olmasın", value: "takı|kolye|bileklik|küpe|yüzük", emoji: "💍" },
-      { label: "Yiyecek olmasın", value: "çikolata|atıştırmalık|kurabiye|tatlı", emoji: "🍫" },
-      { label: "Hepsi olabilir", value: "", emoji: "🎁" },
+      { label: "Koku / parfüm olmasın", value: "parfüm|parfum|body mist|kokulu|oda kokusu", icon: SprayCan, hint: "Parfüm, mum, body mist" },
+      { label: "Giyim / beden gerektirmesin", value: "pijama|tişört|sweatshirt|giyim|terlik|ayakkabı|yüzük", icon: Shirt, hint: "Beden riski olmasın" },
+      { label: "Takı olmasın", value: "takı|kolye|bileklik|küpe|yüzük", icon: Gem, hint: "Kolye, bileklik, yüzük" },
+      { label: "Yiyecek olmasın", value: "çikolata|atıştırmalık|kurabiye|tatlı", icon: Cookie, hint: "Çikolata, atıştırmalık" },
+      { label: "Hepsi olabilir", value: "", icon: CircleCheck, hint: "Hiçbirini eleme" },
     ],
   },
   {
@@ -106,17 +108,17 @@ const questions: Question[] = [
     title: "Ne kadar acil?",
     subtitle: "Son dakika hediyelerini de buna göre seçelim.",
     options: [
-      { label: "Bugün lazım", value: "bugün acil çiçek çikolata kupa body mist", emoji: "⚡" },
-      { label: "Yarın lazım", value: "yarın hızlı pijama bakım kahve", emoji: "🗓️" },
-      { label: "3 gün içinde", value: "3 gün paket cozy self-care", emoji: "🎁" },
-      { label: "Acelesi yok", value: "normal", emoji: "🌸" },
+      { label: "Bugün lazım", value: "bugün acil çiçek çikolata kupa body mist", icon: Zap, hint: "Mağazadan hemen alınabilir" },
+      { label: "Yarın lazım", value: "yarın hızlı pijama bakım kahve", icon: Clock, hint: "Hızlı teslimat" },
+      { label: "3 gün içinde", value: "3 gün paket cozy self-care", icon: CalendarDays, hint: "Biraz zaman var" },
+      { label: "Acelesi yok", value: "normal", icon: Leaf, hint: "Özel sipariş de olur" },
     ],
   },
 ];
 
 export default function GiftFinderPage() {
   const questionHeading = useRef<HTMLHeadingElement>(null);
-  const [results, setResults] = useState<{gift: Gift; score: number}[]>([]);
+  const [results, setResults] = useState<{gift: Gift; score: number; reasons?: string[]}[]>([]);
   const [access, setAccess] = useState<{remaining: number; paid: boolean} | null>(null);
   const [paywall, setPaywall] = useState(false);
   const searching = useRef(false);
@@ -129,6 +131,8 @@ export default function GiftFinderPage() {
   const [notice, setNotice] = useState("");
   const [savedOnly, setSavedOnly] = useState(false);
   const [step, setStep] = useState(0);
+  // Questions the visitor has actually answered (an empty value means "Fark etmez")
+  const [touched, setTouched] = useState<string[]>([]);
   const [showResults, setShowResults] = useState(false);
 
   const [answers, setAnswers] = useState<Answers>({
@@ -220,7 +224,7 @@ export default function GiftFinderPage() {
   const limit = budgetLimit(answers.budget);
 
   const visibleResults = savedOnly
-    ? saved.map(gift => ({ gift, score: getMatchScore(gift, answers) }))
+    ? saved.map(gift => ({ gift, ...matchGift(gift, answers) }))
     : results.slice(0, 4).map(item => results.find(candidate => (candidate.gift.id || getRawGiftTitle(candidate.gift)) === replacements[item.gift.id || getRawGiftTitle(item.gift)]) || item);
 
   function replaceGift(gift: Gift) {
@@ -234,6 +238,7 @@ export default function GiftFinderPage() {
   }
 
   function selectOption(value: string) {
+    setTouched((current) => (current.includes(currentQuestion.key) ? current : [...current, currentQuestion.key]));
     setHiddenIds([]);
     setReplacements({});
     setSavedOnly(false);
@@ -261,6 +266,7 @@ export default function GiftFinderPage() {
   }
 
   function restart() {
+    setTouched([]);
     setHiddenIds([]);
     setReplacements({});
     setSavedOnly(false);
@@ -357,9 +363,11 @@ export default function GiftFinderPage() {
               {currentQuestion.subtitle}
             </p>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {currentQuestion.options.map((option, optionIndex) => {
-                const selected = answers[currentQuestion.key] === option.value;
+                const selected =
+                  answers[currentQuestion.key] === option.value &&
+                  (option.value !== "" || touched.includes(currentQuestion.key));
                 return (
                   <button
                     key={`${currentQuestion.key}-${option.label}`}
@@ -367,17 +375,28 @@ export default function GiftFinderPage() {
                     onClick={() => selectOption(option.value)}
                     aria-pressed={selected}
                     style={{ "--delay": `${140 + optionIndex * 60}ms` } as CSSProperties}
-                    className={`fade-in-up group flex items-center gap-4 rounded-2xl p-4 text-left transition duration-300 focus-visible:outline-2 focus-visible:outline-pink-600 disabled:opacity-60 ${
+                    className={`fade-in-up group flex items-center gap-4 rounded-[1.25rem] p-4 text-left transition duration-300 focus-visible:outline-2 focus-visible:outline-pink-600 disabled:opacity-60 ${
                       selected
-                        ? "bg-pink-50 ring-2 ring-pink-500"
+                        ? "bg-white shadow-lg shadow-pink-900/10 ring-2 ring-pink-500"
                         : "bg-[#fff8f5] ring-1 ring-pink-100 hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-pink-900/5 hover:ring-pink-200"
                     }`}
                   >
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-2xl ring-1 ring-pink-100 transition group-hover:scale-105">
-                      {option.emoji}
+                    <span
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition duration-300 ${
+                        selected ? "bg-pink-600 text-white" : "bg-white text-pink-600 ring-1 ring-pink-100 group-hover:bg-pink-50"
+                      }`}
+                    >
+                      <option.icon className="h-[22px] w-[22px]" strokeWidth={1.75} />
                     </span>
-                    <span className="flex-1 text-[17px] font-bold text-[#2b1b1b]">{option.label}</span>
-                    <ChevronRight className="h-5 w-5 text-[#c9a9a9] transition group-hover:translate-x-0.5 group-hover:text-pink-600" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[16px] font-bold leading-snug text-[#2b1b1b]">{option.label}</span>
+                      <span className="mt-0.5 block text-[13px] leading-snug text-[#8a6a6a]">{option.hint}</span>
+                    </span>
+                    {selected ? (
+                      <Check className="h-5 w-5 shrink-0 text-pink-600" strokeWidth={2.5} />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 shrink-0 text-[#d9c3c3] transition group-hover:translate-x-0.5 group-hover:text-pink-600" />
+                    )}
                   </button>
                 );
               })}
@@ -477,7 +496,7 @@ export default function GiftFinderPage() {
             )}
             {!savedOnly && results.length > 0 && <GiftPlanPanel gifts={visibleResults.map(item => item.gift)} answers={answers} paid={access?.paid === true} />}
             <div className="mt-6 grid items-start gap-5 lg:grid-cols-2">
-              {visibleResults.map(({ gift, score }, index) => (
+              {visibleResults.map(({ gift, score, reasons }, index) => (
                 <GiftResultCard
                   key={gift.id || `${gift.title || gift.name || "gift"}-${index}`}
                   gift={gift}
@@ -486,10 +505,9 @@ export default function GiftFinderPage() {
                   onFavorite={() => toggleSaved(gift)}
                   isFavorite={saved.some(item => item.title === cleanGiftTitle(getRawGiftTitle(gift)))}
                   budgetNote={savedOnly ? undefined : budgetDescription(gift, limit)}
-                  matchReasons={[
+                  matchReasons={reasons?.length ? reasons : [
                     ...(answers.interest && includesAny(getGiftText(gift), answers.interest.split(" ")) ? ["Seçtiğin ilgi alanıyla ilişkili"] : []),
                     ...(answers.style && includesAny(getGiftText(gift), answers.style.split(" ")) ? ["Seçtiğin tarza yakın"] : []),
-                    ...(!savedOnly && limit ? ["Başlangıç fiyatı bütçe sınırının içinde"] : []),
                   ]}
                 />
               ))}
