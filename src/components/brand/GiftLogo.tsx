@@ -3,9 +3,12 @@ import Link from "next/link";
 type GiftLogoProps = {
   small?: boolean;
   href?: string;
+  /** "light" for dark backgrounds */
+  tone?: "dark" | "light";
 };
 
-export default function GiftLogo({ small = false, href = "/" }: GiftLogoProps) {
+export default function GiftLogo({ small = false, href = "/", tone = "dark" }: GiftLogoProps) {
+  const light = tone === "light";
   return (
     <Link href={href} className="group inline-flex items-center gap-2.5" aria-label="NeAlsam Hediye ana sayfa">
       <span
@@ -18,10 +21,10 @@ export default function GiftLogo({ small = false, href = "/" }: GiftLogoProps) {
       </span>
 
       <span className="leading-none">
-        <span className={`block font-black tracking-tight text-[#1f1212] ${small ? "text-[1.15rem]" : "text-xl"}`}>
-          NeAlsam<span className="text-pink-600">.</span>
+        <span className={`block font-black tracking-tight ${light ? "text-white" : "text-[#1f1212]"} ${small ? "text-[1.15rem]" : "text-xl"}`}>
+          NeAlsam<span className={light ? "text-pink-400" : "text-pink-600"}>.</span>
         </span>
-        <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.28em] text-pink-600/80">
+        <span className={`mt-1 block text-[10px] font-bold uppercase tracking-[0.28em] ${light ? "text-pink-300" : "text-pink-600/80"}`}>
           Hediye
         </span>
       </span>

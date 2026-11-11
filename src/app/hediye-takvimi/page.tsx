@@ -1,7 +1,7 @@
 import GiftCalendarClient from "./GiftCalendarClient";
 
 export const metadata = {
-  title: "Hediye Takvimi | NeAlsam Hediye",
+  title: "Hediye Takvimi",
   description:
     "Doğum günü, yıl dönümü ve özel günleri kaydet; hediye almayı unutma.",
 };

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BookOpen, CalendarHeart, Crown, Package, PenLine, QrCode, Scale, Target, Zap } from "lucide-react";
 
 export const metadata = {
-  title: "Hediye Araçları | NeAlsam Hediye",
+  title: "Hediye Araçları",
   description:
     "Hediye bulma testi, hediye paketi oluşturucu, son dakika hediye fikirleri, hediye takvimi ve QR not araçları.",
 };

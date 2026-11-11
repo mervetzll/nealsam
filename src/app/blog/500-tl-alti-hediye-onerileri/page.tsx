@@ -1,6 +1,6 @@
 import BlogSEOBoost from "@/components/blog/BlogSEOBoost";
 export const metadata = {
-  title: "500 TL Altı Hediye Önerileri | NeAlsam Hediye",
+  title: "500 TL Altı Hediye Önerileri",
   description:
     "500 TL altı uygun fiyatlı, anlamlı ve kullanışlı hediye önerileri. Bütçe dostu hediye fikirleri.",
 };

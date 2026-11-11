@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Kullanım Şartları | NeAlsam Hediye",
+  title: "Kullanım Şartları",
   description: "NeAlsam Hediye kullanım şartları.",
 };
 

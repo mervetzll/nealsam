@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "KVKK Aydınlatma Metni | NeAlsam Hediye",
+  title: "KVKK Aydınlatma Metni",
   description: "NeAlsam Hediye KVKK aydınlatma metni.",
 };
 

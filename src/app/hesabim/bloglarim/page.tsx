@@ -1,7 +1,7 @@
 import BloglarimClient from "./BloglarimClient";
 
 export const metadata = {
-  title: "Bloglarım | NeAlsam Hediye",
+  title: "Bloglarım",
   description: "Kendi blog yazılarını yönet.",
   robots: {
     index: false,

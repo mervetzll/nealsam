@@ -46,9 +46,6 @@ export const metadata = {
     "arkadaşa hediye",
     "kime ne hediye alınır",
   ],
-  alternates: {
-    canonical: "https://nealsamhediye.com",
-  },
   icons: {
     icon: [
       { url: "/favicon-48x48.png?v=3", sizes: "48x48", type: "image/png" },

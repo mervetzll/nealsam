@@ -1,6 +1,6 @@
 import BlogSEOBoost from "@/components/blog/BlogSEOBoost";
 export const metadata = {
-  title: "Sevgiliye Ne Hediye Alınır? | NeAlsam Hediye",
+  title: "Sevgiliye Ne Hediye Alınır?",
   description:
     "Sevgiliye romantik, kullanışlı, kişiye özel ve anlamlı hediye fikirleri. Bütçeye göre sevgiliye hediye önerileri.",
 };

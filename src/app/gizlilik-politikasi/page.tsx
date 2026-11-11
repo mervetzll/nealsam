@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Gizlilik Politikası | NeAlsam Hediye",
+  title: "Gizlilik Politikası",
   description: "NeAlsam Hediye gizlilik politikası ve kişisel veri bilgilendirmesi.",
 };
 

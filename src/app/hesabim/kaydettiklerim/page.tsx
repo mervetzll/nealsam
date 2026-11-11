@@ -1,7 +1,7 @@
 import KaydettiklerimClient from "./KaydettiklerimClient";
 
 export const metadata = {
-  title: "Kaydettiklerim | NeAlsam",
+  title: "Kaydettiklerim",
   description: "NeAlsam hesabına kaydettiğin premium hediye deneyimleri.",
 };
 

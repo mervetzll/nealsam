@@ -1,6 +1,6 @@
 import BlogSEOBoost from "@/components/blog/BlogSEOBoost";
 export const metadata = {
-  title: "Kime Ne Hediye Alınır? | NeAlsam Hediye",
+  title: "Kime Ne Hediye Alınır?",
   description:
     "Kime ne hediye alınır? Sevgiliye, anneye, babaya, arkadaşa ve kardeşe göre hediye seçme rehberi.",
 };

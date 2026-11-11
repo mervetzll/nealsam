@@ -1,7 +1,7 @@
 import ShareExperienceClient from "./ShareExperienceClient";
 
 export const metadata = {
-  title: "Hediye Deneyimi | NeAlsam",
+  title: "Hediye Deneyimi",
   description: "NeAlsam ile hazırlanmış özel hediye deneyimi.",
 };
 

@@ -1,7 +1,7 @@
 import HediyeNotuClient from "./HediyeNotuClient";
 
 export const metadata = {
-  title: "Özel Hediye Notu | NeAlsam Hediye",
+  title: "Özel Hediye Notu",
   description: "NeAlsam Hediye ile oluşturulmuş özel hediye notu.",
   robots: {
     index: false,

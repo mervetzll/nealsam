@@ -1,7 +1,7 @@
 import GiftPackageClient from "./GiftPackageClient";
 
 export const metadata = {
-  title: "Hediye Paketi Oluşturucu | NeAlsam Hediye",
+  title: "Hediye Paketi Oluşturucu",
   description:
     "Bütçene, kişiye ve hediye tarzına göre hazır hediye paketi oluştur.",
 };

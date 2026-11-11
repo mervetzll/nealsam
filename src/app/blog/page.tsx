@@ -5,7 +5,7 @@ import { ui } from "@/components/ui/styles";
 import BlogDynamicPosts from "./BlogDynamicPosts";
 
 export const metadata = {
-  title: "Rehber / Blog | NeAlsam Hediye",
+  title: "Rehber / Blog",
   description:
     "Hediye fikirleri, özel gün rehberleri ve NeAlsam topluluğundan blog yazıları.",
 };

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import OdemeClient from "./OdemeClient";
 
 export const metadata = {
-  title: "Ödeme | NeAlsam Hediye",
+  title: "Ödeme",
   description: "NeAlsam Hediye paket ödeme sayfası.",
   robots: {
     index: false,

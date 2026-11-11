@@ -10,7 +10,7 @@ export async function generateMetadata({
   const { slug } = await params;
 
   return {
-    title: "Blog Yazısı | NeAlsam Hediye",
+    title: "Blog Yazısı",
     description: `NeAlsam Hediye blog yazısı: ${slug}`,
   };
 }

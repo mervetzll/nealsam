@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "İade ve İptal Politikası | NeAlsam Hediye",
+  title: "İade ve İptal Politikası",
   description: "NeAlsam Hediye iade ve iptal politikası.",
 };
 

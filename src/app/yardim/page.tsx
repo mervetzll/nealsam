@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 
 export const metadata = {
-  title: "Yardım ve SSS | NeAlsam Hediye",
+  title: "Yardım ve SSS",
   description:
     "NeAlsam Hediye nasıl çalışır, hediye önerileri nasıl seçilir, premium deneyim ve admin sistemi hakkında sık sorulan sorular.",
 };

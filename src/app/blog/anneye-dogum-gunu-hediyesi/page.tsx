@@ -1,6 +1,6 @@
 import BlogSEOBoost from "@/components/blog/BlogSEOBoost";
 export const metadata = {
-  title: "Anneye Doğum Günü Hediyesi | NeAlsam Hediye",
+  title: "Anneye Doğum Günü Hediyesi",
   description:
     "Anneye doğum günü için anlamlı, duygusal, kullanışlı ve zarif hediye önerileri.",
 };

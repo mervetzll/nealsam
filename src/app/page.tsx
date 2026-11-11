@@ -17,6 +17,10 @@ import WordRise from "@/components/motion/WordRise";
 import ScrollProgressLine from "@/components/motion/ScrollProgressLine";
 import Marquee from "@/components/motion/Marquee";
 
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 const delay = (ms: number) => ({ "--delay": `${ms}ms` }) as CSSProperties;
 
 const marqueeItems = [
@@ -166,12 +170,18 @@ export default function HomePage() {
                   </div>
                 ))}
               </dl>
+
+              {/* On smaller screens the "why" note sits inside the card */}
+              <p className="mt-4 rounded-2xl bg-[#2b1b1b] px-4 py-3 text-sm leading-6 text-white/85 xl:hidden">
+                <span className="font-bold text-pink-300">Neden önerildi? </span>
+                Kişiye, bütçeye ve düşük risk tercihine uyduğu için.
+              </p>
             </div>
           </div>
 
           <div
             style={delay(1700)}
-            className="fade-in-up absolute -bottom-6 -left-4 hidden max-w-[15rem] rounded-2xl bg-[#2b1b1b] p-4 text-white shadow-xl sm:block lg:-left-10"
+            className="fade-in-up absolute -right-3 top-32 hidden max-w-[13rem] rounded-2xl bg-[#2b1b1b] p-4 text-white shadow-xl xl:block"
           >
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-pink-300">Neden önerildi?</p>
             <p className="mt-1.5 text-sm leading-6 text-white/85">

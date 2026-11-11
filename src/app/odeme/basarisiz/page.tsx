@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Ödeme Başarısız | NeAlsam Hediye",
+  title: "Ödeme Başarısız",
   description: "NeAlsam Hediye ödeme başarısız sayfası.",
   robots: {
     index: false,

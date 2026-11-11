@@ -1,6 +1,6 @@
 import BlogSEOBoost from "@/components/blog/BlogSEOBoost";
 export const metadata = {
-  title: "Arkadaşa Hediye Fikirleri | NeAlsam Hediye",
+  title: "Arkadaşa Hediye Fikirleri",
   description:
     "Yakın arkadaşa, kız arkadaşa, erkek arkadaşa veya iş arkadaşına alınabilecek eğlenceli ve kullanışlı hediye fikirleri.",
 };

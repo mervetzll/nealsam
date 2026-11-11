@@ -4,7 +4,7 @@ import PageHero from "@/components/ui/PageHero";
 import { ui } from "@/components/ui/styles";
 
 export const metadata = {
-  title: "Paketler | NeAlsam Hediye",
+  title: "Premium paketler",
   description:
     "NeAlsam Hediye paketlerini karşılaştırın. Ücretsiz hediye önerileri, premium QR not, özel mektup ve deneyim paketleri.",
 };

@@ -1,7 +1,7 @@
 import BlogEditClient from "./BlogEditClient";
 
 export const metadata = {
-  title: "Blog Düzenle | NeAlsam Hediye",
+  title: "Blog Düzenle",
   description: "Blog yazını düzenle.",
   robots: {
     index: false,

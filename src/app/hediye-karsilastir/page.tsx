@@ -1,7 +1,7 @@
 import GiftCompareClient from "./GiftCompareClient";
 
 export const metadata = {
-  title: "Hediye Karşılaştırma | NeAlsam Hediye",
+  title: "Hediye Karşılaştırma",
   description:
     "İki hediye arasında kaldıysan kişisellik, risk, anlam ve kullanışlılık açısından karşılaştır.",
 };
