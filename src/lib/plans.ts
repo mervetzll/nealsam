@@ -13,8 +13,8 @@ export const PLAN_NAMES: Record<PlanId, string> = {
   note: "Not Paketi",
   experience: "Deneyim Paketi",
   basic: "Mini Hediye Paketi",
-  plus: "Özel Hediye Paketi",
-  premium: "Hikâyeli Hediye Paketi",
+  plus: "Plus",
+  premium: "Premium",
 };
 
 export const PLAN_LIMITS: Record<PlanId, number> = {
@@ -64,20 +64,21 @@ export const plans: Plan[] = [
   },
   {
     id: "plus",
-    name: "Özel Hediye Paketi",
-    price: 99,
-    description: "Daha özel fikir, not ve sunum önerisi.",
+    name: "Plus",
+    price: 49,
+    description: "Arama sınırını kaldıran kişisel hediye hazırlık paketi.",
     features: [
-      "Daha detaylı hediye fikri",
+      "Sınırsız hediye araması",
       "Kişisel not metni",
       "Sunum önerisi",
       "Alternatif hediye fikirleri",
+      "Bütçe dağılımı ve indirilebilir hazırlık listesi",
     ],
   },
   {
     id: "premium",
-    name: "Hikâyeli Hediye Paketi",
-    price: 149,
+    name: "Premium",
+    price: 99,
     description: "Hediye fikri, mektup ve yaratıcı hikâye sunumu.",
     features: [
       "Özel hediye fikri",

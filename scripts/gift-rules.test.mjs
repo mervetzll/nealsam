@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {budgetLimit, fitsBudget, priceRange, budgetDescription} from '../src/lib/giftBudget.ts';
+import {getGiftStoreLinks, inferGiftSearchQuery} from '../src/lib/giftPresentation.ts';
+assert.equal(budgetLimit('500 düşük küçük'),500);
+assert.equal(budgetLimit('premium yüksek'),null);
+assert.equal(fitsBudget({price:'700–2500 TL'},500),false);
+assert.equal(fitsBudget({price:'300–1200 TL'},500),true);
+assert.equal(fitsBudget({},500),false);
+assert.deepEqual(priceRange({price:'1.500–2.500 TL'}),{min:1500,max:2500});
+assert.match(budgetDescription({price:'300–1200 TL'},500),/kontrol et/);
+const coffee={title:'Kupa + Kahve Paketi',category:'Kahve / Çay / Cozy',description:'Yanına pijama ekleyebilirsin'};
+assert.ok(getGiftStoreLinks(coffee).every(x=>!['Penti','Dagi',"Victoria’s Secret"].includes(x.store)));
+assert.equal(inferGiftSearchQuery(coffee),'kupa + kahve paketi');
+assert.ok(getGiftStoreLinks({title:'Pijama takımı'}).some(x=>x.store==='Penti'));
+assert.ok(getGiftStoreLinks(coffee).length<=6);
+console.log('11 bütçe ve mağaza kontrolü geçti.');
+
+const mugStores=getGiftStoreLinks({title:'Seramik kupa',category:'Cozy / Bakım'}).map(x=>x.store);
+assert.ok(['Starbucks','Tchibo','Madame Coco','English Home','Karaca'].every(x=>mugStores.includes(x)));
+const candleStores=getGiftStoreLinks({title:'Kokulu mum',category:'Parfüm / Bakım'}).map(x=>x.store);
+assert.ok(candleStores.includes('Madame Coco')&&candleStores.includes('English Home'));
+assert.ok(!candleStores.includes('Sephora')&&!candleStores.includes('Boyner'));
+assert.ok(!getGiftStoreLinks({title:'Kişisel fotoğraf albümü',category:'Hobi'}).some(x=>x.store==='Atasay'));
+assert.ok(!getGiftStoreLinks({title:'Kulaklık',category:'Hobi'}).some(x=>x.store==='Remzi Kitabevi'));
+console.log('5 yeni ürün-mağaza eşleşme kontrolü geçti.');

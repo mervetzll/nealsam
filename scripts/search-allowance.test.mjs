@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {allowSearch, readAllowance, signAllowance, searchHash} from '../src/lib/searchAllowance.ts';
+import {buildGiftPlan} from '../src/lib/giftPlan.ts';
+const key = 'test-only-key';
+let hashes = [];
+for (let index = 0; index < 3; index++) {
+  const next = allowSearch(hashes, searchHash({interest: String(index)}), false);
+  assert.equal(next.allowed, true);
+  assert.equal(next.remaining, 2-index);
+  hashes = next.hashes;
+}
+assert.equal(allowSearch(hashes, searchHash({interest:'4'}), false).allowed, false);
+assert.equal(allowSearch(hashes, hashes[0], false).allowed, true);
+assert.equal(allowSearch(hashes, hashes[0], false).remaining, 0);
+assert.equal(allowSearch(hashes, searchHash({interest:'4'}), true).allowed, true);
+assert.deepEqual(allowSearch([], 'empty', false, false).hashes, []);
+const signed = signAllowance(hashes,key);
+assert.deepEqual(readAllowance(signed,key),hashes);
+assert.deepEqual(readAllowance(signed,'wrong'),[]);
+assert.deepEqual(readAllowance(signed+'tampered',key),[]);
+assert.deepEqual(readAllowance('invalid',key),[]);
+assert.equal(searchHash({a:'1',b:'2'}),searchHash({b:'2',a:'1'}));
+const answers = {relation:'arkadaş',style:'',interest:'kahve',budget:'1000 orta',urgency:'bugün acil',occasion:'doğum günü',exclude:''};
+const plan = buildGiftPlan({title:'Kupa'},[{title:'Kupa'},{title:'Termos',price:'300 TL'}],answers,'Merve','Birlikte içtiğimiz kahveyi unutamıyorum.');
+assert.match(plan.note,/Merve/);
+assert.match(plan.note,/Birlikte içtiğimiz/);
+assert.match(plan.note,/İyi ki doğdun/);
+assert.match(plan.budget,/900 TL/);
+assert.equal(plan.alternatives.length,1);
+assert.match(plan.checklist[1],/Bugün/);
+console.log('Arama kotası, imza doğrulama ve kişisel plan kontrolleri geçti.');

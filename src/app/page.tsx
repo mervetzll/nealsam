@@ -153,9 +153,9 @@ export default function HomePage() {
 
             <div className="px-4 pb-4 pt-5">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-pink-600">Örnek sonuç</p>
-              <h2 className="mt-2 text-3xl">Cilt bakım organizeri</h2>
+              <h2 className="mt-2 text-3xl">Seramik kahve kupası</h2>
               <p className="mt-2 text-sm leading-6 text-[#6b4a4a]">
-                Ürün seçme riski olmadan düzen sağlayan, güvenli ve kullanışlı bir hediye.
+                Kahve molalarını seven biri için renk ve desenle kişiselleştirebileceğin, günlük kullanıma uygun bir hediye.
               </p>
 
               <dl className="mt-5 grid grid-cols-3 divide-x divide-pink-100 rounded-2xl bg-[#fff8f5] py-3 text-center">

@@ -114,6 +114,8 @@ export function inferGiftSearchQuery(gift: GiftLike) {
   const raw = `${gift.title || ""} ${gift.name || ""} ${gift.category || ""} ${gift.description || ""} ${(gift.tags || []).join(" ")}`;
   const text = normalizeTurkish(raw);
 
+  if (gift.title || gift.name) return cleanGiftTitle(getRawGiftTitle(gift)).toLocaleLowerCase("tr-TR");
+
   if (text.includes("saten pijama")) return "saten pijama";
   if (text.includes("pijama")) return "pijama takımı";
   if (text.includes("pelus sabahlik")) return "peluş sabahlık";
@@ -220,6 +222,27 @@ function buildStoreLinksForCategory(category: string, query: string): StoreLink[
     store("Hepsiburada’da Ara", "Hepsiburada", `https://www.hepsiburada.com/ara?q=${q}`),
   ];
 
+  if (category === "mug") return [
+    store("Starbucks kupaları", "Starbucks", "https://www.starbucks.com.tr/menu/kahve-ekipmanlari/her-zaman-seninle"),
+    store("Tchibo kupaları", "Tchibo", "https://www.tchibo.com.tr/c/kahve-aksesuarlar-kahve-gereleri"),
+    store("Madame Coco kupaları", "Madame Coco", "https://www.madamecoco.com/muglar-ve-kupalar/"),
+    store("English Home kupaları", "English Home", "https://www.englishhome.com/c-bardak/kupa"),
+    store("Karaca’da Ara", "Karaca", `https://www.karaca.com/arama?search=${q}`),
+  ];
+  if (category === "homefragrance") return buildStoreLinksForCategory("decor", query).slice(0, 5);
+  if (category === "candle") return [
+    store("Madame Coco mumları", "Madame Coco", "https://www.madamecoco.com/mum/"),
+    store("English Home mumları", "English Home", "https://www.englishhome.com/c-ev-dekorasyonu/mum"),
+    store("Karaca’da Ara", "Karaca", `https://www.karaca.com/arama?search=${q}`),
+    store("Tchibo’da Ara", "Tchibo", `https://www.tchibo.com.tr/search?q=${q}`),
+    store("Bath & Body Works’te Ara", "Bath & Body Works", `https://www.bathandbodyworks.com.tr/search?q=${q}`),
+  ];
+  if (category === "tech") return [
+    store("Teknosa’da Ara", "Teknosa", `https://www.teknosa.com/arama/?s=${q}`),
+    store("MediaMarkt’ta Ara", "MediaMarkt", `https://www.mediamarkt.com.tr/tr/search.html?query=${q}`),
+    store("Amazon’da Ara", "Amazon", `https://www.amazon.com.tr/s?k=${q}`), ...common,
+  ];
+
   if (category === "homewear") {
     return [
       store("Penti’de Ara", "Penti", `https://www.penti.com/tr/search?q=${q}`),
@@ -275,7 +298,6 @@ function buildStoreLinksForCategory(category: string, query: string): StoreLink[
 
   if (category === "coffee") {
     return [
-      store("Starbucks’ta Ara", "Starbucks", `https://www.starbucks.com.tr/search?q=${q}`),
       store("Tchibo’da Ara", "Tchibo", `https://www.tchibo.com.tr/search?q=${q}`),
       store("Kahve Dünyası’nda Ara", "Kahve Dünyası", `https://www.kahvedunyasi.com/arama?q=${q}`),
       store("Karaca’da Ara", "Karaca", `https://www.karaca.com/arama?search=${q}`),
@@ -302,8 +324,6 @@ function buildStoreLinksForCategory(category: string, query: string): StoreLink[
       store("D&R’da Ara", "D&R", `https://www.dr.com.tr/search?q=${q}`),
       store("Remzi Kitabevi’nde Ara", "Remzi Kitabevi", `https://www.remzi.com.tr/arama?q=${q}`),
       store("Amazon’da Ara", "Amazon", `https://www.amazon.com.tr/s?k=${q}`),
-      store("Teknosa’da Ara", "Teknosa", `https://www.teknosa.com/arama/?s=${q}`),
-      store("MediaMarkt’ta Ara", "MediaMarkt", `https://www.mediamarkt.com.tr/tr/search.html?query=${q}`),
       ...common,
     ];
   }
@@ -327,116 +347,31 @@ function buildStoreLinksForCategory(category: string, query: string): StoreLink[
 }
 
 function detectCategory(gift: GiftLike) {
-  const raw = `${gift.title || ""} ${gift.name || ""} ${gift.category || ""} ${gift.description || ""} ${(gift.tags || []).join(" ")}`;
-  const text = normalizeTurkish(raw);
-
-  if (
-    text.includes("pijama") ||
-    text.includes("sabahlik") ||
-    text.includes("ev terligi") ||
-    text.includes("uyku maskesi") ||
-    text.includes("battaniye") ||
-    text.includes("corap") ||
-    text.includes("cozy") ||
-    text.includes("termal iclik") ||
-    text.includes("ev giyim")
-  ) return "homewear";
-
-  if (
-    text.includes("vucut spreyi") ||
-    text.includes("body mist") ||
-    text.includes("el kremi") ||
-    text.includes("dus jeli") ||
-    text.includes("vucut losyonu") ||
-    text.includes("cilt bakim") ||
-    text.includes("dudak balmi") ||
-    text.includes("yuz maskesi") ||
-    text.includes("sac bakim") ||
-    text.includes("banyo tuzu") ||
-    text.includes("spa") ||
-    text.includes("self-care") ||
-    text.includes("bakim")
-  ) return "selfcare";
-
-  if (
-    text.includes("parfum") ||
-    text.includes("oda kokusu") ||
-    text.includes("arac kokusu") ||
-    text.includes("difuzor") ||
-    text.includes("mum") ||
-    text.includes("koku")
-  ) return "fragrance";
-
-  if (
-    text.includes("kolye") ||
-    text.includes("bileklik") ||
-    text.includes("kupe") ||
-    text.includes("yuzuk") ||
-    text.includes("saat") ||
-    text.includes("sal") ||
-    text.includes("fular") ||
-    text.includes("canta") ||
-    text.includes("cuzdan") ||
-    text.includes("kartlik") ||
-    text.includes("anahtarlik") ||
-    text.includes("toka") ||
-    text.includes("aksesuar")
-  ) return "accessory";
-
-  if (
-    text.includes("kupa") ||
-    text.includes("termos") ||
-    text.includes("french press") ||
-    text.includes("kahve") ||
-    text.includes("bitki cayi") ||
-    text.includes("cay kutusu") ||
-    text.includes("cikolata paketi")
-  ) return "coffee";
-
-  if (
-    text.includes("dekor") ||
-    text.includes("cerceve") ||
-    text.includes("abajur") ||
-    text.includes("vazo") ||
-    text.includes("kirlent") ||
-    text.includes("taki kutusu") ||
-    text.includes("makyaj organizeri") ||
-    text.includes("masa lambasi") ||
-    text.includes("led isik")
-  ) return "decor";
-
-  if (
-    text.includes("kitap") ||
-    text.includes("defter") ||
-    text.includes("kalem") ||
-    text.includes("puzzle") ||
-    text.includes("boyama") ||
-    text.includes("hobi") ||
-    text.includes("resim malzemeleri") ||
-    text.includes("kamera") ||
-    text.includes("telefon aksesuari") ||
-    text.includes("kulaklik") ||
-    text.includes("powerbank") ||
-    text.includes("bluetooth hoparlor")
-  ) return "hobby";
-
-  if (
-    text.includes("basic tisort") ||
-    text.includes("polo") ||
-    text.includes("sweatshirt") ||
-    text.includes("tiras") ||
-    text.includes("spor cantasi") ||
-    text.includes("sapka") ||
-    text.includes("kemer") ||
-    text.includes("erkek") ||
-    text.includes("giyim")
-  ) return "menswear";
-
-  return "general";
+  function classify(raw: string) {
+    const text = normalizeTurkish(raw);
+    if (/mum|samdan/.test(text)) return "candle";
+    if (/oda kokusu|buhurdan|difuzor|tutsu/.test(text)) return "homefragrance";
+    if (/french press|kahve ekipman/.test(text)) return "coffee";
+    if (/kupa|fincan|mug|termos/.test(text)) return "mug";
+    if (/kahve|cay|cikolata/.test(text)) return "coffee";
+    if (/organizer|duzenleyici|taki kutusu|makyaj cantasi/.test(text)) return "decor";
+    if (/pijama|sabahlik|terlik|uyku maskesi|battaniye|corap|ev giyim/.test(text)) return "homewear";
+    if (/body mist|vucut spreyi|krem|losyon|cilt|bakim|balm|dus jeli|spa/.test(text)) return "selfcare";
+    if (/parfum/.test(text)) return "fragrance";
+    if (/kulaklik|powerbank|hoparlor|teknoloji|telefon|kamera/.test(text)) return "tech";
+    if (/kitap|defter|kalem|puzzle|boyama|hobi/.test(text)) return "hobby";
+    if (/vazo|cerceve|dekor|abajur|kirlent|lamba/.test(text)) return "decor";
+    if (/(^|\s)(sal|saat|yuzuk|kolye|bileklik|kupe|fular|canta|cuzdan|kartlik|toka)(\s|$)/.test(text)) return "accessory";
+    if (/tisort|gomlek|sweatshirt|polo|sapka|kemer|giyim/.test(text)) return "menswear";
+    return "general";
+  }
+  const product = classify(`${gift.title || ""} ${gift.name || ""}`);
+  return product === "general" ? classify(gift.category || "") : product;
 }
 
 export function getGiftStoreLinks(gift: GiftLike) {
   const query = inferGiftSearchQuery(gift);
   const category = detectCategory(gift);
-  return buildStoreLinksForCategory(category, query);
+  const links = buildStoreLinksForCategory(category, query);
+  return links.filter((link, index, all) => all.findIndex(item => item.store === link.store) === index).slice(0, 6);
 }

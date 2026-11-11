@@ -17,7 +17,7 @@ const packages = [
     tag: "Başlangıç",
     description: "Hızlıca hediye fikri bulmak isteyenler için.",
     features: [
-      "Temel hediye önerileri",
+      "3 farklı hediye araması",
       "Bütçe ve kişi seçimi",
       "Mağaza yönlendirmeleri",
       "Paylaşma seçeneği",
@@ -26,7 +26,7 @@ const packages = [
       "QR hediye notu",
       "Özel mektup",
       "Premium deneyim akışı",
-      "Gelişmiş profil önerileri",
+      "Kişisel hazırlık planı",
     ],
     cta: "Ücretsiz Başla",
     href: "/hediye-bul",
@@ -39,10 +39,11 @@ const packages = [
     tag: "En Dengeli",
     description: "Daha kişisel ve daha özenli hediye önerileri için.",
     features: [
-      "Daha güçlü eşleşme önerileri",
-      "Kaydetme ve favori sistemi",
-      "Profil tercihlerini kullanma",
-      "Premium kilitli alanlara temel erişim",
+      "Arama sınırını kaldırma",
+      "Hediyeye özel kişisel hazırlık planı",
+      "İsim ve anıya göre düzenlenebilir not",
+      "Paketleme ve bütçe dağılımı",
+      "Alternatifler ve indirilebilir hazırlık listesi",
     ],
     locked: ["Tam QR deneyimi", "Tam özel mektup akışı"],
     cta: "Plus Seç",
@@ -87,8 +88,8 @@ const packages = [
 ];
 
 const comparisonRows = [
-  ["Temel hediye önerileri", "✓", "✓", "✓", "✓"],
-  ["Profil tercihleri", "Kısıtlı", "✓", "✓", "✓"],
+  ["Hediye aramaları", "3 farklı arama", "Sınırsız", "3 farklı arama", "Sınırsız"],
+  ["Kişisel hazırlık planı ve indirme", "—", "✓", "—", "✓"],
   ["Kaydet / favori", "✓", "✓", "✓", "✓"],
   ["QR hediye notu", "—", "Kısıtlı", "✓", "✓"],
   ["Özel mektup", "—", "—", "✓", "✓"],
@@ -111,7 +112,7 @@ export default function PackagesPage() {
           eyebrow="Premium paketler"
           title="Hediyeyi daha"
           accent="özel kılan paketler."
-          description="Ücretsiz önerilerle başla; istersen QR not, özel mektup ve premium deneyimle hediyeni kişiselleştir."
+          description="İlk 3 farklı arama ücretsiz. Daha fazla arama ve kişisel hazırlık planı Plus’ta 49 TL. Deneyim paketi QR ve mesaj deneyimine yöneliktir; sınırsız arama Plus ve Premium’a dahildir."
         />
 
         <p className="mx-auto flex max-w-2xl items-start gap-3 rounded-2xl bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900 ring-1 ring-amber-200">

@@ -1,12 +1,12 @@
 "use client";
 
 import QRCode from "qrcode";
+import Image from "next/image";
+import { createNoteLink } from "@/lib/sharedNote";
 import { useMemo, useState } from "react";
 import {
-  makeGiftIdeas,
   makeRiddle,
   makeSpecialNotes,
-  makeStoreUrl,
   makeStory,
   moods,
   relationships,
@@ -14,7 +14,7 @@ import {
   type Relationship,
 } from "@/lib/experienceContent";
 
-export default function ExperienceModes() {
+export default function ExperienceModes({ mode = "qr" }: { mode?: "note" | "qr" | "hunt" }) {
   const [relationship, setRelationship] = useState<Relationship>("Sevgilim");
   const [mood, setMood] = useState<Mood>("Duygusal");
   const [name, setName] = useState("");
@@ -23,6 +23,13 @@ export default function ExperienceModes() {
   const [qrCode, setQrCode] = useState("");
   const [noteUrl, setNoteUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [customNote, setCustomNote] = useState<string | null>(null);
+  const [sender, setSender] = useState("");
+  const [qrSignature, setQrSignature] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [qrError, setQrError] = useState("");
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [huntStatus, setHuntStatus] = useState("");
 
   const notes = useMemo(
     () => makeSpecialNotes(relationship, mood, name, memory),
@@ -43,51 +50,62 @@ export default function ExperienceModes() {
     [relationship, name]
   );
 
-  const giftIdeas = useMemo(
-    () => makeGiftIdeas(relationship, mood),
-    [relationship, mood]
-  );
+  const noteText = customNote ?? selectedNote.text;
+  const signature = JSON.stringify([selectedNote.title, noteText, sender]);
+  const currentQr = qrSignature === signature ? qrCode : "";
 
   async function createQrForSelectedNote() {
-    const origin =
-      typeof window !== "undefined" && window.location.hostname !== "localhost"
-        ? window.location.origin
-        : "https://nealsamhediye.netlify.app";
-
-    const params = new URLSearchParams({
-      title: selectedNote.title,
-      note: selectedNote.text,
-      from: "NeAlsam Hediye",
-    });
-
-    const url = `${origin}/hediye-notu?${params.toString()}`;
-    const qr = await QRCode.toDataURL(url, {
-      margin: 2,
-      width: 260,
-    });
-
-    setNoteUrl(url);
-    setQrCode(qr);
-    setCopied(false);
+    setGenerating(true);
+    setQrError("");
+    setLinkCopied(false);
+    try {
+      const url = createNoteLink(window.location.origin, { title: selectedNote.title, note: noteText, from: sender });
+      const qr = await QRCode.toDataURL(url, { margin: 4, width: 768, errorCorrectionLevel: "M" });
+      setNoteUrl(url);
+      setQrCode(qr);
+      setQrSignature(signature);
+    } catch {
+      setQrError("QR oluşturulamadı. Notu kısaltıp tekrar dene.");
+    } finally {
+      setGenerating(false);
+    }
   }
 
   async function copySelectedNote() {
-    await navigator.clipboard.writeText(selectedNote.text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
+    try {
+      await navigator.clipboard.writeText(noteText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setQrError("Kopyalanamadı. Not metnini seçerek kopyalayabilirsin.");
+    }
+  }
+
+  async function copyHunt() {
+    try {
+      await navigator.clipboard.writeText([riddle.question, ...riddle.clues, riddle.answer].join("\n\n"));
+      setHuntStatus("İpucu kartları kopyalandı.");
+    } catch {
+      setHuntStatus("Kopyalanamadı. Kartlardaki metni seçerek kopyalayabilirsin.");
+    }
+  }
+
+  async function copyNoteLink() {
+    try {
+      await navigator.clipboard.writeText(noteUrl);
+      setLinkCopied(true);
+    } catch {
+      setQrError("Bağlantı kopyalanamadı. Önizleme bağlantısını kullanabilirsin.");
+    }
   }
 
   return (
-    <section className="mx-auto max-w-6xl px-5 pb-10 text-[#2b1b1b]">
-      <div className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-10">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Adım 1</p>
-            <h2 className="mt-2 text-3xl md:text-4xl">Kime hazırlıyorsun?</h2>
-          </div>
-          <p className="max-w-sm text-sm leading-6 text-[#6b4a4a]">
-            Bilgileri değiştirdikçe notlar, hikâye ve bulmaca anında güncellenir.
-          </p>
+    <section className="mx-auto max-w-7xl px-5 py-4 text-[#2b1b1b]">
+      <div className="rounded-[2rem] bg-white p-7 md:p-10">
+        <div className="max-w-3xl">
+          <p className="text-sm font-bold text-pink-600">1. Kişiselleştir</p>
+          <h2 className="mt-2 text-2xl font-extrabold">Kimin için hazırlıyorsun?</h2>
+          <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">Kişiyi ve tonu seç. İstersen adını ve birlikte yaşadığınız bir anıyı ekle.</p>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-4">
@@ -96,7 +114,7 @@ export default function ExperienceModes() {
             <select
               value={relationship}
               onChange={(event) => setRelationship(event.target.value as Relationship)}
-              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
+              className="mt-2 w-full rounded-2xl border border-[#fce7f3] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#db2777]"
             >
               {relationships.map((item) => (
                 <option key={item}>{item}</option>
@@ -109,7 +127,7 @@ export default function ExperienceModes() {
             <select
               value={mood}
               onChange={(event) => setMood(event.target.value as Mood)}
-              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
+              className="mt-2 w-full rounded-2xl border border-[#fce7f3] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#db2777]"
             >
               {moods.map((item) => (
                 <option key={item}>{item}</option>
@@ -123,7 +141,7 @@ export default function ExperienceModes() {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Örn: Ayşe"
-              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
+              className="mt-2 w-full rounded-2xl border border-[#fce7f3] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#db2777]"
             />
           </label>
 
@@ -133,25 +151,25 @@ export default function ExperienceModes() {
               value={memory}
               onChange={(event) => setMemory(event.target.value)}
               placeholder="Örn: ilk kahvemiz"
-              className="mt-2 w-full rounded-2xl border border-transparent bg-[#fff8f5] px-4 py-3.5 ring-1 ring-pink-100 outline-none transition focus:ring-2 focus:ring-pink-400"
+              className="mt-2 w-full rounded-2xl border border-[#fce7f3] bg-[#fff4ef] px-4 py-3 outline-none focus:border-[#db2777]"
             />
           </label>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
+      {mode !== "hunt" && <div className={`mt-6 grid gap-6 ${mode === "qr" ? "lg:grid-cols-[1.1fr_0.9fr]" : ""}`}>
+        <section className="rounded-[2rem] bg-white p-7">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Özel Notlar</p>
-              <h2 className="mt-2 text-3xl">
-                Sadece seçtiğin not QR’a gider
+              <p className="text-sm font-bold text-[#db2777]">2. Notunu hazırla</p>
+              <h2 className="mt-2 text-3xl font-extrabold">
+                Bir not seç, kendine göre düzenle
               </h2>
             </div>
 
             <button
               onClick={copySelectedNote}
-              className="shrink-0 rounded-full bg-pink-50 px-5 py-3 text-sm font-bold text-pink-700 ring-1 ring-pink-100 transition hover:bg-pink-100"
+              className="rounded-full bg-[#fdf2f8] px-5 py-3 text-sm font-bold text-[#db2777]"
             >
               {copied ? "Kopyalandı" : "Notu kopyala"}
             </button>
@@ -164,8 +182,12 @@ export default function ExperienceModes() {
               return (
                 <button
                   key={note.id}
+                  aria-pressed={selected}
                   onClick={() => {
                     setSelectedNoteId(note.id);
+                    setCustomNote(null);
+                    setQrError("");
+                    setLinkCopied(false);
                     setQrCode("");
                     setNoteUrl("");
                   }}
@@ -184,15 +206,23 @@ export default function ExperienceModes() {
             })}
           </div>
 
-          <div className="mt-6 rounded-3xl bg-[#fff8f5] p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Seçili not</p>
-            <p className="mt-3 font-display text-xl italic leading-8">“{selectedNote.text}”</p>
+          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-5">
+            <p className="text-sm font-bold text-[#db2777]">Seçili not</p>
+            <label className="mt-3 block text-sm font-bold">Notunu düzenle
+              <textarea value={noteText} onChange={event => { setCustomNote(event.target.value); setCopied(false); }} maxLength={1200}
+                rows={7} className="mt-2 w-full rounded-2xl border border-pink-200 bg-white p-4 text-base leading-7 font-normal" />
+            </label>
+            <p className="mt-2 text-xs text-[#6b4a4a]">{noteText.length}/1200 karakter</p>
+            <label className="mt-4 block text-sm font-bold">Kimden? (isteğe bağlı)
+              <input value={sender} onChange={event => setSender(event.target.value)} maxLength={100} placeholder="Adın"
+                className="mt-2 w-full rounded-2xl border border-pink-200 bg-white p-4 font-normal" />
+            </label>
           </div>
         </section>
 
-        <aside className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">QR Kodlu Mesaj</p>
-          <h2 className="mt-2 text-3xl">Özel not linki</h2>
+        {mode === "qr" && <aside className="rounded-[2rem] bg-white p-7">
+          <p className="text-sm font-bold text-[#db2777]">QR Kodlu Mesaj</p>
+          <h2 className="mt-2 text-3xl font-extrabold">Özel not linki</h2>
           <p className="mt-4 text-sm leading-6 text-[#6b4a4a]">
             Bu QR kodu hediyenin içine koyabilirsin. Karşı taraf okuttuğunda
             sadece seçili not açılır.
@@ -200,17 +230,24 @@ export default function ExperienceModes() {
 
           <button
             onClick={createQrForSelectedNote}
-            className="mt-6 w-full rounded-full bg-pink-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-pink-600/20 transition hover:bg-pink-700"
+            disabled={generating || !noteText.trim()}
+            className="mt-6 w-full rounded-full bg-[#db2777] px-6 py-4 text-sm font-bold text-white"
           >
-            Seçili not için QR oluştur
+            {generating ? "QR hazırlanıyor…" : "Seçili not için QR oluştur"}
           </button>
 
-          {qrCode && (
+          <p className="mt-4 text-xs leading-6 text-[#6b4a4a]">Bağlantıyı alan herkes notu okuyabilir. Not bu bağlantıda taşınır; sonradan düzenlemek yeni bir QR oluşturur.</p>
+          {qrCode && qrSignature !== signature && <p role="status" className="mt-4 text-sm text-amber-800">Not değişti. Güncel not için QR’ı yeniden oluştur.</p>}
+          {qrError && <p role="alert" className="mt-4 text-sm text-red-700">{qrError}</p>}
+          {currentQr && (
             <div className="mt-6 rounded-3xl border border-[#fce7f3] bg-[#fff4ef] p-5 text-center">
-              <img
-                src={qrCode}
+              <Image
+                unoptimized
+                src={currentQr}
                 alt="Seçili özel not QR kodu"
-                className="mx-auto h-56 w-56 rounded-2xl bg-white p-3"
+                width={768}
+                height={768}
+                className="mx-auto h-auto w-full max-w-64 bg-white"
               />
               {noteUrl && (
                 <a
@@ -219,36 +256,41 @@ export default function ExperienceModes() {
                   rel="noreferrer"
                   className="mt-5 block break-words rounded-2xl bg-white p-4 text-xs font-bold text-[#db2777]"
                 >
-                  Not linkini test et
+                  Alıcının göreceği notu aç
                 </a>
               )}
 
               <a
-                href={qrCode}
+                href={currentQr}
                 download="nealsam-hediye-notu-qr.png"
                 className="mt-5 inline-block rounded-full bg-[#2b1b1b] px-6 py-3 text-sm font-bold text-white"
               >
                 QR kodu indir
               </a>
+              <button onClick={copyNoteLink} className="mt-4 block w-full rounded-full bg-white ring-1 ring-pink-200 px-5 py-3 text-sm font-bold text-pink-700">{linkCopied ? "Bağlantı kopyalandı" : "Not bağlantısını kopyala"}</button>
+              {noteUrl.startsWith("http://localhost") && <p className="mt-4 text-left text-sm leading-6 text-amber-900">Bu QR yerel deneme içindir ve bu bilgisayarda açılır. Telefonla paylaşmak için siteyi yayınladıktan sonra QR’ı canlı sitede yeniden oluştur.</p>}
             </div>
           )}
-        </aside>
-      </div>
+        </aside>}
+      </div>}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <section className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Hikaye Modu</p>
-          <h2 className="mt-2 text-3xl">Hediyenin hikayesi</h2>
-          <div className="mt-6 rounded-3xl bg-[#fff8f5] p-6">
+      {mode === "hunt" && <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <section className="rounded-[2rem] bg-white p-7">
+          <p className="text-sm font-bold text-[#db2777]">Hikaye Modu</p>
+          <h2 className="mt-2 text-3xl font-extrabold">Hediyenin hikayesi</h2>
+          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-6">
             <p className="text-base leading-8 text-[#2b1b1b]">{story}</p>
           </div>
         </section>
 
-        <section className="rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Bulmaca / Hediye Avı</p>
-          <h2 className="mt-2 text-3xl">İpucu kartları</h2>
+        <section className="rounded-[2rem] bg-white p-7">
+          <p className="text-sm font-bold text-[#db2777]">Bulmaca / Hediye Avı</p>
+          <h2 className="mt-2 text-3xl font-extrabold">İpucu kartları</h2>
+          <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">Kartları ayrı ayrı yazıp seçtiğin yerlere saklayabilirsin. Son kartı hediyenin yanına koy.</p>
+          <button onClick={copyHunt} className="mt-4 rounded-full bg-pink-600 px-5 py-3 font-bold text-white">İpucu kartlarını kopyala</button>
+          {huntStatus && <p role="status" className="mt-3 text-sm">{huntStatus}</p>}
 
-          <div className="mt-6 rounded-3xl bg-[#fff8f5] p-6">
+          <div className="mt-6 rounded-3xl bg-[#fff4ef] p-6">
             <p className="font-extrabold">{riddle.question}</p>
             <div className="mt-4 space-y-3">
               {riddle.clues.map((clue) => (
@@ -257,69 +299,13 @@ export default function ExperienceModes() {
                 </p>
               ))}
             </div>
-            <p className="mt-5 rounded-2xl bg-pink-50 p-4 text-sm font-bold text-pink-700">
+            <p className="mt-5 rounded-2xl bg-[#fdf2f8] p-4 text-sm font-bold text-[#db2777]">
               {riddle.answer}
             </p>
           </div>
         </section>
-      </div>
+      </div>}
 
-      <section className="mt-8 rounded-[1.75rem] bg-white p-7 ring-1 ring-pink-100 md:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">Hediye Fikirleri</p>
-        <h2 className="mt-2 text-3xl">Bu kişiye uygun öneriler</h2>
-
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
-          {giftIdeas.map((gift) => (
-            <article
-              key={gift.title}
-              className="rounded-3xl border border-[#fce7f3] bg-[#fff4ef] p-5"
-            >
-              <span className="rounded-full bg-[#fdf2f8] px-3 py-1 text-xs font-bold text-[#db2777]">
-                {gift.tag}
-              </span>
-              <h3 className="mt-4 text-xl font-extrabold">{gift.title}</h3>
-              <p className="mt-3 text-sm leading-6 text-[#6b4a4a]">
-                {gift.reason}
-              </p>
-
-              <div className="mt-5 flex flex-wrap gap-2">
-                <a
-                  href={makeStoreUrl("google", gift.searchQuery)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
-                >
-                  Google
-                </a>
-                <a
-                  href={makeStoreUrl("trendyol", gift.searchQuery)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
-                >
-                  Trendyol
-                </a>
-                <a
-                  href={makeStoreUrl("amazon", gift.searchQuery)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
-                >
-                  Amazon
-                </a>
-                <a
-                  href={makeStoreUrl("hepsiburada", gift.searchQuery)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full bg-white px-4 py-2 text-xs font-bold ring-1 ring-pink-100 transition hover:bg-pink-50 hover:text-pink-700"
-                >
-                  Hepsiburada
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
     </section>
   );
 }

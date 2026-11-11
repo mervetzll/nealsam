@@ -3,6 +3,7 @@ import { ArrowRight, PenLine } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import { ui } from "@/components/ui/styles";
 import BlogDynamicPosts from "./BlogDynamicPosts";
+import { editorialPosts } from "@/data/editorialPosts";
 
 export const metadata = {
   title: "Rehber / Blog",
@@ -64,23 +65,46 @@ export default function BlogPage() {
       <section className="mx-auto max-w-7xl">
         <PageHero
           eyebrow="Rehber ve blog"
-          title="Hediye fikirleri,"
-          accent="rehberler ve hikâyeler."
-          description="Özel günlere, kişilere ve bütçeye göre hediye rehberlerini oku; üye olarak kendi yazını da gönderebilirsin."
+          title="Her hediyenin"
+          accent="bir hikâyesi var."
+          description="Küçük sürprizleri, işe yarayan fikirleri ve hediye seçerken öğrendiklerimizi paylaşalım. Önce bir yazıya göz at, sonra kendi hikâyeni ekle."
         >
           <Link href="/blog/yeni" className={ui.btnPrimary}>
             <PenLine className="h-4 w-4" />
-            Yazı gönder
+            Hikâyemi yaz
           </Link>
           <Link href="/hesabim/bloglarim" className={ui.btnLink}>
             Yazılarım
           </Link>
         </PageHero>
 
+        <section className="mb-20" aria-label="Editörden yeni yazılar">
+          <div className="flex items-end justify-between gap-4 border-b border-pink-100 pb-5">
+            <h2 className="text-3xl md:text-4xl">
+              Editörden <em>iki küçük başlangıç</em>
+            </h2>
+            <p className="hidden text-sm text-[#8a6a6a] sm:block">Sohbeti başlatalım</p>
+          </div>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            {editorialPosts.map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className={`${ui.cardInteractive} group flex flex-col p-7 md:p-8`}>
+                <span aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-2xl bg-pink-50 text-3xl ring-1 ring-pink-100">{post.emoji}</span>
+                <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-pink-600">{post.category} · NeAlsam Editör</p>
+                <h3 className="mt-3 font-display text-3xl font-normal leading-tight">{post.title}</h3>
+                <p className="mt-3 flex-1 leading-7 text-[#6b4a4a]">{post.excerpt}</p>
+                <p className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-pink-700">
+                  {post.readingMinutes} dk · Yazıyı oku
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section>
           <div className="flex items-end justify-between gap-4 border-b border-pink-100 pb-5">
             <h2 className="text-3xl md:text-4xl">
-              En çok <em>okunanlar</em>
+              Hediye seçmeye <em>buradan başla</em>
             </h2>
             <p className="hidden text-sm text-[#8a6a6a] sm:block">{guidePosts.length} rehber</p>
           </div>

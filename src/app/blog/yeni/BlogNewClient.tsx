@@ -114,7 +114,7 @@ export default function BlogNewClient() {
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
-              href="/giris"
+              href="/giris?mode=register&next=%2Fblog%2Fyeni"
               className="rounded-full bg-pink-600 px-6 py-4 text-sm font-black text-white"
             >
               Giriş Yap / Üye Ol

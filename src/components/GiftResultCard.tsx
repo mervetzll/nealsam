@@ -179,9 +179,19 @@ function getSuitableFor(gift: Gift) {
 export default function GiftResultCard({
   gift,
   score,
+  budgetNote,
+  matchReasons = [],
+  onReplace,
+  onFavorite,
+  isFavorite = false,
 }: {
   gift: Gift;
   score: number;
+  budgetNote?: string;
+  matchReasons?: string[];
+  onReplace?: () => void;
+  onFavorite?: () => void;
+  isFavorite?: boolean;
 }) {
   const title = cleanGiftTitle(getRawGiftTitle(gift));
   const risk = getRiskInfo(gift);
@@ -190,15 +200,16 @@ export default function GiftResultCard({
 
   return (
     <article className="overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-pink-100 transition hover:-translate-y-1 hover:shadow-md">
-      <div className="bg-gradient-to-br from-pink-50 to-[#fff4ef] p-6">
+      <div className="bg-gradient-to-br from-pink-50 to-[#fff4ef] p-5 md:p-6">
+        <div className="mb-4 flex flex-wrap gap-2">
+          {onFavorite && <button type="button" onClick={onFavorite} aria-pressed={isFavorite} className="rounded-full bg-white ring-1 ring-pink-200 px-4 py-2 text-sm font-bold text-pink-700">{isFavorite ? "♥ Kaydedildi" : "♡ Kaydet"}</button>}
+          {onReplace && <button type="button" onClick={onReplace} className="rounded-full bg-white ring-1 ring-pink-200 px-4 py-2 text-sm font-bold text-pink-700">Başka öner</button>}
+        </div>
         <div className="flex flex-wrap gap-3">
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-pink-700">
-            %{score} eşleşme
+            {score >= 90 ? "Tercihlerine yakın" : "Değerlendirebileceğin fikir"}
           </span>
 
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a]">
-            {score >= 90 ? "Çok güçlü eşleşme" : score >= 80 ? "Güçlü eşleşme" : "Uygun seçenek"}
-          </span>
 
           <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#6b4a4a]">
             {risk.label}
@@ -213,8 +224,10 @@ export default function GiftResultCard({
           {gift.category || "Genel"} · {getPriceText(gift)}
         </p>
 
+        {budgetNote && <p className="mt-3 text-sm font-semibold text-[#6b4a4a]">{budgetNote}</p>}
+
         <p className="mt-5 max-w-3xl text-sm font-semibold leading-7 text-[#6b4a4a]">
-          {getWhyText(gift)}
+          {gift.description || getWhyText(gift)}
         </p>
       </div>
 
@@ -224,19 +237,23 @@ export default function GiftResultCard({
             Neden önerildi?
           </p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
-            {getWhyText(gift)}
+            {matchReasons.length ? matchReasons.join(". ") + "." : "Farklı bir alternatif olarak değerlendirebilirsin; kişisel zevkini ve ürün detaylarını kontrol et."}
           </p>
         </div>
 
-        <div className="rounded-2xl bg-[#fff4ef] p-5">
+        <details className="rounded-2xl bg-[#fff4ef] p-5">
+          <summary className="cursor-pointer text-sm font-bold text-pink-700">Seçerken dikkat et</summary>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Risk seviyesi
           </p>
           <p className="mt-2 text-sm font-semibold leading-7 text-[#6b4a4a]">
             <span className="font-black text-[#2b1b1b]">{risk.label}:</span> {risk.text}
           </p>
-        </div>
+        </details>
 
+        <details className="rounded-2xl border border-pink-100 p-4 md:col-span-2">
+          <summary className="cursor-pointer text-sm font-bold text-pink-700">Paketleme ve tamamlayıcı fikirler</summary>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-2xl bg-[#fff4ef] p-5">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-600">
             Kimler için uygun?
@@ -278,6 +295,9 @@ export default function GiftResultCard({
           </p>
         </div>
 
+          </div>
+        </details>
+
         <div className="md:col-span-2">
           <GiftStoreLinks gift={gift} />
         </div>
@@ -291,7 +311,7 @@ export default function GiftResultCard({
           </Link>
 
           <Link
-            href={`/hediye-paketi?gift=${encodeURIComponent(title)}`}
+            href={`/hediye-paketi?gift=${encodeURIComponent(title)}&price=${encodeURIComponent(getPriceText(gift))}`}
             className="flex items-center justify-center rounded-full bg-[#2b1b1b] px-5 py-4 text-sm font-bold text-white transition hover:bg-black"
           >
             Pakete Çevir

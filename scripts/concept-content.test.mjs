@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {buildConceptOutput,getFallbackConcepts} from '../src/lib/conceptContent.ts';
+const input={concept:getFallbackConcepts()[0],personName:'Ayşe',senderName:'Merve',relation:'arkadaşım',giftName:'kahve kupası',tone:'emotional',noteLength:'medium',specialDetail:'İlk kahvemiz.',huntLocation:'kitaplığın üst rafı',huntSteps:4,huntDifficulty:'easy',huntStyle:'cute',huntDetail:''};
+const medium=buildConceptOutput(input);
+assert.ok(!medium.includes('yaz.')&&!medium.includes('tut.'));
+assert.ok(medium.includes('Ayşe')&&medium.includes('Merve')&&medium.includes('İlk kahvemiz.'));
+assert.ok(buildConceptOutput({...input,noteLength:'short'}).length<medium.length);
+assert.ok(buildConceptOutput({...input,noteLength:'long'}).length>medium.length);
+assert.notEqual(buildConceptOutput({...input,tone:'funny'}),medium);
+const letters=getFallbackConcepts().filter(x=>x.id!=='hediye-avi').map(concept=>buildConceptOutput({...input,concept}));
+assert.equal(new Set(letters).size,4);
+const hunt=buildConceptOutput({...input,concept:getFallbackConcepts()[1]});
+assert.equal((hunt.match(/\. ADIM/g)||[]).length,4);
+assert.ok(hunt.includes('Final: kitaplığın üst rafı'));
+console.log('8 konsept metni kontrolü geçti.');

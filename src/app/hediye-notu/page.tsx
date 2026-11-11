@@ -1,3 +1,4 @@
+import { readSharedNote } from "@/lib/sharedNote";
 import HediyeNotuClient from "./HediyeNotuClient";
 
 export const metadata = {
@@ -9,6 +10,13 @@ export const metadata = {
   },
 };
 
-export default function HediyeNotuPage() {
-  return <HediyeNotuClient />;
+export default async function HediyeNotuPage({ searchParams }: {
+  searchParams: Promise<{ title?: string; note?: string; from?: string }>;
+}) {
+  const values = await searchParams;
+  const params = new URLSearchParams();
+  for (const key of ["title", "note", "from"] as const) {
+    if (typeof values[key] === "string") params.set(key, values[key]);
+  }
+  return <HediyeNotuClient legacyNote={readSharedNote(params)} />;
 }

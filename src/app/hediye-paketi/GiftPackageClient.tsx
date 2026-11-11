@@ -121,6 +121,15 @@ function buildPackage({
   };
 }
 
+function initialStyle(gift: string) {
+  const text = gift.toLocaleLowerCase("tr-TR");
+  if (/kahve|kupa|çay|termos|french press/.test(text)) return "coffee";
+  if (/pijama|sabahlık|terlik|battaniye|uyku/.test(text)) return "cozy";
+  if (/bakım|krem|body mist|spa|balm/.test(text)) return "selfcare";
+  if (/kolye|bileklik|takı|çiçek/.test(text)) return "romantic";
+  return gift ? "simple" : "cozy";
+}
+
 const styleOptions = [
   { value: "cozy", label: "Cozy / ev giyim" },
   { value: "selfcare", label: "Bakım / self-care" },
@@ -174,17 +183,28 @@ function ChoiceGroup({
   );
 }
 
-export default function GiftPackageClient() {
+export default function GiftPackageClient({ initialGift = "", initialPrice = "" }: { initialGift?: string; initialPrice?: string }) {
   const [person, setPerson] = useState("");
   const [relation, setRelation] = useState("");
-  const [style, setStyle] = useState("cozy");
+  const [style, setStyle] = useState(initialStyle(initialGift));
+  const [mainGift, setMainGift] = useState(initialGift);
   const [budget, setBudget] = useState("mid");
   const [copied, setCopied] = useState(false);
 
-  const result = useMemo(
-    () => buildPackage({ person, relation, style, budget }),
-    [person, relation, style, budget]
-  );
+  const result = useMemo(() => {
+    const base = buildPackage({ person, relation, style, budget });
+    if (!mainGift.trim()) return base;
+    return {
+      ...base,
+      title: /paketi$/i.test(mainGift.trim()) ? mainGift.trim() : `${mainGift.trim()} Hediye Paketi`,
+      description: `${person.trim() || "Sevdiğin kişi"} için seçtiğin hediyenin etrafında hazırlanan paket fikri.`,
+      items: [
+        { name: mainGift.trim(), role: "Seçtiğin ana hediye", price: mainGift.trim() === initialGift && initialPrice ? initialPrice : "Fiyatı mağazada kontrol et" },
+        ...base.items.slice(1).filter(item => item.name.toLocaleLowerCase("tr-TR") !== mainGift.trim().toLocaleLowerCase("tr-TR")),
+      ],
+      presentation: "Seçtiğin ana hediyeyi kutunun merkezine yerleştir. Tamamlayıcıları etrafına koy; kişisel notunu en üste ekle.",
+    };
+  }, [person, relation, style, budget, mainGift, initialGift, initialPrice]);
 
   async function copyPackage() {
     const text = `${result.title}
@@ -230,6 +250,21 @@ ${result.note}`;
 
             <div className="mt-7 grid gap-5">
               <label className="grid gap-2">
+                <span className="text-sm font-bold">Ana hediye</span>
+                <input
+                  value={mainGift}
+                  onChange={(event) => setMainGift(event.target.value)}
+                  placeholder="kupa, kitap, parfüm"
+                  className={ui.input}
+                />
+                {initialGift && (
+                  <span className="text-sm leading-6 text-[#6b4a4a]">
+                    Hediye sonucundan aktarıldı. Ana hediyeyi değiştirebilir, yanına ekleneceklerin tarzını aşağıdan seçebilirsin.
+                  </span>
+                )}
+              </label>
+
+              <label className="grid gap-2">
                 <span className="text-sm font-bold">Kime?</span>
                 <input
                   value={person}
@@ -249,7 +284,7 @@ ${result.note}`;
                 />
               </label>
 
-              <ChoiceGroup label="Paket tarzı" options={styleOptions} value={style} onChange={setStyle} />
+              <ChoiceGroup label="Tamamlayıcıların tarzı" options={styleOptions} value={style} onChange={setStyle} />
               <ChoiceGroup label="Bütçe" options={budgetOptions} value={budget} onChange={setBudget} />
             </div>
           </div>

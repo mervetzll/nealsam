@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Gift, Heart, House, User } from "lucide-react";
+import { Heart, House, User } from "lucide-react";
 
 const items = [
   { href: "/", label: "Ana Sayfa", icon: House },
-  { href: "/hediye-bul", label: "Hediye Bul", icon: Gift },
+  { href: "/hediye-bul", label: "Hediye Bul", icon: null },
   { href: "/hesabim/favoriler", label: "Favoriler", icon: Heart },
   { href: "/hesabim", label: "Hesabım", icon: User },
 ];
@@ -34,7 +35,11 @@ export default function MobileBottomNav() {
                 active ? "text-pink-600" : "text-[#8a6a6a] active:bg-pink-50"
               }`}
             >
-              <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
+              {Icon ? (
+                <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
+              ) : (
+                <Image src="/gift-icon.svg" alt="" width={20} height={20} className="h-5 w-5" />
+              )}
               <span className="leading-none">{label}</span>
             </Link>
           );
