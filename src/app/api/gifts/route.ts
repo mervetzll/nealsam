@@ -96,16 +96,22 @@ async function getSupabaseGifts() {
 export async function GET() {
   const result = await getSupabaseGifts();
 
-  const rawGifts =
-    result.gifts.length > 0
-      ? result.gifts
-      : giftCatalog;
+  // Admin-managed gifts from Supabase come first; the structured catalog
+  // fills in every idea the database does not already have, so matching
+  // never falls back to an empty or unstructured list.
+  const titleKey = (title: unknown) =>
+    String(title || "").toLocaleLowerCase("tr").replace(/\s+/g, " ").trim();
+  const supabaseTitles = new Set(result.gifts.map((item: { title?: string; name?: string }) => titleKey(item?.title || item?.name)));
+  const rawGifts = [
+    ...result.gifts,
+    ...giftCatalog.filter((item) => !supabaseTitles.has(titleKey(item.title))),
+  ];
 
   const gifts = rawGifts.map(normalizeGift);
 
   return NextResponse.json({
     ok: true,
-    source: result.gifts.length > 0 ? "supabase" : "fallback",
+    source: result.gifts.length > 0 ? "supabase+catalog" : "catalog",
     count: gifts.length,
     supabaseCount: result.gifts.length,
     fallbackCount: giftCatalog.length,

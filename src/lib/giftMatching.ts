@@ -183,6 +183,67 @@ const STYLE_REASON: Record<string, string> = {
   Şık: "Şık ve özenli",
 };
 
+/*
+ * Gift data comes from two places: the curated catalog (clean labels) and
+ * the admin-managed Supabase table, where the same idea is written many
+ * ways ("arkadaş" / "Arkadaşım", "ev" / "dekorasyon" / "Ev dekorasyonu").
+ * Each gift value is reduced to word stems and mapped to one label.
+ */
+const GIFT_RECIPIENT_STEMS: Rule[] = [
+  ["sevgili", "Sevgilim"], ["es", "Sevgilim"],
+  ["anne", "Annem"], ["baba", "Babam"],
+  ["arkadas", "Arkadaşım"], ["kardes", "Kardeşim"],
+  ["is arkadas", "İş arkadaşım"], ["meslektas", "İş arkadaşım"],
+];
+const GIFT_INTEREST_STEMS: Rule[] = [
+  ["kahve", "Kahve / çay"], ["cay", "Kahve / çay"],
+  ["bakim", "Bakım"], ["self", "Bakım"], ["kozmetik", "Bakım"], ["makyaj", "Bakım"],
+  ["ev", "Ev / dekor"], ["dekor", "Ev / dekor"],
+  ["moda", "Moda / aksesuar"], ["aksesuar", "Moda / aksesuar"], ["taki", "Moda / aksesuar"],
+  ["kitap", "Kitap / kırtasiye"], ["kirtasiye", "Kitap / kırtasiye"], ["okuma", "Kitap / kırtasiye"],
+  ["hobi", "Hobi / oyun"], ["oyun", "Hobi / oyun"], ["sanat", "Hobi / oyun"],
+  ["teknoloji", "Teknoloji"], ["muzik", "Müzik"],
+];
+const GIFT_STYLE_STEMS: Rule[] = [
+  ["rahat", "Rahat"], ["cozy", "Rahat"],
+  ["bakim", "Bakım"], ["self", "Bakım"],
+  ["romantik", "Romantik"], ["duygusal", "Romantik"],
+  ["kullanisli", "Kullanışlı"], ["pratik", "Kullanışlı"],
+  ["sik", "Şık"], ["luks", "Şık"], ["premium", "Şık"], ["minimal", "Şık"],
+];
+const GIFT_OCCASION_STEMS: Rule[] = [
+  ["dogum", "Doğum günü"],
+  ["yil donum", "Yıl dönümü"], ["sevgililer", "Yıl dönümü"],
+  ["tesekkur", "Teşekkür"], ["ogretmen", "Teşekkür"],
+  ["yeni is", "Yeni iş"], ["mezuniyet", "Yeni iş"],
+  ["yeni ev", "Yeni ev"], ["ev", "Yeni ev"],
+  ["ozel gun", "Her durum"], ["icimden", "Her durum"], ["her durum", "Her durum"], ["fark etmez", "Her durum"],
+];
+const WILDCARD = ["genel", "fark etmez", "hepsi", "herkes"];
+
+function wordsOf(value: string) {
+  return normalize(value).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Map free-text gift values to canonical labels (word-prefix match). */
+function canon(values: string[] | undefined, rules: Rule[]) {
+  const labels = new Set<string>();
+  let wildcard = false;
+  for (const value of values ?? []) {
+    const text = wordsOf(value);
+    if (!text) continue;
+    if (WILDCARD.some((w) => text === w)) wildcard = true;
+    const words = text.split(" ");
+    for (const [stem, label] of rules) {
+      const hit = stem.includes(" ")
+        ? text.includes(stem)
+        : words.some((word) => word === stem || (stem.length >= 4 && word.startsWith(stem)));
+      if (hit) labels.add(label);
+    }
+  }
+  return { labels, wildcard };
+}
+
 function labelsFor(answer: string, rules: Rule[], firstOnly = false) {
   const text = normalize(answer);
   if (!text) return [];
@@ -196,8 +257,8 @@ function labelsFor(answer: string, rules: Rule[], firstOnly = false) {
   return found;
 }
 
-function hasAny(list: string[] | undefined, wanted: string[]) {
-  return Boolean(list?.some((item) => wanted.includes(item)));
+function matches(set: { labels: Set<string> }, wanted: string[]) {
+  return wanted.some((label) => set.labels.has(label));
 }
 
 function isStructured(gift: Gift) {
@@ -227,18 +288,27 @@ export type MatchDetail = { score: number; reasons: string[] };
 /** Score a gift 0–99 and explain the strongest reasons it matched. */
 export function matchGift(gift: Gift, answers: Answers): MatchDetail {
   if (!isStructured(gift)) {
-    return { score: Math.min(95, Math.max(30, legacyScore(gift, answers) - 10)), reasons: [] };
+    // Unstructured (older admin) entries: keyword match only, kept below
+    // fully described catalog ideas.
+    return { score: Math.min(72, Math.max(25, legacyScore(gift, answers) - 20)), reasons: [] };
   }
 
   const reasons: string[] = [];
   let raw = 0;
 
   // Who it is for — the strongest signal.
+  const giftRecipients = canon(gift.recipients, GIFT_RECIPIENT_STEMS);
+  const giftInterests = canon(gift.interests, GIFT_INTEREST_STEMS);
+  const giftStyles = canon(gift.styles, GIFT_STYLE_STEMS);
+  const giftOccasions = canon(gift.occasions, GIFT_OCCASION_STEMS);
+  const firstInterest = canon(gift.interests?.slice(0, 1), GIFT_INTEREST_STEMS);
+  const firstStyle = canon(gift.styles?.slice(0, 1), GIFT_STYLE_STEMS);
+
   const relation = labelsFor(answers.relation, RELATION_RULES, true);
   if (relation.length) {
-    if (hasAny(gift.recipients, relation)) {
+    if (matches(giftRecipients, relation) || giftRecipients.wildcard) {
       raw += 16;
-      if ((gift.recipients?.length ?? 0) <= 3) raw += 3; // picked specifically for them
+      if (giftRecipients.labels.size <= 3) raw += 3; // picked specifically for them
       reasons.push(RELATION_REASON[relation[0]] ?? "Seçtiğin kişiye uygun");
     } else {
       raw -= 30;
@@ -248,11 +318,11 @@ export function matchGift(gift: Gift, answers: Answers): MatchDetail {
   // What they are into.
   const interests = labelsFor(answers.interest, INTEREST_RULES);
   if (interests.length) {
-    if (hasAny(gift.interests, interests)) {
+    if (matches(giftInterests, interests)) {
       raw += 20;
-      if (gift.interests && interests.includes(gift.interests[0])) raw += 5; // main theme of the gift
+      if (matches(firstInterest, interests)) raw += 5; // main theme of the gift
       reasons.push(`${interests[0]} ilgisine uygun`);
-    } else {
+    } else if (!giftInterests.wildcard) {
       raw -= 12;
     }
   }
@@ -260,9 +330,9 @@ export function matchGift(gift: Gift, answers: Answers): MatchDetail {
   // How it should feel.
   const styles = labelsFor(answers.style, STYLE_RULES);
   if (styles.length) {
-    if (hasAny(gift.styles, styles)) {
+    if (matches(giftStyles, styles)) {
       raw += 12;
-      if (gift.styles && styles.includes(gift.styles[0])) raw += 3;
+      if (matches(firstStyle, styles)) raw += 3;
       reasons.push(STYLE_REASON[styles[0]] ?? "Seçtiğin tarza yakın");
     } else {
       raw -= 5;
@@ -272,10 +342,12 @@ export function matchGift(gift: Gift, answers: Answers): MatchDetail {
   // The occasion: occasion-specific ideas beat "fits anything" ones.
   const occasions = labelsFor(answers.occasion, OCCASION_RULES);
   if (occasions.length) {
-    const generic = gift.occasions?.includes("Her durum");
-    if (hasAny(gift.occasions, occasions)) {
-      raw += generic ? 3 : 9;
-      if (!generic) reasons.push(`${occasions[0]} için uygun`);
+    const generic = giftOccasions.labels.has("Her durum") || giftOccasions.wildcard;
+    if (matches(giftOccasions, occasions)) {
+      raw += 9;
+      reasons.push(`${occasions[0]} için uygun`);
+    } else if (generic) {
+      raw += 3;
     } else {
       raw -= 8;
     }
@@ -296,7 +368,7 @@ export function matchGift(gift: Gift, answers: Answers): MatchDetail {
 
   // Urgency: prefer things you can buy in a store today.
   if (wantsToday(answers)) {
-    if (gift.urgency?.includes("Bugün lazım")) {
+    if (gift.urgency?.some((value) => wordsOf(value).includes("bugun"))) {
       raw += 8;
       reasons.push("Mağazadan hızlıca bulunabilir");
     } else {
